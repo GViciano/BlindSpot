@@ -227,7 +227,7 @@ button.group:hover { border-color: var(--muted); }
 'use strict';
 
 const TYPES = ['noColor', 'exact', 'atLeast', 'atMost', 'sumGreater', 'countMore', 'exactColours', 'allColours', 'sumAtLeast', 'atMostTotal', 'atLeastTotal',
-  'noEven', 'noOdd', 'exactEven', 'exactOdd', 'moreEven', 'moreOdd', 'repeatExact', 'repeatAtLeast', 'maxValue', 'minValue', 'noNumber', 'atLeastNumber', 'sumAllMax', 'sumAllMin', 'sumAllEven'];
+  'noEven', 'noOdd', 'exactEven', 'exactOdd', 'moreEven', 'moreOdd', 'repeatExact', 'repeatAtLeast', 'maxValue', 'minValue', 'noNumber', 'atLeastNumber', 'sumAllMax', 'sumAllMin', 'sumAllEven', 'straight', 'colourStraight', 'twoPairs', 'fullHouse'];
 const BAG_PER_COLOUR = 15;                       // dice of each colour in the bag
 const rollCount = P => P * 2 - 1;                  // dice drawn from the bag each round
 const totalDrawn = P => P * rollCount(P);          // one round per player
@@ -429,6 +429,14 @@ const I18N = {
       belowIs: (k, n) => `Tienes ${k} ${plural(k, 'dado menor', 'dados menores')} que ${n}.`,
       numberIs: (k, v) => `Tienes ${k} ${plural(k, 'dado', 'dados')} con un ${v}.`,
       sumAllIs: s => `Tus dados suman ${s}.`,
+      straight: n => `Una escalera de ${n}: ${n} números seguidos, como ${Array.from({ length: n }, (_, i) => i + 1).join('-')}.`,
+      colourStraight: n => `Una escalera de ${n} del mismo color: ${n} números seguidos en dados de un solo color.`,
+      twoPairs: 'Dos parejas: dos números distintos que salgan al menos 2 veces cada uno.',
+      fullHouse: 'Un full: un número que salga al menos 3 veces y otro que salga al menos 2.',
+      runIs: n => `Tu escalera más larga es de ${n}.`,
+      colourRunIs: n => `Tu escalera más larga de un solo color es de ${n}.`,
+      pairsIs: k => `Tienes ${k} ${plural(k, 'número repetido', 'números repetidos')}.`,
+      fullIs: (a, b) => `Tus dos números más repetidos salen ${a} y ${b} veces.`,
     },
     // Rules
     rulesTitle: 'Reglas de BlindSpots', close: 'Cerrar',
@@ -612,6 +620,14 @@ const I18N = {
       belowIs: (k, n) => `You have ${k} ${plural(k, 'die', 'dice')} lower than ${n}.`,
       numberIs: (k, v) => `You have ${k} ${plural(k, 'die', 'dice')} showing a ${v}.`,
       sumAllIs: s => `Your dice add up to ${s}.`,
+      straight: n => `A straight of ${n}: ${n} numbers in a row, like ${Array.from({ length: n }, (_, i) => i + 1).join('-')}.`,
+      colourStraight: n => `A straight of ${n} in one colour: ${n} numbers in a row on dice of a single colour.`,
+      twoPairs: 'Two pairs: two different numbers that each appear at least twice.',
+      fullHouse: 'A full house: one number at least three times and another at least twice.',
+      runIs: n => `Your longest straight is ${n}.`,
+      colourRunIs: n => `Your longest single-colour straight is ${n}.`,
+      pairsIs: k => `You have ${k} repeated ${plural(k, 'number', 'numbers')}.`,
+      fullIs: (a, b) => `Your two most repeated numbers appear ${a} and ${b} times.`,
     },
     rulesTitle: 'BlindSpots rules', close: 'Close',
     rulesBody: () => `
@@ -692,6 +708,10 @@ function missionText(m) {
     case 'sumAllMax': return tm('sumAllMax', m.n);
     case 'sumAllMin': return tm('sumAllMin', m.n);
     case 'sumAllEven': return tm('sumAllEven');
+    case 'straight': return tm('straight', m.n);
+    case 'colourStraight': return tm('colourStraight', m.n);
+    case 'twoPairs': return tm('twoPairs');
+    case 'fullHouse': return tm('fullHouse');
   }
   return '';
 }
@@ -701,7 +721,12 @@ function stats(dice, C) {
   let all = 0;
   for (const d of dice) { cnt[d.c]++; sum[d.c] += d.v; val[d.v]++; all += d.v; }
   const even = val[2] + val[4] + val[6];
+  // Longest run of consecutive numbers among the given dice.
+  const runOf = ds => { const has = Array(8).fill(false); ds.forEach(d => { has[d.v] = true; }); let best = 0, cur = 0; for (let v = 1; v <= 6; v++) { cur = has[v] ? cur + 1 : 0; best = Math.max(best, cur); } return best; };
+  const reps = val.slice(1).sort((a, b) => b - a);
   return {
+    run: runOf(dice), colourRun: Math.max(0, ...Array.from({ length: C }, (_, c) => runOf(dice.filter(d => d.c === c)))),
+    pairs: val.filter(x => x >= 2).length, rep1: reps[0], rep2: reps[1],
     cnt, sum, val, all, even, odd: dice.length - even, total: dice.length,
     distinct: cnt.filter(x => x > 0).length, maxRep: Math.max(...val),
     above: k => val.slice(k + 1).reduce((a, b) => a + b, 0), below: k => val.slice(1, k).reduce((a, b) => a + b, 0),
@@ -738,6 +763,10 @@ function checkMission(m, st, C) {
     case 'sumAllMax': return { ok: st.all <= m.n, detail: tm('sumAllIs', st.all) };
     case 'sumAllMin': return { ok: st.all >= m.n, detail: tm('sumAllIs', st.all) };
     case 'sumAllEven': return { ok: st.all % 2 === 0, detail: tm('sumAllIs', st.all) };
+    case 'straight': return { ok: st.run >= m.n, detail: tm('runIs', st.run) };
+    case 'colourStraight': return { ok: st.colourRun >= m.n, detail: tm('colourRunIs', st.colourRun) };
+    case 'twoPairs': return { ok: st.pairs >= 2, detail: tm('pairsIs', st.pairs) };
+    case 'fullHouse': return { ok: st.rep1 >= 3 && st.rep2 >= 2, detail: tm('fullIs', st.rep1, st.rep2) };
   }
   return { ok: false, detail: '' };
 }
@@ -774,6 +803,10 @@ function missionDist(m, st, C, roundsLeft) {
     case 'sumAllMax': return Math.max(0, st.all - m.n) / 3 * IRREV;
     case 'sumAllMin': return Math.max(0, m.n - st.all) / 3.5 * w;
     case 'sumAllEven': return st.all % 2 ? 0.5 * w : 0;
+    case 'straight': return Math.max(0, m.n - st.run) * w;
+    case 'colourStraight': return Math.max(0, m.n - st.colourRun) * w;
+    case 'twoPairs': return Math.max(0, 2 - st.pairs) * w;
+    case 'fullHouse': return (Math.max(0, 3 - st.rep1) + Math.max(0, 2 - st.rep2)) * w;
   }
   return 0;
 }
@@ -790,6 +823,7 @@ const TIPO = {
   valor_maximo: { t: 'maxValue', n: 1 }, valor_minimo: { t: 'minValue', n: 1 },
   sin_numero: { t: 'noNumber', v: 1 }, numero_al_menos: { t: 'atLeastNumber', v: 1, n: 1 },
   suma_total_maxima: { t: 'sumAllMax', n: 1 }, suma_total_minima: { t: 'sumAllMin', n: 1 }, suma_total_par: { t: 'sumAllEven' },
+  escalera: { t: 'straight', n: 1 }, escalera_color: { t: 'colourStraight', n: 1 }, dos_parejas: { t: 'twoPairs' }, full: { t: 'fullHouse' },
 };
 
 // Reads window.BLINDSPOTS_OBJETIVOS into missions; entries it cannot understand are skipped.
@@ -851,6 +885,13 @@ function bounds(ms, C, P) {
   if (has('sumAllMax') && has('sumAllMax').n < P) return null;          // at least P dice of value 1+
   if ((has('noEven') && (has('exactEven') || has('moreEven'))) || (has('noOdd') && (has('exactOdd') || has('moreOdd')))) return null;
   if (has('moreEven') && has('moreOdd')) return null;
+  const run = Math.max(0, ...ms.filter(m => m.t === 'straight' || m.t === 'colourStraight').map(m => m.n));
+  if (run > 6 || (run >= 2 && (has('noEven') || has('noOdd')))) return null;
+  if (run && mx && mx.n < run) return null;
+  if (run && mn && 7 - mn.n < run) return null;
+  if (run) tlo = Math.max(tlo, run);
+  if (has('fullHouse')) tlo = Math.max(tlo, 5);
+  if (has('twoPairs')) tlo = Math.max(tlo, 4);
   for (let c = 0; c < C; c++) if (lo[c] > hi[c]) return null;
   tlo = Math.max(tlo, lo.reduce((a, b) => a + b, 0));
   thi = Math.min(thi, hi.reduce((a, b) => a + b, 0));

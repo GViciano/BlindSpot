@@ -40,6 +40,10 @@
 //   suma_total_maxima  Todos tus dados suman `n` o menos.
 //   suma_total_minima  Todos tus dados suman `n` o más.
 //   suma_total_par     Todos tus dados suman un número par.
+//   escalera           `n` números seguidos (por ejemplo 2-3-4-5), de cualquier color.
+//   escalera_color     `n` números seguidos en dados del mismo color.
+//   dos_parejas        Dos números distintos que salgan al menos 2 veces cada uno.
+//   full               Un número que salga al menos 3 veces y otro al menos 2.
 //
 // Las estrellas de esta lista son provisionales.
 
@@ -139,4 +143,14 @@ window.BLINDSPOTS_OBJETIVOS = [
   { estrellas: 4, tipo: 'suma_total_minima', n: 25 },
   { estrellas: 5, tipo: 'suma_total_minima', n: 30 },
   { estrellas: 1, tipo: 'suma_total_par' },
+
+  // Combinaciones de números
+  { estrellas: 1, tipo: 'escalera', n: 3 },
+  { estrellas: 2, tipo: 'escalera', n: 4 },
+  { estrellas: 3, tipo: 'escalera', n: 5 },
+  { estrellas: 4, tipo: 'escalera', n: 6 },
+  { estrellas: 3, tipo: 'escalera_color', n: 3 },
+  { estrellas: 4, tipo: 'escalera_color', n: 4 },
+  { estrellas: 2, tipo: 'dos_parejas' },
+  { estrellas: 3, tipo: 'full' },
 ];
