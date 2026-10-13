@@ -17,7 +17,8 @@ La web está en español y en inglés. Cada jugador elige su idioma con el selec
 
 ## Ajustes de la partida
 
-- **Colores:** 3 (azul, naranja, verde), 4 (más morado) o 5 (más amarillo).
+- **Colores:** 3 (azul, naranja, verde), 4 (más morado) o 5 (más amarillo). Con 5 jugadores hay que jugar con 5 colores para que no se acabe la bolsa.
+- **Dados:** la bolsa empieza con 11 dados de cada color en juego. En cada ronda, quien reparte saca al azar (jugadores × 2) − 1 dados; los repartidos no vuelven a la bolsa.
 - **Objetivos por jugador:** de 1 a 3. La misión de cada jugador se cumple si cumple todos sus objetivos.
 - **Dificultad:** se marcan las estrellas que se quieran (1★ a 5★, por ejemplo solo 2★ y 4★). Los objetivos se reparten al azar entre los que tienen esas estrellas y usan colores en juego.
 

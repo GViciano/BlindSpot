@@ -226,7 +226,11 @@ button.group:hover { border-color: var(--muted); }
 'use strict';
 
 const TYPES = ['noColor', 'exact', 'atLeast', 'atMost', 'sumGreater', 'countMore', 'exactColours', 'allColours', 'sumAtLeast', 'atMostTotal', 'atLeastTotal'];
-const DICE_PER_COLOR = 2;
+const BAG_PER_COLOUR = 11;                       // dice of each colour in the bag
+const rollCount = P => P * 2 - 1;                  // dice drawn from the bag each round
+const totalDrawn = P => P * rollCount(P);          // one round per player
+// Fewest colours whose bag lasts the whole game (5 players need all 5).
+const minColours = P => [3, 4, 5].find(C => C * BAG_PER_COLOUR >= totalDrawn(P)) || 5;
 const LETTERS = 'ABCDE';
 const STORE_KEY = 'blindspots-v2';
 const ONLINE_KEY = 'blindspots-online-v2';
@@ -266,8 +270,8 @@ const I18N = {
     modeGroup: 'Modo de juego', modeLocal: 'En este dispositivo', modeOnline: 'Online',
     // How to play
     howTitle: 'Cómo se juega',
-    how: n => [
-      ['Tira los dados', `Quien reparte tira ${n} dados de cada color. Todo el mundo ve el resultado.`],
+    how: () => [
+      ['Saca y tira', 'Quien reparte saca al azar de la bolsa (jugadores × 2) − 1 dados y los tira. Todo el mundo ve el resultado.'],
       ['Forma grupos', 'Los divide en tantos grupos como jugadores, pensando en las misiones que ve.'],
       ['Elige', 'Empezando por su izquierda, cada jugador coge un grupo. Quien reparte se queda el último.'],
       ['Acumula', 'Los dados se suman a tu zona. Hay tantas rondas como jugadores y cada uno reparte una vez.'],
@@ -306,8 +310,10 @@ const I18N = {
     die: (colour, v) => `Dado ${colour} ${v}`, total: 'Total',
     // Stage
     turnOf: name => `Turno de ${name}`,
-    rollSub: n => `Reparte esta ronda: tira los dados y forma ${n} grupos.`,
-    rollBtn: n => `Tirar ${n} dados`, sending: 'Enviando…',
+    rollSub: n => `Reparte esta ronda: saca los dados de la bolsa, tíralos y forma ${n} grupos.`,
+    bagLeft: n => `Quedan ${n} dados en la bolsa.`,
+    coloursNote: (P, C) => `Con ${P} jugadores hacen falta al menos ${C} colores para que no se acaben los dados de la bolsa.`,
+    rollBtn: n => `Sacar y tirar ${n} dados`, sending: 'Enviando…',
     rolling: name => `${name} está tirando los dados…`,
     formGroups: n => `Forma ${n} grupos`,
     groupHelp: 'Elige un grupo y toca los dados para meterlos. Toca un dado de un grupo para sacarlo. Cada grupo necesita al menos un dado. Tú te quedarás el grupo que nadie elija.',
@@ -403,7 +409,7 @@ const I18N = {
     },
     // Rules
     rulesTitle: 'Reglas de BlindSpots', close: 'Cerrar',
-    rulesBody: n => `
+    rulesBody: () => `
       <p>Juego cooperativo de dados y deducción para 3–5 jugadores. Cada jugador tiene una misión personal que no puede ver; los demás sí la ven y deben ayudarle con sus decisiones.</p>
       <h3>Objetivo</h3>
       <p>El equipo gana si al final todos han cumplido su misión. Si falla una sola, el equipo pierde y puede volver a intentarlo.</p>
@@ -411,7 +417,7 @@ const I18N = {
       <p>Cada misión tiene uno o varios objetivos: condiciones sobre todos los dados que acumulas en la partida. Por ejemplo: «Ningún dado azul», «Exactamente 3 dados verdes», «Suma azul &gt; suma naranja» (solo cuentan los valores) o «Dados de exactamente 3 colores distintos» (solo cuenta cuántos colores tienes).</p>
       <h3>Una ronda</h3>
       <ul>
-        <li>Quien reparte tira los dados (aquí, ${n} de cada color).</li>
+        <li>Quien reparte saca al azar de la bolsa (jugadores × 2) − 1 dados y los tira. La bolsa empieza con 11 dados de cada color en juego, y los dados repartidos ya no vuelven a ella.</li>
         <li>Los divide en tantos grupos como jugadores. No hace falta que sean iguales.</li>
         <li>Empezando por su izquierda, cada jugador elige un grupo y se lo lleva. Quien reparte recibe el último.</li>
         <li>Los dados se añaden a la zona personal y cuentan para la misión final.</li>
@@ -435,8 +441,8 @@ const I18N = {
     tagline: ['You can see everyone else’s mission.', 'Everyone can see yours.', 'Nobody can see their own.'],
     modeGroup: 'Game mode', modeLocal: 'On this device', modeOnline: 'Online',
     howTitle: 'How to play',
-    how: n => [
-      ['Roll the dice', `The dealer rolls ${n} dice of each colour. Everyone sees the result.`],
+    how: () => [
+      ['Draw and roll', 'The dealer draws (players × 2) − 1 dice at random from the bag and rolls them. Everyone sees the result.'],
       ['Make groups', 'They split the dice into as many groups as there are players, based on the missions they can see.'],
       ['Choose', 'Starting on the dealer’s left, each player takes a group. The dealer keeps the last one.'],
       ['Collect', 'The dice go to your area. There are as many rounds as players, and everyone deals once.'],
@@ -470,8 +476,10 @@ const I18N = {
     starsLabel: n => `${n} ${plural(n, 'star', 'stars')}`,
     die: (colour, v) => `${cap(colour)} die ${v}`, total: 'Total',
     turnOf: name => `${name}’s turn`,
-    rollSub: n => `Deal this round: roll the dice and make ${n} groups.`,
-    rollBtn: n => `Roll ${n} dice`, sending: 'Sending…',
+    rollSub: n => `Deal this round: draw dice from the bag, roll them and make ${n} groups.`,
+    bagLeft: n => `${n} dice left in the bag.`,
+    coloursNote: (P, C) => `With ${P} players you need at least ${C} colours so the bag doesn’t run out.`,
+    rollBtn: n => `Draw and roll ${n} dice`, sending: 'Sending…',
     rolling: name => `${name} is rolling the dice…`,
     formGroups: n => `Make ${n} groups`,
     groupHelp: 'Pick a group and tap dice to put them in it. Tap a die in a group to take it out. Every group needs at least one die. You keep the group nobody picks.',
@@ -562,7 +570,7 @@ const I18N = {
       totalIs: n => `You have ${n} dice.`,
     },
     rulesTitle: 'BlindSpots rules', close: 'Close',
-    rulesBody: n => `
+    rulesBody: () => `
       <p>A cooperative dice and deduction game for 3–5 players. Each player has a personal mission they cannot see; everyone else can see it and must help them through their choices.</p>
       <h3>Goal</h3>
       <p>The team wins if, at the end, everyone has completed their mission. If even one fails, the team loses and can try again.</p>
@@ -570,7 +578,7 @@ const I18N = {
       <p>Each mission has one or more objectives: conditions on all the dice you collect during the game. For example: “No blue dice”, “Exactly 3 green dice”, “Blue total &gt; orange total” (only the values count) or “Dice of exactly 3 different colours” (only the number of colours counts).</p>
       <h3>A round</h3>
       <ul>
-        <li>The dealer rolls the dice (here, ${n} of each colour).</li>
+        <li>The dealer draws (players × 2) − 1 dice at random from the bag and rolls them. The bag starts with 11 dice of each colour in play, and dealt dice never go back in.</li>
         <li>They split them into as many groups as there are players. Groups don’t need to be the same size.</li>
         <li>Starting on the dealer’s left, each player picks a group and takes it. The dealer gets the last one.</li>
         <li>The dice go into each player’s area and count towards their final mission.</li>
@@ -748,10 +756,12 @@ function bounds(ms, C, P) {
 function feasible(all, C, P) {
   const bs = all.map(ms => bounds(ms, C, P));
   if (bs.some(b => !b)) return false;
-  const perColour = DICE_PER_COLOR * P, total = perColour * C;
+  // Colours come out of the bag at random, so only rule out the impossible:
+  // needing more of a colour than the bag holds, or refusing a colour that must come out.
+  const total = totalDrawn(P), mustDraw = Math.max(0, total - BAG_PER_COLOUR * (C - 1));
   for (let c = 0; c < C; c++) {
     const lo = bs.reduce((a, b) => a + b.lo[c], 0), hi = bs.reduce((a, b) => a + b.hi[c], 0);
-    if (lo > perColour || hi < perColour) return false;
+    if (lo > BAG_PER_COLOUR || hi < mustDraw) return false;
   }
   const tlo = bs.reduce((a, b) => a + b.tlo, 0), thi = bs.reduce((a, b) => a + b.thi, 0);
   return tlo <= total && thi >= total;
@@ -834,7 +844,7 @@ function persist() {
 function newLocalGame() {
   const n = S.count;
   G = {
-    online: false, cfg: { C: S.colors, per: S.per, stars: S.stars }, hints: S.hints, starter: 0, C: S.colors,
+    online: false, cfg: { C: Math.max(S.colors, minColours(n)), per: S.per, stars: S.stars }, hints: S.hints, starter: 0, C: Math.max(S.colors, minColours(n)),
     players: Array.from({ length: n }, (_, i) => ({ name: (S.names[i] || '').trim().slice(0, 16) || t('defaultPlayer', i + 1), bot: !!S.bots[i], missions: [], area: [] })),
     log: [],
   };
@@ -848,7 +858,7 @@ function startLevel() {
   const r = genMissions(P(), G.cfg);
   if (r.error) return r.error;
   G.players.forEach((p, i) => { p.missions = r.missions[i]; p.area = []; });
-  Object.assign(G, { gid: rid(6), round: 0, active: G.starter, phase: 'roll', roll: [], groups: [], order: [], step: 0, taken: {}, results: null, win: null, log: [] });
+  Object.assign(G, { bag: Array(G.C).fill(BAG_PER_COLOUR), gid: rid(6), round: 0, active: G.starter, phase: 'roll', roll: [], groups: [], order: [], step: 0, taken: {}, results: null, win: null, log: [] });
   log(['start']);
   if (!G.online) resetViewer();
   return null;
@@ -868,7 +878,15 @@ function currentActor() {
 
 function doRoll() {
   G.roll = [];
-  for (let c = 0; c < G.C; c++) for (let k = 0; k < DICE_PER_COLOR; k++) G.roll.push({ id: G.roll.length, c, v: 1 + ri(6) });
+  if (!Array.isArray(G.bag)) G.bag = Array(G.C).fill(BAG_PER_COLOUR);
+  for (let k = 0; k < rollCount(P()); k++) {
+    const left = G.bag.reduce((a, b) => a + b, 0);
+    if (!left) break;
+    let r = ri(left), c = 0;
+    while (r >= G.bag[c]) { r -= G.bag[c]; c++; }
+    G.bag[c]--;
+    G.roll.push({ id: G.roll.length, c, v: 1 + ri(6) });
+  }
   G.phase = 'group';
   log(['roll', G.active, G.roll.length]);
 }
@@ -1098,6 +1116,7 @@ function encodeG() {
     v: 2, cf: [G.cfg.C, G.cfg.per, G.cfg.stars], h: G.hints ? 1 : 0, st: G.starter, C: G.C, r: G.round, a: G.active, ph: G.phase, s: G.step, id: G.gid,
     p: G.players.map(p => [p.name, p.bot ? 1 : 0, p.key || '', p.missions.map(m => [TYPES.indexOf(m.t), m.c ?? -1, m.c2 ?? -1, m.n ?? -1, m.s || 0]), p.area.map(d => d.c * 10 + d.v)]),
     rl: G.roll.map(d => d.c * 10 + d.v),
+    bg: G.bag || [],
     gr: G.groups,
     tk: G.groups.map((_, i) => G.taken[i] ?? -1),
     lg: G.log.slice(-6).filter(l => Array.isArray(l)),
@@ -1130,7 +1149,8 @@ function decodeG(w) {
       }),
       area: p[4].slice(0, 60).map(x => die(x)),
     }));
-    const roll = (w.rl || []).slice(0, 10).map((x, i) => die(x, i));
+    const roll = (w.rl || []).slice(0, 9).map((x, i) => die(x, i));
+    const bag = (Array.isArray(w.bg) ? w.bg : []).slice(0, C).map(x => int(x, 0, BAG_PER_COLOUR));
     const groups = (w.gr || []).slice(0, n).map(g => g.map(id => int(id, 0, roll.length - 1)));
     const taken = {};
     (w.tk || []).forEach((t, i) => { if (t >= 0) taken[i] = int(t, 0, n - 1); });
@@ -1139,7 +1159,7 @@ function decodeG(w) {
     const a = int(w.a, 0, n - 1);
     const g = {
       online: true, cfg, hints: !!w.h, starter: int(w.st, 0, n - 1), C, round: int(w.r, 0, n), active: a, phase: ph,
-      step: int(w.s, 0, n), gid: String(w.id || '').slice(0, 12), players, roll, groups, taken,
+      bag, step: int(w.s, 0, n), gid: String(w.id || '').slice(0, 12), players, roll, groups, taken,
       order: Array.from({ length: n - 1 }, (_, k) => (a + 1 + k) % n),
       log: (w.lg || []).slice(-6).filter(l => Array.isArray(l) && typeof l[0] === 'string' && l.length <= 3 && l.slice(1).every(x => Number.isInteger(x) && x >= 0 && x < 100)), seq: w.q, results: null, win: null,
     };
@@ -1150,7 +1170,8 @@ function decodeG(w) {
 
 function lobWire() {
   const seats = seatPreview();
-  return { n: ON.lob.n, cf: [ON.lob.C, ON.lob.per, ON.lob.stars], h: ON.lob.h ? 1 : 0, seats: seats.slice(0, 5).map(s => s.nm), spec: Math.max(0, seats.length - 5) };
+  const total = Math.min(5, Math.max(3, ON.lob.n, seats.length));
+  return { n: ON.lob.n, cf: [Math.max(ON.lob.C, minColours(total)), ON.lob.per, ON.lob.stars], h: ON.lob.h ? 1 : 0, seats: seats.slice(0, 5).map(s => s.nm), spec: Math.max(0, seats.length - 5) };
 }
 
 /* ---------- Online outside claude.ai: PeerJS ---------- */
@@ -1464,6 +1485,7 @@ function hostStart() {
   const botNames = BOT_NAMES.filter(n => !usedNames.has(n.toLowerCase()));
   const players = seats.map(s => ({ name: s.nm, bot: false, key: s.key, missions: [], area: [] }));
   while (players.length < total) players.push({ name: botNames.shift() || `Bot ${players.length + 1}`, bot: true, key: '', missions: [], area: [] });
+  ON.lob.C = Math.max(ON.lob.C, minColours(total));
   G = { online: true, cfg: { C: ON.lob.C, per: ON.lob.per, stars: ON.lob.stars }, hints: ON.lob.h, starter: 0, C: ON.lob.C, players, log: [], seq: 0 };
   const err = startLevel();
   if (err) { G = null; ui.err = err; render(); return; }
@@ -1614,9 +1636,9 @@ function stageHTML(V) {
 
   if (G.phase === 'roll') {
     body = `<h2>${t('turnOf', name(G.active))}</h2>
-      <p class="sub">${t('rollSub', P())}</p>
+      <p class="sub">${t('rollSub', P())} ${t('bagLeft', (G.bag || []).reduce((a, b) => a + b, 0))}</p>
       ${mine
-        ? `<div class="actions"><button type="button" class="btn primary big" data-action="roll" ${sending ? 'disabled' : ''}>${sending ? t('sending') : t('rollBtn', G.C * DICE_PER_COLOR)}</button></div>`
+        ? `<div class="actions"><button type="button" class="btn primary big" data-action="roll" ${sending ? 'disabled' : ''}>${sending ? t('sending') : t('rollBtn', rollCount(P()))}</button></div>`
         : waitHTML(t('rolling', name(G.active)))}`;
   } else if (G.phase === 'group') {
     if (mine) {
@@ -1748,7 +1770,7 @@ function waitingRoomHTML() {
           </div>
           ${settingsHTML('on', ON.lob, total)}
           <label class="toggle"><input id="on-hints" type="checkbox" data-action="on-hints" ${ON.lob.h ? 'checked' : ''}> ${t('hintsToggle')}</label>
-          <div class="actions"><button type="button" class="btn primary big" data-action="on-start" ${pool(ON.lob.C, ON.lob.stars).length ? '' : 'disabled'}>${t('startGame')}</button></div>
+          <div class="actions"><button type="button" class="btn primary big" data-action="on-start" ${pool(Math.max(ON.lob.C, minColours(total)), ON.lob.stars).length ? '' : 'disabled'}>${t('startGame')}</button></div>
           ${errHTML()}
           ${connHTML()}
         </section>
@@ -1777,7 +1799,7 @@ function waitingRoomHTML() {
 function howtoPanel() {
   return `<section class="panel">
     <h2>${t('howTitle')}</h2>
-    <ol class="howto">${t('how', DICE_PER_COLOR).map(([b, txt]) => `<li><span><b>${b}</b>${txt}</span></li>`).join('')}</ol>
+    <ol class="howto">${t('how').map(([b, txt]) => `<li><span><b>${b}</b>${txt}</span></li>`).join('')}</ol>
     <p class="note">${t('howEnd')}</p>
     <button type="button" class="btn ghost" data-action="rules">${t('fullRules')}</button>
   </section>`;
@@ -1787,11 +1809,15 @@ function howtoPanel() {
 function settingsHTML(pre, cfg, players) {
   const seg = (label, key, values, cur) => `<div class="field"><span class="label">${label}</span>
     <div class="seg" role="group" aria-label="${label}">${values.map(v => `<button type="button" data-action="${pre}-${key}" data-n="${v}" aria-pressed="${cur === v}">${v}</button>`).join('')}</div></div>`;
-  const avail = pool(cfg.C, cfg.stars).length;
+  const avail = pool(Math.max(cfg.C, minColours(players)), cfg.stars).length;
   const note = !CATALOGUE.list.length ? `<p class="err">${t('noCatalogue')}</p>`
     : avail === 0 ? `<p class="err">${t('noPool')}</p>`
     : `<p class="note">${t('poolNote', avail, players * cfg.per, CATALOGUE.bad.length)}</p>`;
-  return seg(t('colours'), 'colors', [3, 4, 5], cfg.C)
+  const minC = minColours(players);
+  const colours = `<div class="field"><span class="label">${t('colours')}</span>
+    <div class="seg" role="group" aria-label="${t('colours')}">${[3, 4, 5].map(v => `<button type="button" data-action="${pre}-colors" data-n="${v}" aria-pressed="${Math.max(cfg.C, minC) === v}" ${v < minC ? 'disabled' : ''}>${v}</button>`).join('')}</div>
+    ${minC > 3 ? `<p class="note">${t('coloursNote', players, minC)}</p>` : ''}</div>`;
+  return colours
     + seg(t('perPlayer'), 'per', [1, 2, 3], cfg.per)
     + `<div class="field"><span class="label">${t('difficulty')}</span>
         <div class="seg" role="group" aria-label="${t('difficulty')}">${[1, 2, 3, 4, 5].map(v => `<button type="button" data-action="${pre}-star" data-n="${v}" aria-pressed="${!!(cfg.stars & (1 << (v - 1)))}">${v}★</button>`).join('')}</div>${note}</div>`;
@@ -1834,7 +1860,7 @@ function localSetupHTML() {
       <div class="field"><span class="label">${t('whoPlays')}</span><div class="players">${rows}</div><p class="note">${modeNote}</p></div>
       ${settingsHTML('set', { C: S.colors, per: S.per, stars: S.stars }, n)}
       <label class="toggle"><input id="hints" type="checkbox" data-action="hints" ${S.hints ? 'checked' : ''}> ${t('hintsToggle')}</label>
-      <div class="actions"><button type="button" class="btn primary big" data-action="start" ${pool(S.colors, S.stars).length ? '' : 'disabled'}>${t('start')}</button></div>
+      <div class="actions"><button type="button" class="btn primary big" data-action="start" ${pool(Math.max(S.colors, minColours(S.count)), S.stars).length ? '' : 'disabled'}>${t('start')}</button></div>
       ${errHTML()}
     </section>`;
 }
@@ -1891,7 +1917,7 @@ function homeHTML() {
 function rulesHTML() {
   return `<div class="overlay dim" data-action="rules-close-bg"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="rules-title">
     <h2 id="rules-title">${t('rulesTitle')}</h2>
-    ${t('rulesBody', DICE_PER_COLOR)}
+    ${t('rulesBody')}
     <div class="actions"><button type="button" class="btn primary" data-action="rules-close">${t('close')}</button></div>
   </div></div>`;
 }
@@ -1950,7 +1976,7 @@ $app.addEventListener('click', e => {
     case 'rules': ui.rules = true; break;
     case 'rules-close': case 'rules-close-bg': ui.rules = false; break;
     case 'mode': ui.mode = el.dataset.m; ui.err = ''; if (ui.mode === 'online') ensureP2P(); break;
-    case 'count': S.count = +el.dataset.n; persist(); break;
+    case 'count': S.count = +el.dataset.n; S.colors = Math.max(S.colors, minColours(S.count)); persist(); break;
     case 'human': S.bots[+el.dataset.i] = false; persist(); break;
     case 'bot': S.bots[+el.dataset.i] = true; persist(); break;
     case 'set-colors': case 'set-per': case 'set-star': {
