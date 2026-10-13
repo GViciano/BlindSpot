@@ -83,7 +83,7 @@ window.BLINDSPOTS_OBJETIVOS = [
   { estrellas: 3, tipo: 'colores_exactos', n: 3 },
   { estrellas: 4, tipo: 'colores_exactos', n: 2 },
   { estrellas: 5, tipo: 'colores_exactos', n: 1 },
-  { estrellas: 3, tipo: 'total_al_menos', n: 9 },
+  { estrellas: 3, tipo: 'total_al_menos', n: 6 },
   { estrellas: 4, tipo: 'total_como_maximo', n: 5 },
   { estrellas: 5, tipo: 'exactamente', color: 'verde', n: 4 },
   { estrellas: 5, tipo: 'suma_al_menos', color: 'azul', n: 18 },
