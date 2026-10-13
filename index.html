@@ -213,6 +213,7 @@ button.group:hover { border-color: var(--muted); }
 .stars { color: var(--d1); letter-spacing: .05em; font-size: 13px; white-space: nowrap; }
 .home-top { display: flex; justify-content: flex-end; }
 .tabs.lang button { padding: 6px 12px; font-size: 13px; }
+.stats .stats-all { color: var(--ink); font-weight: 700; }
 .tag.off { color: var(--bad); border-color: var(--bad); background: transparent; }
 </style>
 </head>
@@ -308,7 +309,7 @@ const I18N = {
     othersSeeIt: 'Los demás la ven. Tú no.', onlySeated: 'Solo la ven los jugadores sentados.', onlyHolder: 'Solo la ve quien tiene el dispositivo.',
     missionOf: name => `Misión de ${name}`, met: 'Cumplido', failed: 'Fallado',
     starsLabel: n => `${n} ${plural(n, 'estrella', 'estrellas')}`,
-    die: (colour, v) => `Dado ${colour} ${v}`, total: 'Total',
+    die: (colour, v) => `Dado ${colour} ${v}`, total: 'Total', diceCount: n => `Total: ${n} ${plural(n, 'dado', 'dados')}`,
     // Stage
     turnOf: name => `Turno de ${name}`,
     rollSub: n => `Reparte esta ronda: saca los dados de la bolsa, tíralos y forma ${n} grupos.`,
@@ -496,7 +497,7 @@ const I18N = {
     othersSeeIt: 'Everyone else can see it. You can’t.', onlySeated: 'Only seated players can see it.', onlyHolder: 'Only whoever holds the device can see it.',
     missionOf: name => `${name}’s mission`, met: 'Done', failed: 'Failed',
     starsLabel: n => `${n} ${plural(n, 'star', 'stars')}`,
-    die: (colour, v) => `${cap(colour)} die ${v}`, total: 'Total',
+    die: (colour, v) => `${cap(colour)} die ${v}`, total: 'Total', diceCount: n => `Total: ${n} ${plural(n, 'die', 'dice')}`,
     turnOf: name => `${name}’s turn`,
     rollSub: n => `Deal this round: draw dice from the bag, roll them and make ${n} groups.`,
     bagLeft: n => `${n} dice left in the bag.`,
@@ -1657,7 +1658,7 @@ function statsHTML(dice) {
   const st = stats(dice, G.C);
   const parts = [];
   for (let c = 0; c < G.C; c++) if (st.cnt[c]) parts.push(`<span>${cw(c)}${st.cnt[c]} · Σ${st.sum[c]}</span>`);
-  parts.push(`<span>${t('total')} ${st.total}</span>`);
+  parts.push(`<span class="stats-all">${t('diceCount', st.total)} · Σ${st.all}</span>`);
   return `<div class="stats">${parts.join('')}</div>`;
 }
 
