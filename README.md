@@ -11,11 +11,15 @@ Todo el juego está en `index.html`, sin dependencias ni build.
 - **En este dispositivo:** varias personas se pasan el móvil u ordenador, o una persona juega con bots.
 - **Online, sin cuenta:** quien crea la partida recibe un código de 4 caracteres. Los demás abren la página, eligen «Online» y se unen con ese código. Los navegadores se conectan entre sí por WebRTC con [PeerJS](https://peerjs.com/); su servidor público solo se usa para que se encuentren. La partida vive en el navegador del anfitrión, que debe mantener la página abierta.
 
-## Niveles
+## Ajustes de la partida
 
-1. **Iniciación:** 3 colores (azul, naranja, verde) y una misión por jugador.
-2. **Avanzado:** 5 colores y misiones de suma y de total de dados.
-3. **Experto:** 5 colores y dos misiones por jugador.
+- **Colores:** 3 (azul, naranja, verde), 4 (más morado) o 5 (más amarillo).
+- **Objetivos por jugador:** de 1 a 3. La misión de cada jugador se cumple si cumple todos sus objetivos.
+- **Dificultad:** un rango de estrellas, por ejemplo de 2★ a 5★. Los objetivos se reparten al azar entre los que están en ese rango y usan colores en juego.
+
+## Objetivos
+
+Los objetivos están en [`objetivos.js`](objetivos.js), uno por línea, con sus estrellas (1–5), su tipo y sus datos. Al principio del archivo están todos los tipos disponibles. Para cambiar los objetivos basta con editar ese archivo; el juego no necesita cambios.
 
 ## Publicación
 

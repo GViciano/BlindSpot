@@ -209,6 +209,8 @@ button.group:hover { border-color: var(--muted); }
 .inline input.short { flex: 0 1 140px; text-transform: uppercase; letter-spacing: .12em; font-weight: 700; }
 .err { color: var(--bad); font-size: 14px; margin: 0; }
 .info { border-radius: 10px; padding: 10px 12px; background: var(--surface-2); font-size: 14px; margin: 0; }
+.stars-range { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+.stars { color: var(--d1); letter-spacing: .05em; font-size: 13px; white-space: nowrap; }
 .tag.off { color: var(--bad); border-color: var(--bad); background: transparent; }
 </style>
 </head>
@@ -216,6 +218,7 @@ button.group:hover { border-color: var(--muted); }
 
 <div class="app" id="app"></div>
 
+<script src="objetivos.js"></script>
 <script>
 (() => {
 'use strict';
@@ -227,16 +230,11 @@ const COLORS = [
   { sing: 'morado', pl: 'morados' },
   { sing: 'amarillo', pl: 'amarillos' },
 ];
-const LEVELS = {
-  1: { colors: 3, missions: 1, full: false, label: 'Iniciación', desc: '3 colores · 1 misión' },
-  2: { colors: 5, missions: 1, full: true, label: 'Avanzado', desc: '5 colores · 1 misión' },
-  3: { colors: 5, missions: 2, full: true, label: 'Experto', desc: '5 colores · 2 misiones' },
-};
 const TYPES = ['noColor', 'exact', 'atLeast', 'atMost', 'sumGreater', 'countMore', 'exactColours', 'allColours', 'sumAtLeast', 'atMostTotal', 'atLeastTotal'];
 const DICE_PER_COLOR = 2;
 const LETTERS = 'ABCDE';
-const STORE_KEY = 'blindspots-v1';
-const ONLINE_KEY = 'blindspots-online-v1';
+const STORE_KEY = 'blindspots-v2';
+const ONLINE_KEY = 'blindspots-online-v2';
 const TOKEN_KEY = 'blindspots-token';
 const BOT_NAMES = ['Carla', 'David', 'Elena', 'Bruno', 'Ana', 'Fede'];
 const IRREV = 5;
@@ -319,25 +317,41 @@ function missionDist(m, st, C, roundsLeft) {
   return 0;
 }
 
-function randomMission(level) {
-  const L = LEVELS[level], C = L.colors;
-  const c = ri(C), c2 = (c + 1 + ri(C - 1)) % C;
-  const types = ['noColor', 'exact', 'exact', 'atLeast', 'atMost', 'sumGreater', 'sumGreater', 'countMore', 'exactColours', 'allColours'];
-  if (L.full) types.push('sumAtLeast', 'atMostTotal', 'atLeastTotal');
-  const t = pick(types);
-  switch (t) {
-    case 'exact': return { t, c, n: pick([2, 3]) };
-    case 'atLeast': return { t, c, n: 3 };
-    case 'atMost': return { t, c, n: 1 };
-    case 'sumGreater': case 'countMore': return { t, c, c2 };
-    case 'exactColours': return { t, n: C === 3 ? 2 : L.full ? pick([2, 3, 4]) : pick([2, 3]) };
-    case 'allColours': return { t };
-    case 'sumAtLeast': return { t, c, n: pick([12, 15]) };
-    case 'atMostTotal': return { t, n: 2 * C - 2 };
-    case 'atLeastTotal': return { t, n: 2 * C + 2 };
-    default: return { t: 'noColor', c };
-  }
+/* ---------- Objectives catalogue (objetivos.js) ---------- */
+const TIPO = {
+  ninguno: { t: 'noColor', c: 1 }, exactamente: { t: 'exact', c: 1, n: 1 }, al_menos: { t: 'atLeast', c: 1, n: 1 },
+  como_maximo: { t: 'atMost', c: 1, n: 1 }, suma_mayor: { t: 'sumGreater', c: 1, c2: 1 }, mas_dados: { t: 'countMore', c: 1, c2: 1 },
+  suma_al_menos: { t: 'sumAtLeast', c: 1, n: 1 }, colores_exactos: { t: 'exactColours', n: 1 }, todos_colores: { t: 'allColours' },
+  total_al_menos: { t: 'atLeastTotal', n: 1 }, total_como_maximo: { t: 'atMostTotal', n: 1 },
+};
+
+// Reads window.BLINDSPOTS_OBJETIVOS into missions; entries it cannot understand are skipped.
+function loadCatalogue() {
+  const raw = Array.isArray(window.BLINDSPOTS_OBJETIVOS) ? window.BLINDSPOTS_OBJETIVOS : [];
+  const list = [], bad = [];
+  const col = name => COLORS.findIndex(x => x.sing === String(name || '').toLowerCase().trim());
+  raw.forEach((e, i) => {
+    const spec = e && TIPO[String(e.tipo || '').toLowerCase().trim()];
+    const st = e && Number(e.estrellas);
+    if (!spec || !Number.isInteger(st) || st < 1 || st > 5) { bad.push(i + 1); return; }
+    const m = { t: spec.t, s: st };
+    if (spec.c) { m.c = col(e.color); if (m.c < 0) { bad.push(i + 1); return; } }
+    if (spec.c2) { m.c2 = col(e.color2); if (m.c2 < 0 || m.c2 === m.c) { bad.push(i + 1); return; } }
+    if (spec.n) { m.n = Number(e.n); if (!Number.isInteger(m.n) || m.n < 0 || m.n > 40) { bad.push(i + 1); return; } }
+    list.push(m);
+  });
+  if (bad.length) console.warn('BlindSpots: objetivos ignorados (posición en la lista):', bad.join(', '));
+  return { list, bad };
 }
+const CATALOGUE = loadCatalogue();
+
+// The objectives that can come up with these settings.
+function pool(C, smin, smax) {
+  return CATALOGUE.list.filter(m => m.s >= smin && m.s <= smax
+    && mcolours(m).every(c => c < C)
+    && !(m.t === 'exactColours' && m.n > C));
+}
+
 const mkey = m => [m.t, m.c, m.c2, m.n].join(':');
 const mcolours = m => [m.c, m.c2].filter(x => x !== undefined);
 
@@ -382,32 +396,38 @@ function feasible(all, C, P) {
   return tlo <= total && thi >= total;
 }
 
-function genMissions(P, level) {
-  const L = LEVELS[level];
-  for (let tries = 0; tries < 2000; tries++) {
+// Deals `per` objectives to each of P players from the filtered catalogue.
+// Prefers combinations the dice can satisfy and no repeats; returns {missions} or {error}.
+function genMissions(P, cfg) {
+  const items = pool(cfg.C, cfg.smin, cfg.smax);
+  const need = P * cfg.per;
+  if (!items.length) return { error: 'Ningún objetivo encaja con este rango de estrellas y estos colores. Amplía el rango.' };
+  const unique = items.length >= need;
+  for (let tries = 0; tries < 3000; tries++) {
+    const allowRepeat = !unique || tries > 2000;
+    const deck = shuffle(items.slice());
     const used = new Set();
     const all = [];
     let ok = true;
     for (let p = 0; p < P && ok; p++) {
       const ms = [];
-      for (let k = 0; k < L.missions; k++) {
-        let m, guard = 0;
-        do {
-          m = randomMission(level);
-          guard++;
-        } while (guard < 50 && (used.has(mkey(m)) || ms.some(o => o.t === m.t
-          || mcolours(o).some(c => mcolours(m).includes(c))
-          || (o.t === 'allColours' || m.t === 'allColours') && (o.t === 'exactColours' || m.t === 'exactColours'))));
-        if (guard >= 50) { ok = false; break; }
+      for (let k = 0; k < cfg.per; k++) {
+        const pickIdx = deck.findIndex(m => !ms.some(o => mkey(o) === mkey(m)) && (allowRepeat || !used.has(mkey(m))) && bounds([...ms, m], cfg.C, P));
+        if (pickIdx < 0) { ok = false; break; }
+        const m = deck[pickIdx];
+        if (!allowRepeat) deck.splice(pickIdx, 1); else deck.push(deck.splice(pickIdx, 1)[0]);
         used.add(mkey(m));
-        ms.push(m);
+        ms.push({ ...m });
       }
       all.push(ms);
     }
-    if (ok && feasible(all, L.colors, P)) return all;
+    if (ok && feasible(all, cfg.C, P)) return { missions: all };
   }
-  return Array.from({ length: P }, (_, i) => [{ t: 'noColor', c: i % L.colors }]);
+  return { error: `Con estos ajustes no salen ${cfg.per === 1 ? 'objetivos compatibles' : 'combinaciones de objetivos compatibles'} para ${P} jugadores. Amplía el rango de estrellas o pon menos objetivos por jugador.` };
 }
+
+const starsText = n => '★'.repeat(n) + '☆'.repeat(5 - n);
+const cfgText = cfg => `${cfg.C} colores · ${cfg.per} ${cfg.per === 1 ? 'objetivo' : 'objetivos'} por jugador · ${cfg.smin === cfg.smax ? `${cfg.smin}★` : `${cfg.smin}–${cfg.smax}★`}`;
 
 /* ---------- State ---------- */
 let G = null;        // the game being shown (local, hosted, or mirrored from the host)
@@ -415,7 +435,10 @@ let S = {
   count: 4,
   names: ['Ana', 'Bruno', 'Carla', 'David', 'Elena'],
   bots: [false, true, true, true, true],
-  level: 1,
+  colors: 3,
+  per: 1,
+  smin: 1,
+  smax: 5,
   hints: true,
 };
 let timer = null;
@@ -425,7 +448,7 @@ const ui = { connecting: false, rules: false, quit: false, mode: 'local', key: n
 // Online session.
 const ON = {
   status: 'pending', room: null, game: null, code: null, role: null, nm: '', tk: '', myId: null,
-  gpeers: [], lobbyPeers: [], order: [], connected: false, roomErr: '', transport: 'claude', lob: { n: 4, lv: 1, h: true }, hostLob: null,
+  gpeers: [], lobbyPeers: [], order: [], connected: false, roomErr: '', transport: 'claude', lob: { n: 4, C: 3, per: 1, smin: 1, smax: 5, h: true }, hostLob: null,
   hostSeenAt: 0, joinedAt: 0, n: 0, seen: new Set(), lastQ: -1, unsub: [],
 };
 
@@ -450,21 +473,24 @@ function persist() {
 function newLocalGame() {
   const n = S.count;
   G = {
-    online: false, level: S.level, hints: S.hints, starter: 0, C: 4,
+    online: false, cfg: { C: S.colors, per: S.per, smin: S.smin, smax: S.smax }, hints: S.hints, starter: 0, C: S.colors,
     players: Array.from({ length: n }, (_, i) => ({ name: (S.names[i] || '').trim().slice(0, 16) || `Jugador ${i + 1}`, bot: !!S.bots[i], missions: [], area: [] })),
     log: [],
   };
-  startLevel();
+  const err = startLevel();
+  if (err) { G = null; ui.err = err; }
 }
 
+// Deals objectives and resets the table. Returns an error message when the settings can't be dealt.
 function startLevel() {
-  const L = LEVELS[G.level];
-  G.C = L.colors;
-  const ms = genMissions(P(), G.level);
-  G.players.forEach((p, i) => { p.missions = ms[i]; p.area = []; });
+  G.C = G.cfg.C;
+  const r = genMissions(P(), G.cfg);
+  if (r.error) return r.error;
+  G.players.forEach((p, i) => { p.missions = r.missions[i]; p.area = []; });
   Object.assign(G, { gid: rid(6), round: 0, active: G.starter, phase: 'roll', roll: [], groups: [], order: [], step: 0, taken: {}, results: null, win: null, log: [] });
-  log(`Empieza el nivel ${G.level} (${L.desc}).`);
+  log(`Empieza la partida: ${cfgText(G.cfg)}.`);
   if (!G.online) resetViewer();
+  return null;
 }
 
 function resetViewer() {
@@ -522,7 +548,7 @@ function reveal() {
   computeResults();
   G.phase = 'reveal';
   G.cover = null;
-  log(G.win ? 'Nivel superado.' : 'Nivel fallado.');
+  log(G.win ? 'Misión cumplida.' : 'Misión fallida.');
 }
 
 function validGroups(gs) {
@@ -708,8 +734,8 @@ function saveOnline() {
 
 function encodeG() {
   return {
-    v: 1, lv: G.level, h: G.hints ? 1 : 0, st: G.starter, C: G.C, r: G.round, a: G.active, ph: G.phase, s: G.step, id: G.gid,
-    p: G.players.map(p => [p.name, p.bot ? 1 : 0, p.key || '', p.missions.map(m => [TYPES.indexOf(m.t), m.c ?? -1, m.c2 ?? -1, m.n ?? -1]), p.area.map(d => d.c * 10 + d.v)]),
+    v: 2, cf: [G.cfg.C, G.cfg.per, G.cfg.smin, G.cfg.smax], h: G.hints ? 1 : 0, st: G.starter, C: G.C, r: G.round, a: G.active, ph: G.phase, s: G.step, id: G.gid,
+    p: G.players.map(p => [p.name, p.bot ? 1 : 0, p.key || '', p.missions.map(m => [TYPES.indexOf(m.t), m.c ?? -1, m.c2 ?? -1, m.n ?? -1, m.s || 0]), p.area.map(d => d.c * 10 + d.v)]),
     rl: G.roll.map(d => d.c * 10 + d.v),
     gr: G.groups,
     tk: G.groups.map((_, i) => G.taken[i] ?? -1),
@@ -722,18 +748,21 @@ function encodeG() {
 function decodeG(w) {
   try {
     const int = (x, lo, hi) => { if (!Number.isInteger(x) || x < lo || x > hi) throw 0; return x; };
-    const C = int(w.C, 3, 5), lv = int(w.lv, 1, 3);
+    const C = int(w.C, 3, 5);
+    const cf = Array.isArray(w.cf) ? w.cf : [];
+    const cfg = { C, per: int(cf[1], 1, 3), smin: int(cf[2], 1, 5), smax: int(cf[3], 1, 5) };
     if (!Array.isArray(w.p) || w.p.length < 3 || w.p.length > 5) throw 0;
     const n = w.p.length;
     const die = (x, i) => { int(x, 1, 46); const c = Math.floor(x / 10), v = x % 10; int(c, 0, C - 1); int(v, 1, 6); return i === undefined ? { c, v } : { id: i, c, v }; };
     const players = w.p.map(p => ({
       name: cleanName(p[0]) || 'Jugador', bot: p[1] === 1, key: typeof p[2] === 'string' ? p[2].slice(0, 200) : '',
-      missions: p[3].slice(0, 2).map(m => {
+      missions: p[3].slice(0, 3).map(m => {
         const t = TYPES[int(m[0], 0, TYPES.length - 1)];
         const o = { t };
         if (m[1] >= 0) o.c = int(m[1], 0, C - 1);
         if (m[2] >= 0) o.c2 = int(m[2], 0, C - 1);
         if (m[3] >= 0) o.n = int(m[3], 0, 40);
+        if (m[4] > 0) o.s = int(m[4], 1, 5);
         if (/^(noColor|exact|atLeast|atMost|sumGreater|countMore|sumAtLeast)$/.test(t) && o.c === undefined) throw 0;
         if (/^(sumGreater|countMore)$/.test(t) && o.c2 === undefined) throw 0;
         return o;
@@ -748,7 +777,7 @@ function decodeG(w) {
     if (!ph) throw 0;
     const a = int(w.a, 0, n - 1);
     const g = {
-      online: true, level: lv, hints: !!w.h, starter: int(w.st, 0, n - 1), C, round: int(w.r, 0, n), active: a, phase: ph,
+      online: true, cfg, hints: !!w.h, starter: int(w.st, 0, n - 1), C, round: int(w.r, 0, n), active: a, phase: ph,
       step: int(w.s, 0, n), gid: String(w.id || '').slice(0, 12), players, roll, groups, taken,
       order: Array.from({ length: n - 1 }, (_, k) => (a + 1 + k) % n),
       log: (w.lg || []).slice(-6).map(l => String(l).slice(0, 140)), seq: w.q, results: null, win: null,
@@ -760,7 +789,7 @@ function decodeG(w) {
 
 function lobWire() {
   const seats = seatPreview();
-  return { n: ON.lob.n, lv: ON.lob.lv, h: ON.lob.h ? 1 : 0, seats: seats.slice(0, 5).map(s => s.nm), spec: Math.max(0, seats.length - 5) };
+  return { n: ON.lob.n, cf: [ON.lob.C, ON.lob.per, ON.lob.smin, ON.lob.smax], h: ON.lob.h ? 1 : 0, seats: seats.slice(0, 5).map(s => s.nm), spec: Math.max(0, seats.length - 5) };
 }
 
 /* ---------- Online outside claude.ai: PeerJS ---------- */
@@ -1063,8 +1092,9 @@ function hostStart() {
   const botNames = BOT_NAMES.filter(n => !usedNames.has(n.toLowerCase()));
   const players = seats.map(s => ({ name: s.nm, bot: false, key: s.key, missions: [], area: [] }));
   while (players.length < total) players.push({ name: botNames.shift() || `Bot ${players.length + 1}`, bot: true, key: '', missions: [], area: [] });
-  G = { online: true, level: ON.lob.lv, hints: ON.lob.h, starter: 0, C: 4, players, log: [], seq: 0 };
-  startLevel();
+  G = { online: true, cfg: { C: ON.lob.C, per: ON.lob.per, smin: ON.lob.smin, smax: ON.lob.smax }, hints: ON.lob.h, starter: 0, C: ON.lob.C, players, log: [], seq: 0 };
+  const err = startLevel();
+  if (err) { G = null; ui.err = err; render(); return; }
   advance();
   announce();
   changed();
@@ -1138,12 +1168,14 @@ function missionCard(i, V) {
   if (!visible) {
     const mine = V === i;
     const why = mine ? 'Los demás la ven. Tú no.' : G.online ? 'Solo la ven los jugadores sentados.' : 'Solo la ve quien tiene el dispositivo.';
-    return `<div class="mcard back"><span class="q">?</span><span class="bt"><b>${mine ? 'Tu misión' : 'Misión oculta'}</b>${why}</span></div>`;
+    const k = p.missions.length;
+    return `<div class="mcard back"><span class="q">?</span><span class="bt"><b>${mine ? 'Tu misión' : 'Misión oculta'}${k > 1 ? ` · ${k} objetivos` : ''}</b>${why}</span></div>`;
   }
   const lines = p.missions.map((m, k) => {
     const r = G.results && G.results[i][k];
-    const res = r ? `<span class="res ${r.ok ? 'ok' : 'bad'}">${r.ok ? 'Cumplida' : 'Fallada'}</span>` : '';
-    return `<div class="mline"><span class="txt">${missionText(m)}</span>${res}</div>${r ? `<div class="mdetail">${esc(r.detail)}</div>` : ''}`;
+    const res = r ? `<span class="res ${r.ok ? 'ok' : 'bad'}">${r.ok ? 'Cumplido' : 'Fallado'}</span>` : '';
+    const stars = m.s ? `<span class="stars" role="img" aria-label="${m.s} ${m.s === 1 ? 'estrella' : 'estrellas'}">${starsText(m.s)}</span>` : '';
+    return `<div class="mline"><span class="txt">${stars}${stars ? '<br>' : ''}${missionText(m)}</span>${res}</div>${r ? `<div class="mdetail">${esc(r.detail)}</div>` : ''}`;
   }).join('');
   return `<div class="mcard"><span class="label">Misión de ${name(i)}</span>${lines}</div>`;
 }
@@ -1253,13 +1285,12 @@ function stageHTML(V) {
     const controls = isGuest
       ? waitHTML(`Esperando a que ${name(0)} decida cómo seguir…`)
       : `<div class="actions">
-          ${G.win && G.level < 3 ? `<button type="button" class="btn primary big" data-action="next-level">Nivel ${G.level + 1}</button>` : ''}
-          <button type="button" class="btn ${G.win && G.level < 3 ? '' : 'primary big'}" data-action="retry">${G.win ? 'Jugar otra vez este nivel' : 'Reintentar el nivel'}</button>
-          <button type="button" class="btn ghost" data-action="new">Cambiar jugadores</button>
-        </div>`;
+          <button type="button" class="btn primary big" data-action="retry">Otra partida con objetivos nuevos</button>
+          <button type="button" class="btn ghost" data-action="new">Cambiar ajustes</button>
+        </div>${ui.err ? `<p class="err">${esc(ui.err)}</p>` : ''}`;
     body = `<div class="banner ${G.win ? 'win' : 'lose'}">
-        <h2>${G.win ? '¡Nivel superado!' : 'Nivel fallado'}</h2>
-        <p>${G.win ? 'Todas las misiones se han cumplido. El equipo avanza.' : `${failed === 1 ? 'Ha fallado 1 misión' : `Han fallado ${failed} misiones`}. Mirad las cartas y probad otra vez.`}</p>
+        <h2>${G.win ? '¡Lo habéis conseguido!' : 'Misión fallida'}</h2>
+        <p>${G.win ? 'Todos los objetivos se han cumplido.' : `${failed === 1 ? 'Ha fallado 1 objetivo' : `Han fallado ${failed} objetivos`}. Mirad las cartas y probad otra vez.`}</p>
       </div>${controls}`;
   }
 
@@ -1289,8 +1320,8 @@ function gameHTML() {
   const V = viewerOf();
   const where = G.online ? `Partida ${ON.code.toUpperCase()} · ` : '';
   const status = G.phase === 'reveal'
-    ? `${where}Nivel ${G.level} · Fin del nivel`
-    : `${where}Nivel ${G.level} · Ronda ${G.round + 1} de ${P()}`;
+    ? `${where}Fin de la partida`
+    : `${where}Ronda ${G.round + 1} de ${P()}`;
   return `${headerHTML(status)}
     <div class="board">${stageHTML(V)}${seatsHTML(V)}</div>
     ${!G.online && G.cover !== null && G.cover !== undefined ? coverHTML() : ''}`;
@@ -1328,11 +1359,10 @@ function waitingRoomHTML() {
             <div class="seg" role="group" aria-label="Número de jugadores">${[3, 4, 5].map(k => `<button type="button" data-action="on-count" data-n="${k}" aria-pressed="${total === k}" ${k < nh ? 'disabled' : ''}>${k}</button>`).join('')}</div>
             <p class="note">${botsN > 0 ? `${botsN === 1 ? 'Un hueco libre lo ocupará un bot' : `${botsN} huecos libres los ocuparán bots`}. Si entra alguien más antes de empezar, ocupa su sitio.` : 'Todos los asientos son de personas.'}</p>
           </div>
-          <div class="field"><span class="label">Nivel</span>
-            <div class="seg" role="group" aria-label="Nivel">${[1, 2, 3].map(k => `<button type="button" data-action="on-level" data-n="${k}" aria-pressed="${ON.lob.lv === k}">${k}. ${LEVELS[k].label}<small>${LEVELS[k].desc}</small></button>`).join('')}</div>
-          </div>
+          ${settingsHTML('on', ON.lob, total)}
           <label class="toggle"><input id="on-hints" type="checkbox" data-action="on-hints" ${ON.lob.h ? 'checked' : ''}> Los bots dan pistas cuando eliges grupo</label>
-          <div class="actions"><button type="button" class="btn primary big" data-action="on-start">Empezar partida</button></div>
+          <div class="actions"><button type="button" class="btn primary big" data-action="on-start" ${pool(ON.lob.C, ON.lob.smin, ON.lob.smax).length ? '' : 'disabled'}>Empezar partida</button></div>
+          ${ui.err ? `<p class="err">${esc(ui.err)}</p>` : ''}
           ${connHTML()}
         </section>
         ${howtoPanel()}
@@ -1350,7 +1380,7 @@ function waitingRoomHTML() {
     inner = `<div class="field"><span class="label">Jugadores (${seats.length} de ${n})</span>
         <ul class="rows">${seats.map((s, i) => `<li><span class="grow">${esc(s || 'Jugador')}</span>${i === 0 ? '<span class="tag">Anfitrión</span>' : ''}</li>`).join('')}
         ${Array.from({ length: Math.max(0, n - seats.length) }, () => '<li><span class="grow empty">Hueco para un bot</span></li>').join('')}</ul></div>
-      <p class="note">Nivel ${Number(lob.lv) || 1}${lob.spec ? ` · ${lob.spec} mirando` : ''}</p>
+      <p class="note">${lobCfgText(lob)}${lob.spec ? ` · ${lob.spec} mirando` : ''}</p>
       ${waitHTML(`Esperando a que ${esc(cleanName(h.presence.nm) || 'el anfitrión')} empiece…`)}`;
   }
   return `${headerHTML(`Partida ${code} · Sala de espera`)}
@@ -1366,9 +1396,42 @@ function howtoPanel() {
       <li><span><b>Elige</b>Empezando por su izquierda, cada jugador coge un grupo. Quien reparte se queda el último.</span></li>
       <li><span><b>Acumula</b>Los dados se suman a tu zona. Hay tantas rondas como jugadores y cada uno reparte una vez.</span></li>
     </ol>
-    <p class="note">Al final se descubren las cartas. Si todos cumplen su misión, el equipo gana el nivel.</p>
+    <p class="note">Al final se descubren las cartas. Si todos cumplen su misión, el equipo gana.</p>
     <button type="button" class="btn ghost" data-action="rules">Reglas completas</button>
   </section>`;
+}
+
+// Colours, objectives per player and the difficulty range; shared by local and online setup.
+function settingsHTML(pre, cfg, players) {
+  const seg = (label, key, values, cur, fmt, small) => `<div class="field"><span class="label">${label}</span>
+    <div class="seg" role="group" aria-label="${label}">${values.map(v => `<button type="button" data-action="${pre}-${key}" data-n="${v}" aria-pressed="${cur === v}">${fmt(v)}</button>`).join('')}</div>${small || ''}</div>`;
+  const avail = pool(cfg.C, cfg.smin, cfg.smax).length;
+  const need = players * cfg.per;
+  const note = !CATALOGUE.list.length
+    ? '<p class="err">No se han cargado objetivos. Revisa el archivo objetivos.js.</p>'
+    : avail === 0 ? '<p class="err">Ningún objetivo encaja con estos ajustes. Amplía el rango de estrellas.</p>'
+    : `<p class="note">${avail} ${avail === 1 ? 'objetivo encaja' : 'objetivos encajan'} con estos ajustes${avail < need ? `; hacen falta ${need}, así que alguno se repetirá entre jugadores` : ''}.${CATALOGUE.bad.length ? ` ${CATALOGUE.bad.length} del archivo tienen errores y no se usan.` : ''}</p>`;
+  return seg('Colores', 'colors', [3, 4, 5], cfg.C, v => `${v}`)
+    + seg('Objetivos por jugador', 'per', [1, 2, 3], cfg.per, v => `${v}`)
+    + `<div class="field"><span class="label">Dificultad de los objetivos</span>
+        <div class="stars-range">
+          <span class="note">Desde</span><div class="seg" role="group" aria-label="Estrellas mínimas">${[1, 2, 3, 4, 5].map(v => `<button type="button" data-action="${pre}-smin" data-n="${v}" aria-pressed="${cfg.smin === v}">${v}★</button>`).join('')}</div>
+          <span class="note">hasta</span><div class="seg" role="group" aria-label="Estrellas máximas">${[1, 2, 3, 4, 5].map(v => `<button type="button" data-action="${pre}-smax" data-n="${v}" aria-pressed="${cfg.smax === v}">${v}★</button>`).join('')}</div>
+        </div>${note}</div>`;
+}
+
+// Applies a settings button to a config object; keeps min ≤ max.
+function applySetting(cfg, key, v) {
+  if (key === 'colors') cfg.C = v;
+  if (key === 'per') cfg.per = v;
+  if (key === 'smin') { cfg.smin = v; if (cfg.smax < v) cfg.smax = v; }
+  if (key === 'smax') { cfg.smax = v; if (cfg.smin > v) cfg.smin = v; }
+}
+
+function lobCfgText(lob) {
+  const cf = Array.isArray(lob.cf) ? lob.cf.map(Number) : [];
+  if (!(cf[0] >= 3 && cf[0] <= 5 && cf[1] >= 1 && cf[1] <= 3 && cf[2] >= 1 && cf[2] <= 5 && cf[3] >= 1 && cf[3] <= 5)) return '';
+  return cfgText({ C: cf[0], per: cf[1], smin: cf[2], smax: cf[3] });
 }
 
 function localSetupHTML() {
@@ -1392,11 +1455,10 @@ function localSetupHTML() {
         <div class="seg" role="group" aria-label="Número de jugadores">${[3, 4, 5].map(k => `<button type="button" data-action="count" data-n="${k}" aria-pressed="${n === k}">${k}</button>`).join('')}</div>
       </div>
       <div class="field"><span class="label">Quién juega</span><div class="players">${rows}</div><p class="note">${modeNote}</p></div>
-      <div class="field"><span class="label">Nivel</span>
-        <div class="seg" role="group" aria-label="Nivel">${[1, 2, 3].map(k => `<button type="button" data-action="level" data-n="${k}" aria-pressed="${S.level === k}">${k}. ${LEVELS[k].label}<small>${LEVELS[k].desc}</small></button>`).join('')}</div>
-      </div>
+      ${settingsHTML('set', { C: S.colors, per: S.per, smin: S.smin, smax: S.smax }, n)}
       <label class="toggle"><input id="hints" type="checkbox" data-action="hints" ${S.hints ? 'checked' : ''}> Los bots dan pistas cuando eliges grupo</label>
-      <div class="actions"><button type="button" class="btn primary big" data-action="start">Empezar</button></div>
+      <div class="actions"><button type="button" class="btn primary big" data-action="start" ${pool(S.colors, S.smin, S.smax).length ? '' : 'disabled'}>Empezar</button></div>
+      ${ui.err ? `<p class="err">${esc(ui.err)}</p>` : ''}
     </section>`;
 }
 
@@ -1456,7 +1518,7 @@ function rulesHTML() {
     <h3>Objetivo</h3>
     <p>El equipo gana el nivel si al final todos han cumplido su misión. Si falla una sola, el equipo pierde el nivel y puede volver a intentarlo.</p>
     <h3>Misiones</h3>
-    <p>Cada misión es una condición sobre todos los dados que acumulas en el nivel. Por ejemplo: «Ningún dado azul», «Exactamente 3 dados verdes», «Suma azul &gt; suma naranja» (solo cuentan los valores) o «Dados de exactamente 3 colores distintos» (solo cuenta cuántos colores tienes).</p>
+    <p>Cada misión tiene uno o varios objetivos: condiciones sobre todos los dados que acumulas en la partida. Por ejemplo: «Ningún dado azul», «Exactamente 3 dados verdes», «Suma azul &gt; suma naranja» (solo cuentan los valores) o «Dados de exactamente 3 colores distintos» (solo cuenta cuántos colores tienes).</p>
     <h3>Una ronda</h3>
     <ul>
       <li>Quien reparte tira los dados del nivel (aquí, ${DICE_PER_COLOR} de cada color).</li>
@@ -1467,11 +1529,11 @@ function rulesHTML() {
     <p>Un nivel dura tantas rondas como jugadores; cada uno reparte una vez. Las misiones solo se comprueban al final.</p>
     <h3>Comunicación</h3>
     <p>Se puede hablar y sugerir («creo que ese grupo te va mejor», «ese dado puede ser peligroso para alguien»), pero no revelar la misión de nadie.</p>
-    <h3>Niveles</h3>
+    <h3>Ajustes de la partida</h3>
     <ul>
-      <li>Nivel 1: 3 colores (azul, naranja y verde) y una misión por jugador.</li>
-      <li>Nivel 2: entran el morado y el amarillo, y misiones de suma y de total de dados.</li>
-      <li>Nivel 3: dos misiones por jugador.</li>
+      <li>Colores: con 3 se juega con azul, naranja y verde; con 4 entra el morado y con 5 el amarillo.</li>
+      <li>Objetivos por jugador: la misión de cada jugador tiene de 1 a 3 objetivos y hay que cumplirlos todos.</li>
+      <li>Dificultad: cada objetivo tiene de 1 a 5 estrellas. Los objetivos se reparten al azar entre los que están en el rango elegido.</li>
     </ul>
     <h3>En esta versión</h3>
     <p>En un dispositivo, la web pide pasarlo antes de cada decisión y solo entonces muestra las misiones de los demás. Online, cada jugador ve las misiones de los demás en su pantalla. Los bots reparten pensando en las misiones que ven y, al elegir, cogen el grupo que menos perjudica al resto.</p>
@@ -1534,9 +1596,14 @@ $app.addEventListener('click', e => {
     case 'count': S.count = +el.dataset.n; persist(); break;
     case 'human': S.bots[+el.dataset.i] = false; persist(); break;
     case 'bot': S.bots[+el.dataset.i] = true; persist(); break;
-    case 'level': S.level = +el.dataset.n; persist(); break;
+    case 'set-colors': case 'set-per': case 'set-smin': case 'set-smax': {
+      const cfg = { C: S.colors, per: S.per, smin: S.smin, smax: S.smax };
+      applySetting(cfg, actn.slice(4), +el.dataset.n);
+      Object.assign(S, { colors: cfg.C, per: cfg.per, smin: cfg.smin, smax: cfg.smax });
+      ui.err = ''; persist(); break;
+    }
     case 'hints': S.hints = el.checked; persist(); return;
-    case 'start': newLocalGame(); advance(); persist(); break;
+    case 'start': ui.err = ''; newLocalGame(); if (G) advance(); persist(); break;
     case 'quit': ui.quit = true; break;
     case 'quit-no': ui.quit = false; break;
     case 'quit-yes':
@@ -1555,8 +1622,13 @@ $app.addEventListener('click', e => {
       return;
     case 'pick': ui.chosen = g; break;
     case 'take': if (ui.chosen !== null) act('take', { g: ui.chosen }); return;
-    case 'next-level': G.level = Math.min(3, G.level + 1); G.starter = (G.starter + 1) % P(); startLevel(); advance(); changed(); return;
-    case 'retry': G.starter = (G.starter + 1) % P(); startLevel(); advance(); changed(); return;
+    case 'retry': {
+      G.starter = (G.starter + 1) % P();
+      const err = startLevel();
+      ui.err = err || '';
+      if (!err) advance();
+      changed(); return;
+    }
     case 'new':
       stopTimer();
       G = null;
@@ -1567,7 +1639,8 @@ $app.addEventListener('click', e => {
     case 'on-join': enterRoom(ui.joinCode, 'guest'); return;
     case 'on-join-list': enterRoom(el.dataset.code, 'guest'); return;
     case 'on-count': ON.lob.n = +el.dataset.n; publish(); saveOnline(); break;
-    case 'on-level': ON.lob.lv = +el.dataset.n; publish(); saveOnline(); break;
+    case 'on-colors': case 'on-per': case 'on-smin': case 'on-smax':
+      applySetting(ON.lob, actn.slice(3), +el.dataset.n); ui.err = ''; publish(); saveOnline(); break;
     case 'on-hints': ON.lob.h = el.checked; publish(); saveOnline(); return;
     case 'on-start': hostStart(); return;
     default: return;
