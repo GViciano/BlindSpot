@@ -1,0 +1,1605 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BlindSpots</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Dela+Gothic+One&display=swap">
+<style>
+/* Layout: a game table. Stage (what to do now) beside a ring of seats, each with a mission card on a rack. */
+:root {
+  --bg: #e9edf2;
+  --surface: #ffffff;
+  --surface-2: #f3f5f8;
+  --ink: #18202c;
+  --muted: #5a6577;
+  --line: #d3d9e2;
+  --card: #fdfcf7;
+  --card-back-a: #263247;
+  --card-back-b: #2f3d56;
+  --accent: #18202c;
+  --accent-ink: #ffffff;
+  --ok: #1f8a4c;
+  --ok-bg: #e2f4e9;
+  --bad: #c43b3b;
+  --bad-bg: #fbe5e4;
+  --focus: #2f6fdb;
+  --d0: #2f6fdb; --d1: #ee8420; --d2: #2a9a58; --d3: #8a4fd1; --d4: #f1c232;
+  --pip: #ffffff; --pip-dark: #3b2c00;
+  --font-display: "Dela Gothic One", "Arial Black", Impact, sans-serif;
+  --font-body: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --r: 12px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #10141b; --surface: #19202a; --surface-2: #212937; --ink: #e7ebf1; --muted: #98a3b5; --line: #2d3644;
+    --card: #232b38; --card-back-a: #0b0f15; --card-back-b: #151b25;
+    --accent: #e7ebf1; --accent-ink: #10141b;
+    --ok: #4cc27d; --ok-bg: #173325; --bad: #ef6b6b; --bad-bg: #3a1c1e; --focus: #7aa7ff;
+    --d0: #4682ec; --d1: #f39236; --d2: #36ad68; --d3: #9b63e0; --d4: #f2c94c;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #10141b; --surface: #19202a; --surface-2: #212937; --ink: #e7ebf1; --muted: #98a3b5; --line: #2d3644;
+  --card: #232b38; --card-back-a: #0b0f15; --card-back-b: #151b25;
+  --accent: #e7ebf1; --accent-ink: #10141b;
+  --ok: #4cc27d; --ok-bg: #173325; --bad: #ef6b6b; --bad-bg: #3a1c1e; --focus: #7aa7ff;
+  --d0: #4682ec; --d1: #f39236; --d2: #36ad68; --d3: #9b63e0; --d4: #f2c94c;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { min-height: 100%; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.45; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.app { max-width: 1180px; margin: 0 auto; padding-inline: 16px; padding-block: 16px 48px; }
+
+/* Header */
+.top { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding-block: 4px 16px; }
+.logo { font-family: var(--font-display); font-size: 22px; letter-spacing: .02em; display: flex; align-items: center; gap: 2px; margin: 0; }
+.logo .dot { width: .42em; height: .42em; border-radius: 50%; background: var(--d1); display: inline-block; margin: 0 .08em; transform: translateY(.05em); }
+.status { color: var(--muted); font-variant-numeric: tabular-nums; }
+.top .spacer { flex: 1; }
+.btn { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 8px 16px; cursor: pointer; font-weight: 700; }
+.btn:hover { border-color: var(--muted); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn.primary:disabled { opacity: .4; cursor: not-allowed; }
+.btn.big { padding: 13px 26px; font-size: 17px; }
+.btn.ghost { background: transparent; }
+.btn.danger { border-color: var(--bad); color: var(--bad); }
+
+/* Setup */
+.hero { display: grid; gap: 10px; padding-block: 24px 28px; }
+.hero h1 { font-family: var(--font-display); font-weight: 400; font-size: clamp(40px, 9vw, 84px); line-height: .95; margin: 0; letter-spacing: .01em; display: flex; flex-wrap: wrap; align-items: center; }
+.hero h1 .dot { width: .38em; height: .38em; border-radius: 50%; background: var(--d1); display: inline-block; margin: 0 .06em; }
+.hero p { margin: 0; font-size: clamp(17px, 2.4vw, 21px); max-width: 34ch; text-wrap: balance; }
+.hero .meta { color: var(--muted); font-size: 14px; letter-spacing: .06em; text-transform: uppercase; }
+.setup { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 820px) { .setup { grid-template-columns: minmax(0, 1fr); } }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 20px; display: grid; gap: 18px; min-width: 0; }
+.panel h2 { font-family: var(--font-display); font-weight: 400; font-size: 18px; margin: 0; letter-spacing: .02em; }
+.field { display: grid; gap: 8px; }
+.label { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 700; }
+.seg { display: flex; flex-wrap: wrap; gap: 6px; }
+.seg button { border: 1px solid var(--line); background: var(--surface-2); border-radius: 10px; padding: 8px 14px; cursor: pointer; font-weight: 700; min-width: 48px; }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.seg button small { display: block; font-weight: 400; font-size: 12px; opacity: .8; }
+.players { display: grid; gap: 8px; }
+.prow { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 8px; align-items: center; }
+.prow .num { font-family: var(--font-display); color: var(--muted); text-align: center; }
+.prow input { width: 100%; min-width: 0; border: 1px solid var(--line); background: var(--surface-2); border-radius: 10px; padding: 9px 12px; font: inherit; color: var(--ink); }
+.toggle { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.toggle input { width: 18px; height: 18px; accent-color: var(--d0); }
+.howto { margin: 0; padding: 0; list-style: none; display: grid; gap: 12px; counter-reset: s; }
+.howto li { display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 10px; counter-increment: s; }
+.howto li::before { content: counter(s); font-family: var(--font-display); width: 26px; height: 26px; border-radius: 7px; background: var(--surface-2); border: 1px solid var(--line); display: grid; place-items: center; font-size: 13px; }
+.howto b { display: block; }
+.note { font-size: 13px; color: var(--muted); margin: 0; }
+
+/* Board */
+.board { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: 20px; align-items: start; }
+@media (max-width: 900px) { .board { grid-template-columns: minmax(0, 1fr); } }
+.stage { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 18px; display: grid; gap: 16px; min-width: 0; }
+.stage h2 { font-family: var(--font-display); font-weight: 400; font-size: 20px; margin: 0; letter-spacing: .01em; text-wrap: balance; }
+.stage .sub { color: var(--muted); margin: -8px 0 0; }
+.seats { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr)); gap: 14px; }
+.seat { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 14px; display: grid; gap: 12px; align-content: start; min-width: 0; }
+.seat.is-active { border-color: var(--ink); box-shadow: 0 0 0 1px var(--ink); }
+.seat-head { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.seat-name { font-weight: 700; font-size: 16px; margin-right: auto; overflow-wrap: anywhere; }
+.tag { font-size: 11px; text-transform: uppercase; letter-spacing: .07em; font-weight: 700; padding: 3px 7px; border-radius: 6px; background: var(--surface-2); color: var(--muted); border: 1px solid var(--line); }
+.tag.act { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.tag.you { background: transparent; color: var(--ink); border-color: var(--ink); }
+
+/* Rack + mission card */
+.rack { position: relative; padding-bottom: 9px; }
+.rack::after { content: ""; position: absolute; left: 6%; right: 6%; bottom: 0; height: 9px; border-radius: 0 0 8px 8px; background: var(--line); }
+.mcard { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; min-height: 74px; display: grid; gap: 8px; align-content: center; }
+.mcard .label { font-size: 11px; }
+.mline { display: flex; gap: 8px; align-items: baseline; font-weight: 700; font-size: 15px; }
+.mline .txt { flex: 1; min-width: 0; }
+.mline .res { font-size: 12px; font-weight: 700; padding: 2px 7px; border-radius: 6px; white-space: nowrap; }
+.mline .res.ok { background: var(--ok-bg); color: var(--ok); }
+.mline .res.bad { background: var(--bad-bg); color: var(--bad); }
+.mdetail { font-size: 13px; color: var(--muted); font-weight: 400; margin-top: -4px; }
+.mcard.back { background: repeating-linear-gradient(135deg, var(--card-back-a) 0 10px, var(--card-back-b) 10px 20px); border-color: var(--card-back-a); color: #e7ebf1; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 12px; }
+.mcard.back .q { font-family: var(--font-display); font-size: 30px; line-height: 1; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: rgba(255, 255, 255, .1); }
+.mcard.back .bt { font-size: 13px; line-height: 1.3; }
+.mcard.back .bt b { display: block; font-size: 14px; }
+.cw { display: inline-block; width: .8em; height: .8em; border-radius: 3px; margin-right: 3px; vertical-align: -.05em; }
+.cw.c0 { background: var(--d0); } .cw.c1 { background: var(--d1); } .cw.c2 { background: var(--d2); } .cw.c3 { background: var(--d3); } .cw.c4 { background: var(--d4); }
+
+/* Dice */
+.die { display: inline-block; width: 34px; height: 34px; flex: none; padding: 0; border: 0; background: none; line-height: 0; }
+.die svg { width: 100%; height: 100%; display: block; }
+.die .face { stroke: rgba(0, 0, 0, .18); stroke-width: 2; }
+.die.c0 .face { fill: var(--d0); } .die.c1 .face { fill: var(--d1); } .die.c2 .face { fill: var(--d2); } .die.c3 .face { fill: var(--d3); } .die.c4 .face { fill: var(--d4); }
+.die .pip { fill: var(--pip); }
+.die.c4 .pip { fill: var(--pip-dark); }
+.die.sm { width: 24px; height: 24px; }
+.die.lg { width: 44px; height: 44px; }
+button.die { cursor: pointer; border-radius: 10px; transition: transform .12s; }
+button.die:hover { transform: translateY(-2px); }
+.die.rolling { animation: tumble .55s cubic-bezier(.2, .9, .3, 1.2) both; animation-delay: calc(var(--i) * 35ms); }
+@keyframes tumble { from { transform: translateY(-18px) rotate(-200deg) scale(.6); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .die.rolling { animation: none; } button.die { transition: none; } }
+.dice { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; min-height: 34px; }
+.area .dice { gap: 4px; min-height: 24px; }
+.empty { color: var(--muted); font-size: 13px; }
+.stats { display: flex; flex-wrap: wrap; gap: 4px 10px; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.stats span { white-space: nowrap; }
+
+/* Groups */
+.tray { background: var(--surface-2); border: 1px dashed var(--line); border-radius: 10px; padding: 12px; display: grid; gap: 8px; }
+.groups { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 150px), 1fr)); gap: 10px; }
+.group { border: 2px solid var(--line); border-radius: 12px; padding: 10px; display: grid; gap: 8px; align-content: start; background: var(--surface); text-align: left; min-height: 96px; min-width: 0; }
+button.group { cursor: pointer; }
+button.group:hover { border-color: var(--muted); }
+.group.sel { border-color: var(--ink); box-shadow: 0 0 0 1px var(--ink); }
+.group.taken { opacity: .55; background: var(--surface-2); }
+.ghead { display: flex; align-items: center; gap: 8px; }
+.gl { font-family: var(--font-display); font-size: 18px; width: 30px; height: 30px; border-radius: 8px; background: var(--surface-2); border: 1px solid var(--line); display: grid; place-items: center; flex: none; }
+.group.sel .gl { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.gpick { border: 0; background: none; padding: 0; cursor: pointer; text-align: left; border-radius: 8px; }
+.gwho { font-size: 12px; color: var(--muted); }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.hint { display: grid; gap: 6px; background: var(--surface-2); border-radius: 10px; padding: 10px 12px; font-size: 14px; }
+.hint .who { font-size: 12px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
+.wait { display: flex; align-items: center; gap: 10px; color: var(--muted); }
+.spinner { width: 18px; height: 18px; border-radius: 50%; border: 3px solid var(--line); border-top-color: var(--ink); animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .spinner { animation-duration: 3s; } }
+.log { border-top: 1px solid var(--line); padding-top: 12px; display: grid; gap: 4px; font-size: 13px; color: var(--muted); }
+.log ol { margin: 0; padding-left: 18px; display: grid; gap: 2px; }
+.talk { font-size: 13px; color: var(--muted); background: var(--surface-2); border-radius: 10px; padding: 10px 12px; margin: 0; }
+
+/* Result */
+.banner { border-radius: var(--r); padding: 18px 20px; display: grid; gap: 6px; }
+.banner.win { background: var(--ok-bg); color: var(--ok); }
+.banner.lose { background: var(--bad-bg); color: var(--bad); }
+.banner h2 { font-family: var(--font-display); font-weight: 400; font-size: 26px; margin: 0; }
+.banner p { margin: 0; color: var(--ink); }
+
+/* Overlays */
+.overlay { position: fixed; inset: 0; background: var(--bg); z-index: 10; display: grid; place-items: center; padding: 24px 16px; overflow-y: auto; }
+.overlay.dim { background: rgba(10, 14, 20, .55); }
+.cover { text-align: center; display: grid; gap: 18px; justify-items: center; max-width: 440px; }
+.cover .eye { width: 92px; height: 92px; border-radius: 50%; background: repeating-linear-gradient(135deg, var(--card-back-a) 0 9px, var(--card-back-b) 9px 18px); display: grid; place-items: center; color: #e7ebf1; font-family: var(--font-display); font-size: 40px; }
+.cover h2 { font-family: var(--font-display); font-weight: 400; font-size: clamp(24px, 6vw, 34px); margin: 0; text-wrap: balance; line-height: 1.1; }
+.cover p { margin: 0; color: var(--muted); }
+.modal { background: var(--surface); border-radius: var(--r); padding: 22px; max-width: 640px; width: 100%; display: grid; gap: 12px; max-height: 100%; overflow-y: auto; }
+.modal h2 { font-family: var(--font-display); font-weight: 400; margin: 0; font-size: 22px; }
+.modal h3 { margin: 6px 0 0; font-size: 15px; }
+.modal p, .modal ul { margin: 0; }
+.modal ul { padding-left: 20px; display: grid; gap: 4px; }
+
+/* Modes + online */
+.tabs { display: inline-flex; gap: 4px; padding: 4px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line); flex-wrap: wrap; }
+.tabs button { border: 0; background: none; border-radius: 999px; padding: 8px 16px; cursor: pointer; font-weight: 700; color: var(--muted); }
+.tabs button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+.code { font-family: var(--font-display); font-size: 34px; letter-spacing: .12em; line-height: 1; padding: 10px 14px; border-radius: 10px; background: var(--surface-2); border: 1px solid var(--line); display: inline-block; user-select: all; }
+.rows { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.rows li { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 10px 12px; border-radius: 10px; background: var(--surface-2); }
+.rows li .grow { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.inline { display: flex; gap: 8px; flex-wrap: wrap; }
+.inline input { flex: 1; min-width: 0; border: 1px solid var(--line); background: var(--surface-2); border-radius: 10px; padding: 9px 12px; font: inherit; color: var(--ink); }
+.inline input.short { flex: 0 1 140px; text-transform: uppercase; letter-spacing: .12em; font-weight: 700; }
+.err { color: var(--bad); font-size: 14px; margin: 0; }
+.info { border-radius: 10px; padding: 10px 12px; background: var(--surface-2); font-size: 14px; margin: 0; }
+.tag.off { color: var(--bad); border-color: var(--bad); background: transparent; }
+</style>
+</head>
+<body>
+
+<div class="app" id="app"></div>
+
+<script>
+(() => {
+'use strict';
+
+const COLORS = [
+  { sing: 'azul', pl: 'azules' },
+  { sing: 'naranja', pl: 'naranjas' },
+  { sing: 'verde', pl: 'verdes' },
+  { sing: 'morado', pl: 'morados' },
+  { sing: 'amarillo', pl: 'amarillos' },
+];
+const LEVELS = {
+  1: { colors: 3, missions: 1, full: false, label: 'Iniciación', desc: '3 colores · 1 misión' },
+  2: { colors: 5, missions: 1, full: true, label: 'Avanzado', desc: '5 colores · 1 misión' },
+  3: { colors: 5, missions: 2, full: true, label: 'Experto', desc: '5 colores · 2 misiones' },
+};
+const TYPES = ['noColor', 'exact', 'atLeast', 'atMost', 'sumGreater', 'countMore', 'exactColours', 'allColours', 'sumAtLeast', 'atMostTotal', 'atLeastTotal'];
+const DICE_PER_COLOR = 2;
+const LETTERS = 'ABCDE';
+const STORE_KEY = 'blindspots-v1';
+const ONLINE_KEY = 'blindspots-online-v1';
+const TOKEN_KEY = 'blindspots-token';
+const BOT_NAMES = ['Carla', 'David', 'Elena', 'Bruno', 'Ana', 'Fede'];
+const IRREV = 5;
+
+const ri = n => Math.floor(Math.random() * n);
+const pick = a => a[ri(a.length)];
+const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = ri(i + 1); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const esc = s => String(s).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+const rid = n => Array.from({ length: n }, () => 'abcdefghjkmnpqrstuvwxyz23456789'[ri(31)]).join('');
+const lsGet = k => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return null; } };
+const lsSet = (k, v) => { try { if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* storage unavailable */ } };
+const use = n => (window.claude && typeof window.claude.use === 'function') ? window.claude.use(n).catch(() => null) : Promise.resolve(null);
+
+/* ---------- Missions ---------- */
+const cw = c => `<span class="cw c${c}" aria-hidden="true"></span>`;
+const sing = c => cw(c) + COLORS[c].sing;
+const plur = c => cw(c) + COLORS[c].pl;
+const dados = (n, c) => n === 1 ? `1 dado ${sing(c)}` : `${n} dados ${plur(c)}`;
+
+function missionText(m) {
+  switch (m.t) {
+    case 'noColor': return `Ningún dado ${sing(m.c)}.`;
+    case 'exact': return `Exactamente ${dados(m.n, m.c)}.`;
+    case 'atLeast': return `Al menos ${dados(m.n, m.c)}.`;
+    case 'atMost': return `Como máximo ${dados(m.n, m.c)}.`;
+    case 'sumGreater': return `Suma ${sing(m.c)} &gt; suma ${sing(m.c2)}.`;
+    case 'countMore': return `Más dados ${plur(m.c)} que ${plur(m.c2)}.`;
+    case 'exactColours': return `Dados de exactamente ${m.n} colores distintos.`;
+    case 'allColours': return `Al menos un dado de cada color.`;
+    case 'sumAtLeast': return `Tus dados ${plur(m.c)} suman ${m.n} o más.`;
+    case 'atMostTotal': return `Como máximo ${m.n} dados en total.`;
+    case 'atLeastTotal': return `Al menos ${m.n} dados en total.`;
+  }
+  return '';
+}
+
+function stats(dice, C) {
+  const cnt = Array(C).fill(0), sum = Array(C).fill(0);
+  for (const d of dice) { cnt[d.c]++; sum[d.c] += d.v; }
+  return { cnt, sum, total: dice.length, distinct: cnt.filter(x => x > 0).length };
+}
+
+function checkMission(m, st, C) {
+  const n = c => st.cnt[c], s = c => st.sum[c];
+  const has = c => `Tienes ${n(c)} ${n(c) === 1 ? COLORS[c].sing : COLORS[c].pl}.`;
+  switch (m.t) {
+    case 'noColor': return { ok: n(m.c) === 0, detail: has(m.c) };
+    case 'exact': return { ok: n(m.c) === m.n, detail: has(m.c) };
+    case 'atLeast': return { ok: n(m.c) >= m.n, detail: has(m.c) };
+    case 'atMost': return { ok: n(m.c) <= m.n, detail: has(m.c) };
+    case 'sumGreater': return { ok: s(m.c) > s(m.c2), detail: `Suma ${COLORS[m.c].sing} ${s(m.c)}, suma ${COLORS[m.c2].sing} ${s(m.c2)}.` };
+    case 'countMore': return { ok: n(m.c) > n(m.c2), detail: `${n(m.c)} ${COLORS[m.c].pl} y ${n(m.c2)} ${COLORS[m.c2].pl}.` };
+    case 'exactColours': return { ok: st.distinct === m.n, detail: `Tienes ${st.distinct} ${st.distinct === 1 ? 'color' : 'colores'}.` };
+    case 'allColours': return { ok: st.distinct === C, detail: `Tienes ${st.distinct} de ${C} colores.` };
+    case 'sumAtLeast': return { ok: s(m.c) >= m.n, detail: `Tus ${COLORS[m.c].pl} suman ${s(m.c)}.` };
+    case 'atMostTotal': return { ok: st.total <= m.n, detail: `Tienes ${st.total} dados.` };
+    case 'atLeastTotal': return { ok: st.total >= m.n, detail: `Tienes ${st.total} dados.` };
+  }
+  return { ok: false, detail: '' };
+}
+
+// How far a set of dice is from meeting a mission. Dice can only be added, so
+// overshooting an upper limit is permanent and weighs much more.
+function missionDist(m, st, C, roundsLeft) {
+  const w = roundsLeft === 0 ? 3 : 1;
+  const n = c => st.cnt[c], s = c => st.sum[c];
+  switch (m.t) {
+    case 'noColor': return n(m.c) * IRREV;
+    case 'exact': return n(m.c) > m.n ? (n(m.c) - m.n) * IRREV : (m.n - n(m.c)) * w;
+    case 'atLeast': return Math.max(0, m.n - n(m.c)) * w;
+    case 'atMost': return Math.max(0, n(m.c) - m.n) * IRREV;
+    case 'sumGreater': { const d = s(m.c2) - s(m.c); return d >= 0 ? (d + 1) / 3 * w : 0; }
+    case 'countMore': { const d = n(m.c2) - n(m.c); return d >= 0 ? (d + 1) * w : 0; }
+    case 'exactColours': return st.distinct > m.n ? (st.distinct - m.n) * IRREV : (m.n - st.distinct) * w;
+    case 'allColours': return (C - st.distinct) * w;
+    case 'sumAtLeast': return Math.max(0, m.n - s(m.c)) / 3.5 * w;
+    case 'atMostTotal': return Math.max(0, st.total - m.n) * IRREV;
+    case 'atLeastTotal': return Math.max(0, m.n - st.total) * 0.6 * w;
+  }
+  return 0;
+}
+
+function randomMission(level) {
+  const L = LEVELS[level], C = L.colors;
+  const c = ri(C), c2 = (c + 1 + ri(C - 1)) % C;
+  const types = ['noColor', 'exact', 'exact', 'atLeast', 'atMost', 'sumGreater', 'sumGreater', 'countMore', 'exactColours', 'allColours'];
+  if (L.full) types.push('sumAtLeast', 'atMostTotal', 'atLeastTotal');
+  const t = pick(types);
+  switch (t) {
+    case 'exact': return { t, c, n: pick([2, 3]) };
+    case 'atLeast': return { t, c, n: 3 };
+    case 'atMost': return { t, c, n: 1 };
+    case 'sumGreater': case 'countMore': return { t, c, c2 };
+    case 'exactColours': return { t, n: C === 3 ? 2 : L.full ? pick([2, 3, 4]) : pick([2, 3]) };
+    case 'allColours': return { t };
+    case 'sumAtLeast': return { t, c, n: pick([12, 15]) };
+    case 'atMostTotal': return { t, n: 2 * C - 2 };
+    case 'atLeastTotal': return { t, n: 2 * C + 2 };
+    default: return { t: 'noColor', c };
+  }
+}
+const mkey = m => [m.t, m.c, m.c2, m.n].join(':');
+const mcolours = m => [m.c, m.c2].filter(x => x !== undefined);
+
+// Per-player bounds on dice counts implied by the missions.
+function bounds(ms, C, P) {
+  const lo = Array(C).fill(0), hi = Array(C).fill(Infinity);
+  let tlo = P, thi = Infinity, kExact = null;
+  for (const m of ms) {
+    switch (m.t) {
+      case 'noColor': hi[m.c] = 0; break;
+      case 'exact': lo[m.c] = Math.max(lo[m.c], m.n); hi[m.c] = Math.min(hi[m.c], m.n); break;
+      case 'atLeast': lo[m.c] = Math.max(lo[m.c], m.n); break;
+      case 'atMost': hi[m.c] = Math.min(hi[m.c], m.n); break;
+      case 'sumGreater': case 'countMore': lo[m.c] = Math.max(lo[m.c], 1); break;
+      case 'sumAtLeast': lo[m.c] = Math.max(lo[m.c], Math.ceil(m.n / 6)); break;
+      case 'allColours': for (let c = 0; c < C; c++) lo[c] = Math.max(lo[c], 1); break;
+      case 'exactColours': kExact = m.n; break;
+      case 'atMostTotal': thi = Math.min(thi, m.n); break;
+      case 'atLeastTotal': tlo = Math.max(tlo, m.n); break;
+    }
+  }
+  for (let c = 0; c < C; c++) if (lo[c] > hi[c]) return null;
+  tlo = Math.max(tlo, lo.reduce((a, b) => a + b, 0));
+  thi = Math.min(thi, hi.reduce((a, b) => a + b, 0));
+  if (tlo > thi) return null;
+  if (kExact !== null) {
+    if (hi.filter(h => h > 0).length < kExact) return null;
+    if (lo.filter(l => l > 0).length > kExact) return null;
+  }
+  return { lo, hi, tlo, thi };
+}
+
+function feasible(all, C, P) {
+  const bs = all.map(ms => bounds(ms, C, P));
+  if (bs.some(b => !b)) return false;
+  const perColour = DICE_PER_COLOR * P, total = perColour * C;
+  for (let c = 0; c < C; c++) {
+    const lo = bs.reduce((a, b) => a + b.lo[c], 0), hi = bs.reduce((a, b) => a + b.hi[c], 0);
+    if (lo > perColour || hi < perColour) return false;
+  }
+  const tlo = bs.reduce((a, b) => a + b.tlo, 0), thi = bs.reduce((a, b) => a + b.thi, 0);
+  return tlo <= total && thi >= total;
+}
+
+function genMissions(P, level) {
+  const L = LEVELS[level];
+  for (let tries = 0; tries < 2000; tries++) {
+    const used = new Set();
+    const all = [];
+    let ok = true;
+    for (let p = 0; p < P && ok; p++) {
+      const ms = [];
+      for (let k = 0; k < L.missions; k++) {
+        let m, guard = 0;
+        do {
+          m = randomMission(level);
+          guard++;
+        } while (guard < 50 && (used.has(mkey(m)) || ms.some(o => o.t === m.t
+          || mcolours(o).some(c => mcolours(m).includes(c))
+          || (o.t === 'allColours' || m.t === 'allColours') && (o.t === 'exactColours' || m.t === 'exactColours'))));
+        if (guard >= 50) { ok = false; break; }
+        used.add(mkey(m));
+        ms.push(m);
+      }
+      all.push(ms);
+    }
+    if (ok && feasible(all, L.colors, P)) return all;
+  }
+  return Array.from({ length: P }, (_, i) => [{ t: 'noColor', c: i % L.colors }]);
+}
+
+/* ---------- State ---------- */
+let G = null;        // the game being shown (local, hosted, or mirrored from the host)
+let S = {
+  count: 4,
+  names: ['Ana', 'Bruno', 'Carla', 'David', 'Elena'],
+  bots: [false, true, true, true, true],
+  level: 1,
+  hints: true,
+};
+let timer = null;
+let animate = false;
+// Per-view UI state; reset whenever the game moves to a new step.
+const ui = { connecting: false, rules: false, quit: false, mode: 'local', key: null, assign: {}, sel: 0, chosen: null, hint: null, pending: null, joinCode: '', err: '' };
+// Online session.
+const ON = {
+  status: 'pending', room: null, game: null, code: null, role: null, nm: '', tk: '', myId: null,
+  gpeers: [], lobbyPeers: [], order: [], connected: false, roomErr: '', transport: 'claude', lob: { n: 4, lv: 1, h: true }, hostLob: null,
+  hostSeenAt: 0, joinedAt: 0, n: 0, seen: new Set(), lastQ: -1, unsub: [],
+};
+
+const P = () => G.players.length;
+const humans = () => G.players.map((p, i) => i).filter(i => !G.players[i].bot);
+const bots = () => G.players.map((p, i) => i).filter(i => G.players[i].bot);
+const multi = () => humans().length > 1;
+const roundsLeft = () => P() - 1 - G.round;
+const dieById = id => G.roll[id];
+const groupDice = g => G.groups[g].map(dieById);
+const availGroups = () => G.groups.map((_, i) => i).filter(i => G.taken[i] === undefined);
+const pn = i => G.players[i].name;
+const name = i => esc(G.players[i].name);
+const stateKey = () => G.phase === 'reveal' ? `${G.gid}|reveal` : `${G.gid}|${G.round}|${G.phase}|${G.step}`;
+
+function log(msg) { G.log.push(msg); if (G.log.length > 30) G.log.shift(); }
+
+function persist() {
+  lsSet(STORE_KEY, { G: G && !G.online ? G : null, S });
+}
+
+function newLocalGame() {
+  const n = S.count;
+  G = {
+    online: false, level: S.level, hints: S.hints, starter: 0, C: 4,
+    players: Array.from({ length: n }, (_, i) => ({ name: (S.names[i] || '').trim().slice(0, 16) || `Jugador ${i + 1}`, bot: !!S.bots[i], missions: [], area: [] })),
+    log: [],
+  };
+  startLevel();
+}
+
+function startLevel() {
+  const L = LEVELS[G.level];
+  G.C = L.colors;
+  const ms = genMissions(P(), G.level);
+  G.players.forEach((p, i) => { p.missions = ms[i]; p.area = []; });
+  Object.assign(G, { gid: rid(6), round: 0, active: G.starter, phase: 'roll', roll: [], groups: [], order: [], step: 0, taken: {}, results: null, win: null, log: [] });
+  log(`Empieza el nivel ${G.level} (${L.desc}).`);
+  if (!G.online) resetViewer();
+}
+
+function resetViewer() {
+  const h = humans();
+  G.viewer = h.length === 0 ? 'all' : h.length === 1 ? h[0] : null;
+  G.cover = null;
+}
+
+function currentActor() {
+  if (G.phase === 'roll' || G.phase === 'group') return G.active;
+  if (G.phase === 'choose') return G.order[G.step];
+  return null;
+}
+
+function doRoll() {
+  G.roll = [];
+  for (let c = 0; c < G.C; c++) for (let k = 0; k < DICE_PER_COLOR; k++) G.roll.push({ id: G.roll.length, c, v: 1 + ri(6) });
+  G.phase = 'group';
+  log(`${pn(G.active)} tira ${G.roll.length} dados.`);
+}
+
+function startChoose() {
+  G.order = Array.from({ length: P() - 1 }, (_, k) => (G.active + 1 + k) % P());
+  G.step = 0; G.taken = {};
+  G.phase = 'choose';
+  log(`${pn(G.active)} reparte los dados en ${P()} grupos.`);
+}
+
+function take(g, p) {
+  G.taken[g] = p;
+  log(`${pn(p)} coge el grupo ${LETTERS[g]}.`);
+  G.step++;
+}
+
+function finishRound() {
+  const last = availGroups()[0];
+  G.taken[last] = G.active;
+  log(`${pn(G.active)} se queda con el grupo ${LETTERS[last]}.`);
+  G.groups.forEach((ids, g) => { G.players[G.taken[g]].area.push(...ids.map(id => ({ c: G.roll[id].c, v: G.roll[id].v }))); });
+  G.round++;
+  if (G.round >= P()) { reveal(); return; }
+  G.active = (G.starter + G.round) % P();
+  Object.assign(G, { phase: 'roll', roll: [], groups: [], taken: {}, order: [], step: 0 });
+}
+
+function computeResults() {
+  G.results = G.players.map(p => {
+    const st = stats(p.area, G.C);
+    return p.missions.map(m => checkMission(m, st, G.C));
+  });
+  G.win = G.results.every(r => r.every(x => x.ok));
+}
+
+function reveal() {
+  computeResults();
+  G.phase = 'reveal';
+  G.cover = null;
+  log(G.win ? 'Nivel superado.' : 'Nivel fallado.');
+}
+
+function validGroups(gs) {
+  if (!Array.isArray(gs) || gs.length !== P()) return null;
+  const seen = new Set();
+  for (const g of gs) {
+    if (!Array.isArray(g) || g.length === 0) return null;
+    for (const id of g) {
+      if (!Number.isInteger(id) || id < 0 || id >= G.roll.length || seen.has(id)) return null;
+      seen.add(id);
+    }
+  }
+  return seen.size === G.roll.length ? gs.map(g => g.slice()) : null;
+}
+
+// Applies one player's move if it is legal right now.
+function applyAction(seat, a) {
+  if (!a || seat !== currentActor() || G.players[seat].bot) return false;
+  if (a.k === 'roll' && G.phase === 'roll') { doRoll(); return true; }
+  if (a.k === 'groups' && G.phase === 'group') {
+    const gs = validGroups(a.groups);
+    if (!gs) return false;
+    G.groups = gs; startChoose(); return true;
+  }
+  if (a.k === 'take' && G.phase === 'choose') {
+    if (!Number.isInteger(a.g) || !availGroups().includes(a.g)) return false;
+    take(a.g, seat); return true;
+  }
+  return false;
+}
+
+/* ---------- Bots ---------- */
+function evalPlayer(i, extra) {
+  const p = G.players[i];
+  const st = stats(extra.length ? p.area.concat(extra) : p.area, G.C);
+  return p.missions.reduce((a, m) => a + missionDist(m, st, G.C, roundsLeft()), 0);
+}
+
+function botGroups() {
+  const n = P(), me = G.active, dice = G.roll;
+  const score = asg => {
+    const per = Array.from({ length: n }, () => []);
+    asg.forEach((p, i) => per[p].push(dice[i]));
+    let s = 0;
+    for (let p = 0; p < n; p++) s += p === me ? per[p].length * 0.35 : evalPlayer(p, per[p]);
+    return s;
+  };
+  let best = null, bestS = Infinity;
+  for (let r = 0; r < 14; r++) {
+    const asg = shuffle(dice.map((_, i) => i < n ? i : ri(n)));
+    const sizes = Array(n).fill(0); asg.forEach(p => sizes[p]++);
+    let s = score(asg), improved = true, guard = 0;
+    while (improved && guard++ < 60) {
+      improved = false;
+      for (let i = 0; i < asg.length; i++) {
+        const from = asg[i];
+        if (sizes[from] <= 1) continue;
+        for (let to = 0; to < n; to++) {
+          if (to === from) continue;
+          asg[i] = to;
+          const s2 = score(asg);
+          if (s2 < s - 1e-9) { s = s2; sizes[from]--; sizes[to]++; improved = true; break; }
+          asg[i] = from;
+        }
+      }
+      for (let i = 0; i < asg.length; i++) for (let j = i + 1; j < asg.length; j++) {
+        if (asg[i] === asg[j]) continue;
+        [asg[i], asg[j]] = [asg[j], asg[i]];
+        const s2 = score(asg);
+        if (s2 < s - 1e-9) { s = s2; improved = true; } else [asg[i], asg[j]] = [asg[j], asg[i]];
+      }
+    }
+    if (s < bestS) { bestS = s; best = asg.slice(); }
+  }
+  const groups = Array.from({ length: n }, () => []);
+  best.forEach((p, i) => groups[p].push(dice[i].id));
+  return shuffle(groups);
+}
+
+function permutations(a) {
+  if (a.length <= 1) return [a.slice()];
+  const out = [];
+  a.forEach((x, i) => { for (const rest of permutations(a.slice(0, i).concat(a.slice(i + 1)))) out.push([x, ...rest]); });
+  return out;
+}
+
+// Best way to hand `groups` to `players` (same length). `blind` is a player whose mission the evaluator cannot see.
+function bestAssign(groups, players, blind) {
+  let best = { cost: Infinity, perm: groups };
+  for (const perm of permutations(groups)) {
+    let cost = 0;
+    perm.forEach((g, k) => { if (players[k] !== blind) cost += evalPlayer(players[k], groupDice(g)); });
+    if (cost < best.cost - 1e-9 || (Math.abs(cost - best.cost) < 1e-9 && Math.random() < 0.5)) best = { cost, perm };
+  }
+  return best;
+}
+
+function botChoose(me) {
+  const avail = availGroups();
+  const rest = [...G.order.slice(G.step + 1), G.active];
+  let best = avail[0], bestC = Infinity;
+  for (const g of shuffle(avail.slice())) {
+    const others = avail.filter(x => x !== g);
+    const c = others.length ? bestAssign(others, rest, me).cost : 0;
+    if (c < bestC - 1e-9) { bestC = c; best = g; }
+  }
+  return best;
+}
+
+function computeHint(h) {
+  const bs = bots();
+  if (!G.hints || !bs.length) return { none: true };
+  const b = pick(bs);
+  const avail = availGroups();
+  const players = [h, ...G.order.slice(G.step + 1), G.active];
+  const best = bestAssign(avail, players, b);
+  const rec = best.perm[0];
+  const base = evalPlayer(h, []);
+  const danger = avail.filter(g => g !== rec && evalPlayer(h, groupDice(g)) - base >= IRREV);
+  const recGain = base - evalPlayer(h, groupDice(rec));
+  return { bot: b, rec, danger, mild: recGain <= 0 };
+}
+
+function botAct() {
+  const a = currentActor();
+  if (G.phase === 'roll') doRoll();
+  else if (G.phase === 'group') { G.groups = botGroups(); startChoose(); }
+  else if (G.phase === 'choose') take(botChoose(a), a);
+}
+
+// Runs whatever happens next on its own (finishing a round, bot moves).
+// Only the device that owns the game runs this: local play or the online host.
+function advance() {
+  if (!G || G.phase === 'reveal') return;
+  if (G.online && ON.role !== 'host') return;
+  if (G.phase === 'choose' && G.step >= G.order.length) { finishRound(); advance(); return; }
+  const a = currentActor();
+  if (G.players[a].bot) {
+    if (!timer) {
+      const delay = G.phase === 'roll' ? 700 : G.phase === 'group' ? 1100 : 900;
+      timer = setTimeout(() => {
+        timer = null;
+        if (!G || (G.online && ON.role !== 'host')) return;
+        botAct(); advance(); changed();
+      }, delay);
+    }
+  } else if (!G.online && multi() && G.viewer !== a) {
+    G.cover = a;
+  }
+}
+
+function stopTimer() { clearTimeout(timer); timer = null; }
+
+function changed() {
+  if (G && G.online) { if (ON.role === 'host') { publish(); saveOnline(); } }
+  else persist();
+  render();
+}
+
+// A human move from this screen.
+function act(k, extra = {}) {
+  const a = { k, key: stateKey(), ...extra };
+  if (G.online && ON.role === 'guest') { sendAct(a); render(); return; }
+  if (!applyAction(currentActor(), a)) return;
+  if (!G.online && multi()) G.viewer = null;
+  advance();
+  changed();
+}
+
+/* ---------- Online ---------- */
+function mySeat() {
+  if (!G) return -1;
+  return G.players.findIndex(p => !p.bot && p.key && (p.key === ON.myId || p.key === ON.tk));
+}
+// Seats are keyed on a random token each browser keeps, so a reload gets the same seat back.
+const peerKey = p => (p.presence && typeof p.presence.tk === 'string' && p.presence.tk.length >= 8 ? p.presence.tk.slice(0, 40) : null);
+const cleanName = s => String(s || '').replace(/[\u0000-\u001f\u007f-\u009f​-‏‪-‮⁠-⁤﻿]/g, '').trim().slice(0, 16);
+
+function saveOnline() {
+  if (!ON.role) { lsSet(ONLINE_KEY, null); return; }
+  lsSet(ONLINE_KEY, { role: ON.role, code: ON.code, nm: ON.nm, G: ON.role === 'host' ? G : null, lob: ON.lob, order: ON.order });
+}
+
+function encodeG() {
+  return {
+    v: 1, lv: G.level, h: G.hints ? 1 : 0, st: G.starter, C: G.C, r: G.round, a: G.active, ph: G.phase, s: G.step, id: G.gid,
+    p: G.players.map(p => [p.name, p.bot ? 1 : 0, p.key || '', p.missions.map(m => [TYPES.indexOf(m.t), m.c ?? -1, m.c2 ?? -1, m.n ?? -1]), p.area.map(d => d.c * 10 + d.v)]),
+    rl: G.roll.map(d => d.c * 10 + d.v),
+    gr: G.groups,
+    tk: G.groups.map((_, i) => G.taken[i] ?? -1),
+    lg: G.log.slice(-6).map(l => l.slice(0, 120)),
+    q: G.seq,
+  };
+}
+
+// Rebuilds the game from the host's presence. Anything malformed is ignored.
+function decodeG(w) {
+  try {
+    const int = (x, lo, hi) => { if (!Number.isInteger(x) || x < lo || x > hi) throw 0; return x; };
+    const C = int(w.C, 3, 5), lv = int(w.lv, 1, 3);
+    if (!Array.isArray(w.p) || w.p.length < 3 || w.p.length > 5) throw 0;
+    const n = w.p.length;
+    const die = (x, i) => { int(x, 1, 46); const c = Math.floor(x / 10), v = x % 10; int(c, 0, C - 1); int(v, 1, 6); return i === undefined ? { c, v } : { id: i, c, v }; };
+    const players = w.p.map(p => ({
+      name: cleanName(p[0]) || 'Jugador', bot: p[1] === 1, key: typeof p[2] === 'string' ? p[2].slice(0, 200) : '',
+      missions: p[3].slice(0, 2).map(m => {
+        const t = TYPES[int(m[0], 0, TYPES.length - 1)];
+        const o = { t };
+        if (m[1] >= 0) o.c = int(m[1], 0, C - 1);
+        if (m[2] >= 0) o.c2 = int(m[2], 0, C - 1);
+        if (m[3] >= 0) o.n = int(m[3], 0, 40);
+        if (/^(noColor|exact|atLeast|atMost|sumGreater|countMore|sumAtLeast)$/.test(t) && o.c === undefined) throw 0;
+        if (/^(sumGreater|countMore)$/.test(t) && o.c2 === undefined) throw 0;
+        return o;
+      }),
+      area: p[4].slice(0, 60).map(x => die(x)),
+    }));
+    const roll = (w.rl || []).slice(0, 10).map((x, i) => die(x, i));
+    const groups = (w.gr || []).slice(0, n).map(g => g.map(id => int(id, 0, roll.length - 1)));
+    const taken = {};
+    (w.tk || []).forEach((t, i) => { if (t >= 0) taken[i] = int(t, 0, n - 1); });
+    const ph = ['roll', 'group', 'choose', 'reveal'].includes(w.ph) ? w.ph : null;
+    if (!ph) throw 0;
+    const a = int(w.a, 0, n - 1);
+    const g = {
+      online: true, level: lv, hints: !!w.h, starter: int(w.st, 0, n - 1), C, round: int(w.r, 0, n), active: a, phase: ph,
+      step: int(w.s, 0, n), gid: String(w.id || '').slice(0, 12), players, roll, groups, taken,
+      order: Array.from({ length: n - 1 }, (_, k) => (a + 1 + k) % n),
+      log: (w.lg || []).slice(-6).map(l => String(l).slice(0, 140)), seq: w.q, results: null, win: null,
+    };
+    if (ph === 'choose' && groups.length !== n) throw 0;
+    return g;
+  } catch (e) { return null; }
+}
+
+function lobWire() {
+  const seats = seatPreview();
+  return { n: ON.lob.n, lv: ON.lob.lv, h: ON.lob.h ? 1 : 0, seats: seats.slice(0, 5).map(s => s.nm), spec: Math.max(0, seats.length - 5) };
+}
+
+/* ---------- Online outside claude.ai: PeerJS ---------- */
+const PEERJS_URL = 'https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js';
+const PEER_PREFIX = 'blindspots-v1-';
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+function loadPeerJS() {
+  if (window.Peer) return Promise.resolve(true);
+  return new Promise(res => {
+    const s = document.createElement('script');
+    s.src = PEERJS_URL;
+    s.onload = () => res(!!window.Peer);
+    s.onerror = () => res(false);
+    document.head.appendChild(s);
+  });
+}
+
+// Stands in for the claude.ai room when the page runs anywhere else, with the
+// same calls. The host's browser is the hub: guests connect to it over WebRTC
+// and it relays everyone's presence to everyone.
+function p2pRoom(code, role) {
+  return new Promise((resolve, reject) => {
+    const opts = Object.assign({ debug: 0 }, window.BS_PEER_OPTS || {});
+    const hostId = PEER_PREFIX + code;
+    const peer = role === 'host' ? new window.Peer(hostId, opts) : new window.Peer(opts);
+    let myId = null, mine = {}, list = new Map(), hostConn = null;
+    let connected = false, settled = false, closed = false, retry = null;
+    const conns = new Map(), peerHs = new Set(), connHs = new Set();
+    const snap = () => [...list.entries()].map(([id, presence]) => ({ peer: id, by: null, isMe: id === myId, sameTab: id === myId, kind: 'viewer', guest: false, presence, updatedAt: Date.now() }));
+    const firePeers = () => { const ps = snap(); peerHs.forEach(h => { try { h({ peers: ps, joined: [], left: [], updated: [] }); } catch (e) { console.error(e); } }); };
+    const setConn = c => { if (connected === c) return; connected = c; connHs.forEach(h => h(c)); };
+    const broadcast = () => { const msg = { t: 'peers', list: [...list.entries()] }; conns.forEach(c => { if (c.open) c.send(msg); }); };
+    const api = {
+      transport: 'p2p',
+      presence: async patch => {
+        mine = Object.assign({}, mine);
+        for (const k in patch) { if (patch[k] === null) delete mine[k]; else mine[k] = patch[k]; }
+        mine = JSON.parse(JSON.stringify(mine));
+        if (myId) list.set(myId, mine);
+        if (role === 'host') broadcast();
+        else if (hostConn && hostConn.open) hostConn.send({ t: 'p', pr: mine });
+        firePeers();
+      },
+      peers: snap,
+      onPeers: h => { peerHs.add(h); setTimeout(() => h({ peers: snap(), joined: [], left: [], updated: [] }), 0); return () => peerHs.delete(h); },
+      onConnection: h => { connHs.add(h); setTimeout(() => h(connected), 0); return () => connHs.delete(h); },
+      connected: () => connected,
+      close: () => { closed = true; clearTimeout(retry); try { peer.destroy(); } catch (e) { /* already gone */ } },
+    };
+    const fail = c => { if (settled) return; settled = true; closed = true; try { peer.destroy(); } catch (e) { /* already gone */ } reject({ code: c }); };
+    const scheduleRetry = () => { clearTimeout(retry); if (!closed) retry = setTimeout(connectToHost, 3000); };
+
+    function connectToHost() {
+      if (closed || peer.destroyed) return;
+      const c = peer.connect(hostId, { reliable: true, serialization: 'json' });
+      hostConn = c;
+      c.on('open', () => { setConn(true); c.send({ t: 'p', pr: mine }); if (!settled) { settled = true; resolve(api); } });
+      c.on('data', m => {
+        if (!m || m.t !== 'peers' || !Array.isArray(m.list)) return;
+        list = new Map(m.list.filter(e => Array.isArray(e) && typeof e[0] === 'string' && e[1] && typeof e[1] === 'object'));
+        list.set(myId, mine);
+        firePeers();
+      });
+      c.on('close', () => {
+        if (hostConn !== c) return;
+        setConn(false);
+        list = new Map([[myId, mine]]);
+        firePeers();
+        scheduleRetry();
+      });
+    }
+
+    peer.on('open', id => {
+      myId = id;
+      list.set(id, mine);
+      if (role === 'host') { setConn(true); settled = true; resolve(api); } else connectToHost();
+    });
+    peer.on('error', e => {
+      const t = e && e.type;
+      if (t === 'unavailable-id') return fail('code_taken');
+      if (t === 'browser-incompatible') return fail('unsupported');
+      if (t === 'peer-unavailable') { if (!settled) return fail('not_found'); setConn(false); scheduleRetry(); return; }
+      if (!settled) return fail('network');
+      setConn(false);
+    });
+    peer.on('disconnected', () => {
+      if (closed) return;
+      if (role === 'host') setConn(false);
+      setTimeout(() => { try { if (!peer.destroyed && peer.disconnected) peer.reconnect(); } catch (e) { /* try again on the next drop */ } }, 2000);
+    });
+    peer.on('open', () => { if (role === 'host' && settled) setConn(true); });
+    if (role === 'host') {
+      peer.on('connection', c => {
+        c.on('open', () => { conns.set(c.peer, c); c.send({ t: 'peers', list: [...list.entries()] }); });
+        c.on('data', m => { if (m && m.t === 'p' && m.pr && typeof m.pr === 'object') { list.set(c.peer, m.pr); broadcast(); firePeers(); } });
+        const gone = () => { conns.delete(c.peer); if (list.delete(c.peer)) { broadcast(); firePeers(); } };
+        c.on('close', gone);
+        c.on('error', gone);
+      });
+    }
+    setTimeout(() => fail('timeout'), 15000);
+  });
+}
+
+const P2P_ERRORS = {
+  not_found: 'No encuentro esa partida. Comprueba el código y que el anfitrión tenga la página abierta.',
+  code_taken: 'Esta partida ya está abierta en otra pestaña o dispositivo.',
+  unsupported: 'Este navegador no permite jugar online. Prueba con Chrome, Safari o Firefox actualizados.',
+  network: 'No se ha podido conectar. Revisa tu conexión a internet y vuelve a intentarlo.',
+  timeout: 'La conexión está tardando demasiado. Revisa tu conexión a internet y vuelve a intentarlo.',
+};
+
+// PeerJS loads only once someone opens the online tab.
+async function ensureP2P() {
+  if (ON.transport !== 'p2p' || ON.status !== 'idle') return;
+  ON.status = 'pending';
+  render();
+  ON.status = (await loadPeerJS()) ? 'ok' : 'none';
+  const saved = ON.resume;
+  ON.resume = null;
+  if (ON.status === 'ok' && saved) enterRoom(saved.code, saved.role, saved);
+  render();
+}
+
+async function openP2P(code, role, saved) {
+  let tries = 0;
+  for (;;) {
+    try { return { room: await p2pRoom(code, role), code }; } catch (e) {
+      const c = (e && e.code) || 'network';
+      if (c === 'code_taken' && role === 'host' && !saved && tries < 3) { code = rid(4); tries++; continue; }
+      if (c === 'code_taken' && saved && tries < 6) { tries++; await sleep(3000); continue; }
+      return { err: P2P_ERRORS[c] || P2P_ERRORS.network };
+    }
+  }
+}
+
+// Everything travels in each page's presence in the page's one shared room:
+// the host publishes the game, guests publish their name and their latest move.
+function setPresence(patch) {
+  if (!ON.room) return;
+  ON.room.presence(patch).catch(e => { ON.roomErr = (e && e.code) || 'error'; render(); });
+}
+
+function publish() {
+  if (!ON.room || ON.role !== 'host') return;
+  if (G) { G.seq = (G.seq || 0) + 1; ON.lastLob = null; setPresence({ g: encodeG(), lob: null }); }
+  else {
+    const lob = lobWire(), sig = JSON.stringify(lob);
+    if (sig === ON.lastLob) return;
+    ON.lastLob = sig;
+    setPresence({ g: null, lob });
+  }
+}
+
+function announce() {
+  if (!ON.room) return;
+  const open = ON.role === 'host' && !G ? { code: ON.code, nm: ON.nm, n: seatPreview().length } : null;
+  const sig = JSON.stringify(open);
+  if (sig === ON.lastOpen) return;
+  ON.lastOpen = sig;
+  setPresence({ open });
+}
+
+const inThisGame = p => p.presence && ((p.presence.host === 1 && p.presence.code === ON.code) || p.presence.gc === ON.code);
+
+// Host: who is waiting for this game, in the order they arrived.
+function candidates() {
+  return ON.gpeers.filter(p => !p.sameTab && p.kind === 'viewer' && p.presence.gc === ON.code && typeof p.presence.nm === 'string' && peerKey(p))
+    .map(p => ({ key: peerKey(p), nm: cleanName(p.presence.nm) || 'Jugador' }));
+}
+function seatPreview() {
+  const me = { key: ON.tk, nm: ON.nm, me: true };
+  const c = candidates();
+  const byKey = new Map(c.map(x => [x.key, x]));
+  const ordered = ON.order.filter(k => byKey.has(k) && k !== me.key).map(k => byKey.get(k));
+  return [me, ...ordered];
+}
+function connectedKeys() {
+  const ks = new Set(ON.gpeers.map(peerKey).filter(Boolean));
+  ks.add(ON.tk);
+  return ks;
+}
+function hostPeer() {
+  return ON.gpeers.find(p => !p.sameTab && p.presence.host === 1 && p.presence.code === ON.code) || null;
+}
+
+async function enterRoom(code, role, saved) {
+  ui.err = '';
+  code = String(code || '').toLowerCase().trim();
+  if (!/^[a-z0-9]{4}$/.test(code)) { ui.err = 'El código tiene 4 letras o números.'; render(); return; }
+  if (ON.transport === 'p2p') {
+    if (ui.connecting) return;
+    if (ON.room) { ON.room.close(); ON.room = null; }
+    ui.connecting = true; render();
+    const r = await openP2P(code, role, saved);
+    ui.connecting = false;
+    if (r.err) { ui.err = r.err; if (saved) { ON.role = null; saveOnline(); } render(); return; }
+    code = r.code;
+    ON.room = r.room;
+    ON.room.onConnection(c => { ON.connected = c; render(); });
+    ON.room.onPeers(ch => { ON.lobbyPeers = ch.peers.slice(); onRoomPeers(); });
+  }
+  if (!ON.room) { ui.err = 'El modo online no está disponible en esta vista.'; render(); return; }
+  if (!/^[a-z0-9]{4}$/.test(code)) { ui.err = 'El código tiene 4 letras o números.'; render(); return; }
+  ON.nm = cleanName(ON.nm) || 'Jugador';
+  stopTimer();
+  G = null;
+  Object.assign(ON, { code, role, seen: new Set(), lastQ: -1, lastLob: null, lastOpen: null, joinedAt: Date.now(), hostSeenAt: 0, n: Date.now(), hostLob: null });
+  if (role === 'host') {
+    if (saved) { ON.lob = saved.lob || ON.lob; ON.order = saved.order || []; if (saved.G && saved.G.players) G = saved.G; }
+    else ON.order = [];
+    setPresence({ nm: ON.nm, tk: ON.tk, host: 1, code, gc: null, act: null, n: null });
+    publish();
+  } else {
+    setPresence({ nm: ON.nm, tk: ON.tk, gc: code, host: null, code: null, g: null, lob: null, open: null, act: null, n: 0 });
+  }
+  announce();
+  saveOnline();
+  onRoomPeers();
+  if (G) advance();
+  render();
+}
+
+function leaveGameRoom() {
+  stopTimer();
+  Object.assign(ON, { role: null, code: null, gpeers: [], hostLob: null });
+  G = null;
+  if (ON.transport === 'p2p') {
+    if (ON.room) ON.room.close();
+    Object.assign(ON, { room: null, connected: false, lobbyPeers: [] });
+  } else {
+    setPresence({ host: null, code: null, gc: null, g: null, lob: null, act: null, n: null });
+    announce();
+  }
+  saveOnline();
+}
+
+// Called on every change in who is here or what they show.
+function onRoomPeers() {
+  if (!ON.role) { render(); return; }
+  ON.gpeers = (ON.room ? ON.room.peers() : []).filter(inThisGame);
+  if (ON.role === 'host') {
+    for (const c of candidates()) if (!ON.order.includes(c.key)) ON.order.push(c.key);
+    if (!G) { publish(); announce(); render(); return; }
+    let moved = false;
+    for (const p of ON.gpeers) if (!p.sameTab) moved = processAct(p) || moved;
+    if (moved) { advance(); changed(); } else render();
+  } else {
+    const h = hostPeer();
+    if (h) {
+      ON.hostSeenAt = Date.now();
+      const pr = h.presence;
+      if (pr.g && typeof pr.g === 'object') {
+        if (pr.g.q !== ON.lastQ || !G) {
+          const g = decodeG(pr.g);
+          if (g) {
+            ON.lastQ = pr.g.q;
+            const prevKey = G ? stateKey() : null;
+            G = g;
+            if (G.phase === 'reveal') computeResults();
+            if (ui.pending && stateKey() !== prevKey) ui.pending = null;
+          }
+        }
+      } else if (pr.lob && typeof pr.lob === 'object') {
+        G = null;
+        ON.hostLob = pr.lob;
+      }
+    }
+    render();
+  }
+}
+
+// Host: a guest's move arrives in their presence.
+function processAct(peer) {
+  const pr = peer.presence || {};
+  const a = pr.act;
+  if (!a || typeof a !== 'object' || typeof a.key !== 'string') return false;
+  const key = peerKey(peer);
+  const id = key + ':' + pr.n + ':' + a.key;
+  if (ON.seen.has(id)) return false;
+  ON.seen.add(id);
+  if (a.key !== stateKey()) return false;
+  const seat = G.players.findIndex(p => !p.bot && p.key === key);
+  if (seat < 0) return false;
+  return applyAction(seat, { k: a.k, groups: a.groups, g: a.g });
+}
+
+function sendAct(a) {
+  if (!ON.room) return;
+  ON.n++;
+  ui.pending = stateKey();
+  ON.room.presence({ act: a, n: ON.n }).catch(e => { ui.pending = null; ON.roomErr = (e && e.code) || 'error'; render(); });
+}
+
+function hostStart() {
+  const seats = seatPreview().slice(0, 5);
+  const total = Math.min(5, Math.max(3, ON.lob.n, seats.length));
+  const usedNames = new Set(seats.map(s => s.nm.toLowerCase()));
+  const botNames = BOT_NAMES.filter(n => !usedNames.has(n.toLowerCase()));
+  const players = seats.map(s => ({ name: s.nm, bot: false, key: s.key, missions: [], area: [] }));
+  while (players.length < total) players.push({ name: botNames.shift() || `Bot ${players.length + 1}`, bot: true, key: '', missions: [], area: [] });
+  G = { online: true, level: ON.lob.lv, hints: ON.lob.h, starter: 0, C: 4, players, log: [], seq: 0 };
+  startLevel();
+  advance();
+  announce();
+  changed();
+}
+
+// A one-line connection report, so players can tell "the other device isn't here" from a game problem.
+function connHTML() {
+  if (!ON.room) return '';
+  const others = ON.room.peers().filter(p => !p.sameTab && p.kind === 'viewer').length;
+  const state = ON.roomErr ? `error de conexión (${esc(ON.roomErr)})` : ON.connected ? 'conectado' : 'conectando…';
+  const where = ON.transport === 'p2p' ? 'en la partida' : 'con la página abierta';
+  return `<p class="note">Conexión: ${state} · ${others === 0 ? `no veo a nadie más ${where}` : others === 1 ? `veo a 1 persona más ${where}` : `veo a ${others} personas más ${where}`}.</p>`;
+}
+
+async function initOnline(saved) {
+  ON.tk = (() => { let t = lsGet(TOKEN_KEY); if (typeof t !== 'string' || t.length < 8) { t = rid(12); lsSet(TOKEN_KEY, t); } return t; })();
+  ON.nm = (saved && saved.nm) || cleanName(S.names[0]) || '';
+  const room = await use('room');
+  if (!room && !window.claude) {
+    // Outside claude.ai: play over PeerJS, no account needed.
+    ON.transport = 'p2p';
+    ON.status = 'idle';
+    ON.resume = saved && saved.role && saved.code ? saved : null;
+    if (ui.mode === 'online') ensureP2P();
+    render();
+    return;
+  }
+  ON.room = room;
+  ON.status = room ? 'ok' : 'none';
+  if (room) {
+    room.onConnection(c => { ON.connected = c; render(); }, e => { ON.roomErr = (e && e.code) || 'error'; render(); });
+    room.onPeers(ch => { ON.lobbyPeers = ch.peers.slice(); onRoomPeers(); }, e => { ON.roomErr = (e && e.code) || 'error'; render(); });
+    if (saved && saved.role && saved.code) enterRoom(saved.code, saved.role, saved);
+  }
+  render();
+}
+
+/* ---------- Rendering ---------- */
+const PIPS = {
+  1: [[50, 50]], 2: [[29, 29], [71, 71]], 3: [[27, 27], [50, 50], [73, 73]],
+  4: [[29, 29], [71, 29], [29, 71], [71, 71]], 5: [[27, 27], [73, 27], [50, 50], [27, 73], [73, 73]],
+  6: [[29, 25], [71, 25], [29, 50], [71, 50], [29, 75], [71, 75]],
+};
+function dieHTML(d, { size = '', button = false, action = '', idx = 0, roll = false, disabled = false } = {}) {
+  const pips = PIPS[d.v].map(([x, y]) => `<circle class="pip" cx="${x}" cy="${y}" r="9.5"/>`).join('');
+  const svg = `<svg viewBox="0 0 100 100" aria-hidden="true"><rect class="face" x="4" y="4" width="92" height="92" rx="20"/>${pips}</svg>`;
+  const cls = `die c${d.c} ${size}${roll ? ' rolling' : ''}`;
+  const label = `${COLORS[d.c].sing} ${d.v}`;
+  return button
+    ? `<button type="button" class="${cls}" style="--i:${idx}" data-action="${action}" data-id="${d.id}" aria-label="Dado ${label}" ${disabled ? 'disabled' : ''}>${svg}</button>`
+    : `<span class="${cls}" style="--i:${idx}" role="img" aria-label="Dado ${label}">${svg}</span>`;
+}
+
+function statsHTML(dice) {
+  const st = stats(dice, G.C);
+  const parts = [];
+  for (let c = 0; c < G.C; c++) if (st.cnt[c]) parts.push(`<span>${cw(c)}${st.cnt[c]} · Σ${st.sum[c]}</span>`);
+  parts.push(`<span>Total ${st.total}</span>`);
+  return `<div class="stats">${parts.join('')}</div>`;
+}
+
+function viewerOf() {
+  if (G.phase === 'reveal') return 'all';
+  if (G.online) { const s = mySeat(); return s >= 0 ? s : null; }
+  return G.viewer;
+}
+
+function missionCard(i, V) {
+  const p = G.players[i];
+  const visible = V === 'all' || (V !== null && V !== i);
+  if (!visible) {
+    const mine = V === i;
+    const why = mine ? 'Los demás la ven. Tú no.' : G.online ? 'Solo la ven los jugadores sentados.' : 'Solo la ve quien tiene el dispositivo.';
+    return `<div class="mcard back"><span class="q">?</span><span class="bt"><b>${mine ? 'Tu misión' : 'Misión oculta'}</b>${why}</span></div>`;
+  }
+  const lines = p.missions.map((m, k) => {
+    const r = G.results && G.results[i][k];
+    const res = r ? `<span class="res ${r.ok ? 'ok' : 'bad'}">${r.ok ? 'Cumplida' : 'Fallada'}</span>` : '';
+    return `<div class="mline"><span class="txt">${missionText(m)}</span>${res}</div>${r ? `<div class="mdetail">${esc(r.detail)}</div>` : ''}`;
+  }).join('');
+  return `<div class="mcard"><span class="label">Misión de ${name(i)}</span>${lines}</div>`;
+}
+
+function seatsHTML(V) {
+  const live = G.online ? connectedKeys() : null;
+  const hostKey = G.online && ON.role === 'guest' ? (hostPeer() ? peerKey(hostPeer()) : null) : null;
+  return `<div class="seats">${G.players.map((p, i) => {
+    const tags = [];
+    if (V === i) tags.push('<span class="tag you">Tú</span>');
+    if (p.bot) tags.push('<span class="tag">Bot</span>');
+    if (G.online && !p.bot && i === 0) tags.push('<span class="tag">Anfitrión</span>');
+    if (live && !p.bot && !live.has(p.key) && p.key !== hostKey) tags.push('<span class="tag off">Desconectado</span>');
+    if (G.phase !== 'reveal' && i === G.active) tags.push('<span class="tag act">Reparte</span>');
+    return `<section class="seat${G.phase !== 'reveal' && i === G.active ? ' is-active' : ''}" aria-label="${name(i)}">
+      <div class="seat-head"><span class="seat-name">${name(i)}</span>${tags.join('')}</div>
+      <div class="rack">${missionCard(i, V)}</div>
+      <div class="area">
+        <div class="dice">${p.area.length ? p.area.map(d => dieHTML(d, { size: 'sm' })).join('') : '<span class="empty">Sin dados todavía</span>'}</div>
+      </div>
+      ${p.area.length ? statsHTML(p.area) : ''}
+    </section>`;
+  }).join('')}</div>`;
+}
+
+function waitHTML(text) { return `<div class="wait"><span class="spinner" aria-hidden="true"></span><span>${text}</span></div>`; }
+
+function groupsHTML(interactive) {
+  return `<div class="groups">${G.groups.map((ids, g) => {
+    const taken = G.taken[g];
+    const who = taken !== undefined ? `Para ${name(taken)}` : (interactive ? 'Disponible' : '');
+    const inner = `<div class="ghead"><span class="gl">${LETTERS[g]}</span><span class="gwho">${who}</span></div>
+      <div class="dice">${groupDice(g).map(d => dieHTML(d)).join('')}</div>${statsHTML(groupDice(g))}`;
+    const cls = `group${taken !== undefined ? ' taken' : ''}${ui.chosen === g ? ' sel' : ''}`;
+    return interactive && taken === undefined
+      ? `<button type="button" class="${cls}" data-action="pick" data-g="${g}" aria-pressed="${ui.chosen === g}">${inner}</button>`
+      : `<div class="${cls}">${inner}</div>`;
+  }).join('')}</div>`;
+}
+
+function stageHTML(V) {
+  const a = currentActor();
+  const mine = a !== null && a === V && !G.players[a].bot;
+  const sending = !!ui.pending;
+  const isGuest = G.online && ON.role === 'guest';
+  let body = '';
+
+  if (G.phase === 'roll') {
+    body = `<h2>Turno de ${name(G.active)}</h2>
+      <p class="sub">Reparte esta ronda: tira los dados y forma ${P()} grupos.</p>
+      ${mine
+        ? `<div class="actions"><button type="button" class="btn primary big" data-action="roll" ${sending ? 'disabled' : ''}>${sending ? 'Enviando…' : `Tirar ${G.C * DICE_PER_COLOR} dados`}</button></div>`
+        : waitHTML(`${name(G.active)} está tirando los dados…`)}`;
+  } else if (G.phase === 'group') {
+    if (mine) {
+      const free = G.roll.filter(d => ui.assign[d.id] === -1);
+      const sizes = Array(P()).fill(0);
+      G.roll.forEach(d => { if (ui.assign[d.id] >= 0) sizes[ui.assign[d.id]]++; });
+      const ready = free.length === 0 && sizes.every(s => s > 0) && !sending;
+      body = `<h2>Forma ${P()} grupos</h2>
+        <p class="sub">Elige un grupo y toca los dados para meterlos. Toca un dado de un grupo para sacarlo. Cada grupo necesita al menos un dado. Tú te quedarás el grupo que nadie elija.</p>
+        <div class="tray"><span class="label">Sin repartir (${free.length})</span>
+          <div class="dice">${free.length ? free.map((d, k) => dieHTML(d, { button: true, action: 'place', idx: k, roll: animate, size: 'lg' })).join('') : '<span class="empty">Todos los dados están en un grupo.</span>'}</div>
+        </div>
+        <div class="groups">${Array.from({ length: P() }, (_, g) => {
+          const ds = G.roll.filter(d => ui.assign[d.id] === g);
+          return `<div class="group${ui.sel === g ? ' sel' : ''}" data-action="sel" data-g="${g}" style="cursor:pointer">
+            <button type="button" class="ghead gpick" data-action="sel" data-g="${g}" aria-pressed="${ui.sel === g}"><span class="gl">${LETTERS[g]}</span><span class="gwho">${ui.sel === g ? 'Seleccionado' : 'Seleccionar'}</span></button>
+            <div class="dice">${ds.length ? ds.map(d => dieHTML(d, { button: true, action: 'unplace' })).join('') : '<span class="empty">Vacío</span>'}</div>
+          </div>`;
+        }).join('')}</div>
+        <div class="actions">
+          <button type="button" class="btn primary" data-action="confirm-groups" ${ready ? '' : 'disabled'}>${sending ? 'Enviando…' : 'Confirmar grupos'}</button>
+          <button type="button" class="btn ghost" data-action="clear-groups">Deshacer todo</button>
+        </div>`;
+    } else {
+      body = `<h2>Turno de ${name(G.active)}</h2>
+        <div class="dice">${G.roll.map((d, k) => dieHTML(d, { idx: k, roll: animate })).join('')}</div>
+        ${waitHTML(`${name(G.active)} está formando los grupos…`)}`;
+    }
+  } else if (G.phase === 'choose') {
+    if (mine) {
+      if (!ui.hint) ui.hint = computeHint(a);
+      const h = ui.hint;
+      let hint = '';
+      if (h && !h.none) {
+        const lines = [];
+        if (!h.mild) lines.push(`«Creo que el grupo ${LETTERS[h.rec]} te va mejor.»`);
+        else lines.push(`«Ningún grupo te ayuda mucho. Yo cogería el ${LETTERS[h.rec]}.»`);
+        h.danger.forEach(g => lines.push(`«Cuidado con el grupo ${LETTERS[g]}: podría ser peligroso para ti.»`));
+        hint = `<div class="hint"><span class="who">${name(h.bot)} comenta</span>${lines.map(l => `<span>${l}</span>`).join('')}</div>`;
+      }
+      const label = sending ? 'Enviando…' : ui.chosen === null ? 'Elige un grupo' : `Coger el grupo ${LETTERS[ui.chosen]}`;
+      body = `<h2>${name(a)}, elige un grupo</h2>
+        <p class="sub">${name(G.active)} ha formado los grupos pensando en lo que ve. ¿Cuál era para ti?</p>
+        ${groupsHTML(!sending)}
+        ${hint}
+        <div class="actions"><button type="button" class="btn primary" data-action="take" ${ui.chosen === null || sending ? 'disabled' : ''}>${label}</button></div>`;
+    } else {
+      body = `<h2>Elección de grupos</h2>
+        <p class="sub">Grupos de ${name(G.active)}. Elige ${name(a)}.</p>
+        ${groupsHTML(false)}
+        ${waitHTML(`${name(a)} está ${G.players[a].bot ? 'pensando' : 'eligiendo'}…`)}`;
+    }
+  } else if (G.phase === 'reveal') {
+    const failed = G.results.reduce((n, r) => n + r.filter(x => !x.ok).length, 0);
+    const controls = isGuest
+      ? waitHTML(`Esperando a que ${name(0)} decida cómo seguir…`)
+      : `<div class="actions">
+          ${G.win && G.level < 3 ? `<button type="button" class="btn primary big" data-action="next-level">Nivel ${G.level + 1}</button>` : ''}
+          <button type="button" class="btn ${G.win && G.level < 3 ? '' : 'primary big'}" data-action="retry">${G.win ? 'Jugar otra vez este nivel' : 'Reintentar el nivel'}</button>
+          <button type="button" class="btn ghost" data-action="new">Cambiar jugadores</button>
+        </div>`;
+    body = `<div class="banner ${G.win ? 'win' : 'lose'}">
+        <h2>${G.win ? '¡Nivel superado!' : 'Nivel fallado'}</h2>
+        <p>${G.win ? 'Todas las misiones se han cumplido. El equipo avanza.' : `${failed === 1 ? 'Ha fallado 1 misión' : `Han fallado ${failed} misiones`}. Mirad las cartas y probad otra vez.`}</p>
+      </div>${controls}`;
+  }
+
+  let talk = '';
+  if (G.phase !== 'reveal' && G.online) talk = '<p class="talk">Hablad por llamada o chat y sugerid («ese grupo te conviene»), pero nunca digáis la misión de nadie.</p>';
+  else if (G.phase !== 'reveal' && multi()) talk = '<p class="talk">Podéis hablar y sugerir («ese grupo te conviene»), pero nunca decir la misión de nadie.</p>';
+  let warn = '';
+  if (isGuest && !hostPeer() && Date.now() - ON.joinedAt > 4000) warn = `<p class="info">${name(0)} (anfitrión) se ha desconectado. La partida sigue cuando vuelva a abrir la página.</p>`;
+  if (G.online && V === null && G.phase !== 'reveal') warn += '<p class="info">Estás mirando la partida. No tienes asiento en ella.</p>';
+  const recent = G.log.slice(-6).map(l => `<li>${esc(l)}</li>`).join('');
+  return `<section class="stage" aria-live="polite">${warn}${body}${talk}${G.online ? connHTML() : ''}<div class="log"><span class="label">Registro</span><ol>${recent}</ol></div></section>`;
+}
+
+function headerHTML(status) {
+  return `<header class="top">
+      <p class="logo">BLIND<span class="dot"></span>SPOTS</p>
+      <span class="status">${status}</span>
+      <span class="spacer"></span>
+      <button type="button" class="btn ghost" data-action="rules">Reglas</button>
+      ${ui.quit
+        ? `<button type="button" class="btn danger" data-action="quit-yes">Sí, salir</button><button type="button" class="btn ghost" data-action="quit-no">Seguir</button>`
+        : `<button type="button" class="btn ghost" data-action="quit">Salir</button>`}
+    </header>`;
+}
+
+function gameHTML() {
+  const V = viewerOf();
+  const where = G.online ? `Partida ${ON.code.toUpperCase()} · ` : '';
+  const status = G.phase === 'reveal'
+    ? `${where}Nivel ${G.level} · Fin del nivel`
+    : `${where}Nivel ${G.level} · Ronda ${G.round + 1} de ${P()}`;
+  return `${headerHTML(status)}
+    <div class="board">${stageHTML(V)}${seatsHTML(V)}</div>
+    ${!G.online && G.cover !== null && G.cover !== undefined ? coverHTML() : ''}`;
+}
+
+function coverHTML() {
+  const i = G.cover;
+  const what = G.phase === 'choose' ? 'Te toca elegir un grupo.' : 'Te toca repartir esta ronda.';
+  return `<div class="overlay" role="dialog" aria-modal="true" aria-label="Cambio de jugador"><div class="cover">
+    <div class="eye" aria-hidden="true">?</div>
+    <h2>Pásale el dispositivo a ${name(i)}</h2>
+    <p>${what} La pantalla mostrará las misiones de los demás, así que nadie más debe mirarla.</p>
+    <button type="button" class="btn primary big" data-action="cover-ok">Soy ${name(i)}, continuar</button>
+  </div></div>`;
+}
+
+function waitingRoomHTML() {
+  const code = ON.code.toUpperCase();
+  if (ON.role === 'host') {
+    const seats = seatPreview();
+    const nh = Math.min(5, seats.length);
+    const total = Math.min(5, Math.max(3, ON.lob.n, nh));
+    const rows = seats.map((s, i) => `<li><span class="grow">${esc(s.nm)}${s.me ? ' (tú)' : ''}</span>${i === 0 ? '<span class="tag">Anfitrión</span>' : i >= 5 ? '<span class="tag">Espectador</span>' : '<span class="tag">Conectado</span>'}</li>`).join('');
+    const botsN = total - nh;
+    return `${headerHTML(`Partida ${code} · Sala de espera`)}
+      <div class="setup">
+        <section class="panel">
+          <h2>Tu partida</h2>
+          <div class="field"><span class="label">Código</span><div><span class="code">${code}</span></div>
+            <p class="note">${ON.transport === 'p2p'
+              ? `Pásales este enlace y el código. Solo tienen que abrirlo, elegir «Online» y unirse: <span style="user-select:all;overflow-wrap:anywhere">${esc(location.href.split('#')[0])}</span>`
+              : 'Pásales este código a tus amigos. Tienen que abrir esta misma página en claude.ai (compártela con ellos desde el menú Compartir), elegir «Online» y unirse.'}</p></div>
+          <div class="field"><span class="label">En la sala (${seats.length})</span><ul class="rows">${rows}</ul></div>
+          <div class="field"><span class="label">Jugadores en la partida</span>
+            <div class="seg" role="group" aria-label="Número de jugadores">${[3, 4, 5].map(k => `<button type="button" data-action="on-count" data-n="${k}" aria-pressed="${total === k}" ${k < nh ? 'disabled' : ''}>${k}</button>`).join('')}</div>
+            <p class="note">${botsN > 0 ? `${botsN === 1 ? 'Un hueco libre lo ocupará un bot' : `${botsN} huecos libres los ocuparán bots`}. Si entra alguien más antes de empezar, ocupa su sitio.` : 'Todos los asientos son de personas.'}</p>
+          </div>
+          <div class="field"><span class="label">Nivel</span>
+            <div class="seg" role="group" aria-label="Nivel">${[1, 2, 3].map(k => `<button type="button" data-action="on-level" data-n="${k}" aria-pressed="${ON.lob.lv === k}">${k}. ${LEVELS[k].label}<small>${LEVELS[k].desc}</small></button>`).join('')}</div>
+          </div>
+          <label class="toggle"><input id="on-hints" type="checkbox" data-action="on-hints" ${ON.lob.h ? 'checked' : ''}> Los bots dan pistas cuando eliges grupo</label>
+          <div class="actions"><button type="button" class="btn primary big" data-action="on-start">Empezar partida</button></div>
+          ${connHTML()}
+        </section>
+        ${howtoPanel()}
+      </div>`;
+  }
+  const lob = ON.hostLob;
+  const h = hostPeer();
+  let inner;
+  if (!h || !lob) {
+    inner = Date.now() - ON.joinedAt < 4000 ? waitHTML('Conectando con la partida…')
+      : `<p class="info">No encuentro la partida ${code}. Comprueba el código y que el anfitrión tenga la página abierta. ${ON.transport === 'p2p' ? '' : 'Si abajo pone que no ves a nadie más, este dispositivo y el del anfitrión no se están viendo: abrid los dos el mismo enlace en claude.ai con la sesión iniciada.'}</p>`;
+  } else {
+    const seats = Array.isArray(lob.seats) ? lob.seats.slice(0, 5).map(cleanName) : [];
+    const n = Math.min(5, Math.max(3, Number(lob.n) || 3, seats.length));
+    inner = `<div class="field"><span class="label">Jugadores (${seats.length} de ${n})</span>
+        <ul class="rows">${seats.map((s, i) => `<li><span class="grow">${esc(s || 'Jugador')}</span>${i === 0 ? '<span class="tag">Anfitrión</span>' : ''}</li>`).join('')}
+        ${Array.from({ length: Math.max(0, n - seats.length) }, () => '<li><span class="grow empty">Hueco para un bot</span></li>').join('')}</ul></div>
+      <p class="note">Nivel ${Number(lob.lv) || 1}${lob.spec ? ` · ${lob.spec} mirando` : ''}</p>
+      ${waitHTML(`Esperando a que ${esc(cleanName(h.presence.nm) || 'el anfitrión')} empiece…`)}`;
+  }
+  return `${headerHTML(`Partida ${code} · Sala de espera`)}
+    <div class="setup"><section class="panel"><h2>Partida ${code}</h2>${inner}${connHTML()}</section>${howtoPanel()}</div>`;
+}
+
+function howtoPanel() {
+  return `<section class="panel">
+    <h2>Cómo se juega</h2>
+    <ol class="howto">
+      <li><span><b>Tira los dados</b>Quien reparte tira ${DICE_PER_COLOR} dados de cada color. Todo el mundo ve el resultado.</span></li>
+      <li><span><b>Forma grupos</b>Los divide en tantos grupos como jugadores, pensando en las misiones que ve.</span></li>
+      <li><span><b>Elige</b>Empezando por su izquierda, cada jugador coge un grupo. Quien reparte se queda el último.</span></li>
+      <li><span><b>Acumula</b>Los dados se suman a tu zona. Hay tantas rondas como jugadores y cada uno reparte una vez.</span></li>
+    </ol>
+    <p class="note">Al final se descubren las cartas. Si todos cumplen su misión, el equipo gana el nivel.</p>
+    <button type="button" class="btn ghost" data-action="rules">Reglas completas</button>
+  </section>`;
+}
+
+function localSetupHTML() {
+  const n = S.count;
+  const rows = Array.from({ length: n }, (_, i) => `
+    <div class="prow">
+      <span class="num">${i + 1}</span>
+      <input id="pname-${i}" type="text" maxlength="16" value="${esc(S.names[i])}" data-name="${i}" aria-label="Nombre del jugador ${i + 1}">
+      <div class="seg" role="group" aria-label="Tipo de jugador ${i + 1}">
+        <button type="button" data-action="human" data-i="${i}" aria-pressed="${!S.bots[i]}">Persona</button>
+        <button type="button" data-action="bot" data-i="${i}" aria-pressed="${!!S.bots[i]}">Bot</button>
+      </div>
+    </div>`).join('');
+  const nh = S.bots.slice(0, n).filter(b => !b).length;
+  const modeNote = nh === 0 ? 'Solo bots: verás cómo juegan, con todas las misiones a la vista.'
+    : nh === 1 ? 'Una persona con bots: los bots ven tu misión y te dan pistas permitidas.'
+    : `${nh} personas en un mismo dispositivo: os lo iréis pasando. Cada uno ve las misiones de los demás solo en su turno.`;
+  return `<section class="panel">
+      <h2>Partida en este dispositivo</h2>
+      <div class="field"><span class="label">Jugadores</span>
+        <div class="seg" role="group" aria-label="Número de jugadores">${[3, 4, 5].map(k => `<button type="button" data-action="count" data-n="${k}" aria-pressed="${n === k}">${k}</button>`).join('')}</div>
+      </div>
+      <div class="field"><span class="label">Quién juega</span><div class="players">${rows}</div><p class="note">${modeNote}</p></div>
+      <div class="field"><span class="label">Nivel</span>
+        <div class="seg" role="group" aria-label="Nivel">${[1, 2, 3].map(k => `<button type="button" data-action="level" data-n="${k}" aria-pressed="${S.level === k}">${k}. ${LEVELS[k].label}<small>${LEVELS[k].desc}</small></button>`).join('')}</div>
+      </div>
+      <label class="toggle"><input id="hints" type="checkbox" data-action="hints" ${S.hints ? 'checked' : ''}> Los bots dan pistas cuando eliges grupo</label>
+      <div class="actions"><button type="button" class="btn primary big" data-action="start">Empezar</button></div>
+    </section>`;
+}
+
+function onlineSetupHTML() {
+  if (ON.status === 'pending' || ON.status === 'idle') return `<section class="panel"><h2>Partida online</h2>${waitHTML('Conectando…')}</section>`;
+  if (ON.status === 'none' && ON.transport === 'p2p') {
+    return `<section class="panel"><h2>Partida online</h2>
+      <p class="info">No se ha podido cargar el modo online. Revisa tu conexión a internet y recarga la página.</p></section>`;
+  }
+  if (ON.status === 'none') {
+    return `<section class="panel"><h2>Partida online</h2>
+      <p class="info">El modo online solo funciona al abrir esta página en claude.ai con la sesión iniciada.</p>
+      <p class="note">Cada jugador necesita una cuenta de Claude y acceso a la página. El dueño la comparte desde el menú Compartir.</p></section>`;
+  }
+  const open = ON.lobbyPeers.filter(p => !p.sameTab && p.presence && p.presence.open && /^[a-z0-9]{4}$/.test(p.presence.open.code));
+  const games = open.map(p => {
+    const o = p.presence.open;
+    return `<li><span class="grow"><b>Partida de ${esc(cleanName(o.nm) || 'alguien')}</b> · ${esc(o.code.toUpperCase())} · ${Math.min(9, Number(o.n) || 1)} en la sala</span>
+      <button type="button" class="btn" data-action="on-join-list" data-code="${esc(o.code)}">Unirme</button></li>`;
+  }).join('');
+  return `<section class="panel">
+      <h2>Partida online</h2>
+      <p class="note">Cada jugador juega desde su casa con esta misma página abierta${ON.transport === 'p2p' ? ', sin necesidad de cuenta' : ''}. Cada uno ve las misiones de los demás, nunca la suya.</p>
+      <div class="field"><label class="label" for="on-name">Tu nombre</label>
+        <div class="inline"><input id="on-name" type="text" maxlength="16" value="${esc(ON.nm)}" data-online-name="1" placeholder="Cómo te verán los demás"></div></div>
+      <div class="field"><span class="label">Crear</span>
+        <div class="actions"><button type="button" class="btn primary big" data-action="on-create">Crear partida</button></div>
+        <p class="note">Serás el anfitrión: la partida vive en tu pantalla, así que mantenla abierta mientras jugáis.</p></div>
+      ${ON.transport === 'p2p' ? '' : `<div class="field"><span class="label">Partidas abiertas</span>
+        ${games ? `<ul class="rows">${games}</ul>` : '<p class="note">Ahora mismo no hay ninguna. Cuando alguien cree una, aparecerá aquí.</p>'}</div>`}
+      <div class="field"><label class="label" for="on-code">Unirse con código</label>
+        <div class="inline"><input id="on-code" class="short" type="text" maxlength="4" value="${esc(ui.joinCode)}" data-join-code="1" placeholder="K3F9" autocomplete="off">
+        <button type="button" class="btn" data-action="on-join">Unirme</button></div></div>
+      ${ui.connecting ? waitHTML('Conectando…') : ''}
+      ${ui.err ? `<p class="err">${esc(ui.err)}</p>` : ''}
+      ${connHTML()}
+    </section>`;
+}
+
+function homeHTML() {
+  return `<section class="hero">
+      <span class="meta">3–5 jugadores · Cooperativo · Dados y deducción</span>
+      <h1>BLIND<span class="dot" aria-hidden="true"></span>SPOTS</h1>
+      <p>Ves la misión de todos. Todos ven la tuya. Nadie ve la suya.</p>
+      <div><div class="tabs" role="group" aria-label="Modo de juego">
+        <button type="button" data-action="mode" data-m="local" aria-pressed="${ui.mode === 'local'}">En este dispositivo</button>
+        <button type="button" data-action="mode" data-m="online" aria-pressed="${ui.mode === 'online'}">Online</button>
+      </div></div>
+    </section>
+    <div class="setup">${ui.mode === 'online' ? onlineSetupHTML() : localSetupHTML()}${howtoPanel()}</div>`;
+}
+
+function rulesHTML() {
+  return `<div class="overlay dim" data-action="rules-close-bg"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="rules-title">
+    <h2 id="rules-title">Reglas de BlindSpots</h2>
+    <p>Juego cooperativo de dados y deducción para 3–5 jugadores. Cada jugador tiene una misión personal que no puede ver; los demás sí la ven y deben ayudarle con sus decisiones.</p>
+    <h3>Objetivo</h3>
+    <p>El equipo gana el nivel si al final todos han cumplido su misión. Si falla una sola, el equipo pierde el nivel y puede volver a intentarlo.</p>
+    <h3>Misiones</h3>
+    <p>Cada misión es una condición sobre todos los dados que acumulas en el nivel. Por ejemplo: «Ningún dado azul», «Exactamente 3 dados verdes», «Suma azul &gt; suma naranja» (solo cuentan los valores) o «Dados de exactamente 3 colores distintos» (solo cuenta cuántos colores tienes).</p>
+    <h3>Una ronda</h3>
+    <ul>
+      <li>Quien reparte tira los dados del nivel (aquí, ${DICE_PER_COLOR} de cada color).</li>
+      <li>Los divide en tantos grupos como jugadores. No hace falta que sean iguales.</li>
+      <li>Empezando por su izquierda, cada jugador elige un grupo y se lo lleva. Quien reparte recibe el último.</li>
+      <li>Los dados se añaden a la zona personal y cuentan para la misión final.</li>
+    </ul>
+    <p>Un nivel dura tantas rondas como jugadores; cada uno reparte una vez. Las misiones solo se comprueban al final.</p>
+    <h3>Comunicación</h3>
+    <p>Se puede hablar y sugerir («creo que ese grupo te va mejor», «ese dado puede ser peligroso para alguien»), pero no revelar la misión de nadie.</p>
+    <h3>Niveles</h3>
+    <ul>
+      <li>Nivel 1: 3 colores (azul, naranja y verde) y una misión por jugador.</li>
+      <li>Nivel 2: entran el morado y el amarillo, y misiones de suma y de total de dados.</li>
+      <li>Nivel 3: dos misiones por jugador.</li>
+    </ul>
+    <h3>En esta versión</h3>
+    <p>En un dispositivo, la web pide pasarlo antes de cada decisión y solo entonces muestra las misiones de los demás. Online, cada jugador ve las misiones de los demás en su pantalla. Los bots reparten pensando en las misiones que ven y, al elegir, cogen el grupo que menos perjudica al resto.</p>
+    <div class="actions"><button type="button" class="btn primary" data-action="rules-close">Cerrar</button></div>
+  </div></div>`;
+}
+
+function syncUiKey() {
+  const k = stateKey();
+  if (ui.key === k) return;
+  const wasGroup = ui.key && ui.key.endsWith('|group');
+  ui.key = k;
+  ui.assign = {};
+  G.roll.forEach(d => { ui.assign[d.id] = -1; });
+  ui.sel = 0; ui.chosen = null; ui.hint = null; ui.pending = null;
+  animate = G.phase === 'group' && !wasGroup;
+}
+
+function render() {
+  const active = document.activeElement;
+  const focusId = active && active.id;
+  const caret = active && typeof active.selectionStart === 'number' ? active.selectionStart : null;
+  let html;
+  if (G) { syncUiKey(); html = gameHTML(); }
+  else if (ON.role) html = waitingRoomHTML();
+  else html = homeHTML();
+  $app.innerHTML = html + (ui.rules ? rulesHTML() : '');
+  animate = false;
+  if (focusId) {
+    const el = document.getElementById(focusId);
+    if (el) { el.focus(); if (caret !== null && typeof el.setSelectionRange === 'function') { try { el.setSelectionRange(caret, caret); } catch (e) { /* not a text field */ } } }
+  }
+}
+
+/* ---------- Events ---------- */
+const $app = document.getElementById('app');
+
+$app.addEventListener('input', e => {
+  const t = e.target;
+  if (t.dataset.name !== undefined) { S.names[+t.dataset.name] = t.value; persist(); }
+  if (t.dataset.onlineName) { ON.nm = t.value; lsSet(ONLINE_KEY + '-name', t.value); }
+  if (t.dataset.joinCode) { ui.joinCode = t.value.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 4); }
+});
+
+$app.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.target.dataset && e.target.dataset.joinCode) { e.preventDefault(); enterRoom(ui.joinCode, 'guest'); }
+});
+
+$app.addEventListener('click', e => {
+  const el = e.target.closest('[data-action]');
+  if (!el || el.disabled) return;
+  const actn = el.dataset.action;
+  if (actn === 'rules-close-bg' && e.target !== el) return;
+  const g = el.dataset.g !== undefined ? +el.dataset.g : null;
+
+  switch (actn) {
+    case 'rules': ui.rules = true; break;
+    case 'rules-close': case 'rules-close-bg': ui.rules = false; break;
+    case 'mode': ui.mode = el.dataset.m; ui.err = ''; if (ui.mode === 'online') ensureP2P(); break;
+    case 'count': S.count = +el.dataset.n; persist(); break;
+    case 'human': S.bots[+el.dataset.i] = false; persist(); break;
+    case 'bot': S.bots[+el.dataset.i] = true; persist(); break;
+    case 'level': S.level = +el.dataset.n; persist(); break;
+    case 'hints': S.hints = el.checked; persist(); return;
+    case 'start': newLocalGame(); advance(); persist(); break;
+    case 'quit': ui.quit = true; break;
+    case 'quit-no': ui.quit = false; break;
+    case 'quit-yes':
+      ui.quit = false;
+      if (ON.role) leaveGameRoom();
+      else { stopTimer(); G = null; persist(); }
+      break;
+    case 'cover-ok': G.viewer = G.cover; G.cover = null; persist(); break;
+    case 'roll': act('roll'); return;
+    case 'sel': ui.sel = g; break;
+    case 'place': ui.assign[+el.dataset.id] = ui.sel; break;
+    case 'unplace': ui.assign[+el.dataset.id] = -1; break;
+    case 'clear-groups': G.roll.forEach(d => { ui.assign[d.id] = -1; }); break;
+    case 'confirm-groups':
+      act('groups', { groups: Array.from({ length: P() }, (_, k) => G.roll.filter(d => ui.assign[d.id] === k).map(d => d.id)) });
+      return;
+    case 'pick': ui.chosen = g; break;
+    case 'take': if (ui.chosen !== null) act('take', { g: ui.chosen }); return;
+    case 'next-level': G.level = Math.min(3, G.level + 1); G.starter = (G.starter + 1) % P(); startLevel(); advance(); changed(); return;
+    case 'retry': G.starter = (G.starter + 1) % P(); startLevel(); advance(); changed(); return;
+    case 'new':
+      stopTimer();
+      G = null;
+      if (ON.role === 'host') { publish(); announce(); saveOnline(); } else persist();
+      break;
+    // Online
+    case 'on-create': enterRoom(rid(4), 'host'); return;
+    case 'on-join': enterRoom(ui.joinCode, 'guest'); return;
+    case 'on-join-list': enterRoom(el.dataset.code, 'guest'); return;
+    case 'on-count': ON.lob.n = +el.dataset.n; publish(); saveOnline(); break;
+    case 'on-level': ON.lob.lv = +el.dataset.n; publish(); saveOnline(); break;
+    case 'on-hints': ON.lob.h = el.checked; publish(); saveOnline(); return;
+    case 'on-start': hostStart(); return;
+    default: return;
+  }
+  render();
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && ui.rules) { ui.rules = false; render(); }
+});
+
+// Guests re-check the host's connection now and then (the "disconnected" note).
+setInterval(() => { if (ON.role === 'guest') render(); }, 5000);
+
+/* ---------- Boot ---------- */
+function start(data) {
+  let saved = data && (data.G !== undefined || data.S) ? data : lsGet(STORE_KEY);
+  if (saved) {
+    if (saved.S) S = Object.assign(S, saved.S);
+    if (saved.G && saved.G.players && !saved.G.online) G = saved.G;
+  }
+  const onl = (data && data.onl) || lsGet(ONLINE_KEY);
+  const savedName = lsGet(ONLINE_KEY + '-name');
+  if (onl && onl.role) ui.mode = 'online';
+  if (data && data.mode) ui.mode = data.mode;
+  if (G) advance();
+  render();
+  initOnline(onl && onl.role ? onl : (typeof savedName === 'string' ? { nm: savedName } : null));
+}
+window.claude?.hot?.snapshot?.(() => ({ G: G && !G.online ? G : null, S, mode: ui.mode, onl: ON.role ? { role: ON.role, code: ON.code, nm: ON.nm, G: ON.role === 'host' ? G : null, lob: ON.lob, order: ON.order } : null }));
+window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude?.hot?.data ?? {});
+})();
+</script>
+</body>
+</html>
