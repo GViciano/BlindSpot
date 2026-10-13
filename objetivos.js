@@ -134,8 +134,9 @@ window.BLINDSPOTS_OBJETIVOS = [
   { estrellas: 3, tipo: 'numero_al_menos', numero: 4, n: 3 },
   { estrellas: 3, tipo: 'suma_total_maxima', n: 20 },
   { estrellas: 4, tipo: 'suma_total_maxima', n: 15 },
-  { estrellas: 2, tipo: 'suma_total_minima', n: 25 },
-  { estrellas: 3, tipo: 'suma_total_minima', n: 30 },
-  { estrellas: 5, tipo: 'suma_total_minima', n: 40 },
+  { estrellas: 2, tipo: 'suma_total_minima', n: 15 },
+  { estrellas: 3, tipo: 'suma_total_minima', n: 20 },
+  { estrellas: 4, tipo: 'suma_total_minima', n: 25 },
+  { estrellas: 5, tipo: 'suma_total_minima', n: 30 },
   { estrellas: 1, tipo: 'suma_total_par' },
 ];
