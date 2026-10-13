@@ -226,7 +226,7 @@ button.group:hover { border-color: var(--muted); }
 'use strict';
 
 const TYPES = ['noColor', 'exact', 'atLeast', 'atMost', 'sumGreater', 'countMore', 'exactColours', 'allColours', 'sumAtLeast', 'atMostTotal', 'atLeastTotal'];
-const BAG_PER_COLOUR = 11;                       // dice of each colour in the bag
+const BAG_PER_COLOUR = 15;                       // dice of each colour in the bag
 const rollCount = P => P * 2 - 1;                  // dice drawn from the bag each round
 const totalDrawn = P => P * rollCount(P);          // one round per player
 // Fewest colours whose bag lasts the whole game (5 players need all 5).
@@ -417,7 +417,7 @@ const I18N = {
       <p>Cada misión tiene uno o varios objetivos: condiciones sobre todos los dados que acumulas en la partida. Por ejemplo: «Ningún dado azul», «Exactamente 3 dados verdes», «Suma azul &gt; suma naranja» (solo cuentan los valores) o «Dados de exactamente 3 colores distintos» (solo cuenta cuántos colores tienes).</p>
       <h3>Una ronda</h3>
       <ul>
-        <li>Quien reparte saca al azar de la bolsa (jugadores × 2) − 1 dados y los tira. La bolsa empieza con 11 dados de cada color en juego, y los dados repartidos ya no vuelven a ella.</li>
+        <li>Quien reparte saca al azar de la bolsa (jugadores × 2) − 1 dados y los tira. La bolsa empieza con 15 dados de cada color en juego, y los dados repartidos ya no vuelven a ella.</li>
         <li>Los divide en tantos grupos como jugadores. No hace falta que sean iguales.</li>
         <li>Empezando por su izquierda, cada jugador elige un grupo y se lo lleva. Quien reparte recibe el último.</li>
         <li>Los dados se añaden a la zona personal y cuentan para la misión final.</li>
@@ -578,7 +578,7 @@ const I18N = {
       <p>Each mission has one or more objectives: conditions on all the dice you collect during the game. For example: “No blue dice”, “Exactly 3 green dice”, “Blue total &gt; orange total” (only the values count) or “Dice of exactly 3 different colours” (only the number of colours counts).</p>
       <h3>A round</h3>
       <ul>
-        <li>The dealer draws (players × 2) − 1 dice at random from the bag and rolls them. The bag starts with 11 dice of each colour in play, and dealt dice never go back in.</li>
+        <li>The dealer draws (players × 2) − 1 dice at random from the bag and rolls them. The bag starts with 15 dice of each colour in play, and dealt dice never go back in.</li>
         <li>They split them into as many groups as there are players. Groups don’t need to be the same size.</li>
         <li>Starting on the dealer’s left, each player picks a group and takes it. The dealer gets the last one.</li>
         <li>The dice go into each player’s area and count towards their final mission.</li>
