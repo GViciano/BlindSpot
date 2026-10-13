@@ -977,6 +977,19 @@ function hostPeer() {
   return ON.gpeers.find(p => !p.sameTab && p.presence.host === 1 && p.presence.code === ON.code) || null;
 }
 
+// Fills in any setting a saved lobby lacks (older versions saved levels instead).
+function cleanLob(l) {
+  const d = { n: 4, C: 3, per: 1, smin: 1, smax: 5, h: true };
+  if (!l || typeof l !== 'object') return d;
+  const ok = (v, lo, hi) => Number.isInteger(v) && v >= lo && v <= hi;
+  const out = {
+    n: ok(l.n, 3, 5) ? l.n : d.n, C: ok(l.C, 3, 5) ? l.C : d.C, per: ok(l.per, 1, 3) ? l.per : d.per,
+    smin: ok(l.smin, 1, 5) ? l.smin : d.smin, smax: ok(l.smax, 1, 5) ? l.smax : d.smax, h: l.h !== false,
+  };
+  if (out.smin > out.smax) out.smax = out.smin;
+  return out;
+}
+
 async function enterRoom(code, role, saved) {
   ui.err = '';
   code = String(code || '').toLowerCase().trim();
@@ -1000,7 +1013,12 @@ async function enterRoom(code, role, saved) {
   G = null;
   Object.assign(ON, { code, role, seen: new Set(), lastQ: -1, lastLob: null, lastOpen: null, joinedAt: Date.now(), hostSeenAt: 0, n: Date.now(), hostLob: null });
   if (role === 'host') {
-    if (saved) { ON.lob = saved.lob || ON.lob; ON.order = saved.order || []; if (saved.G && saved.G.players) G = saved.G; }
+    if (saved) {
+      ON.lob = cleanLob(saved.lob);
+      ON.order = Array.isArray(saved.order) ? saved.order : [];
+      // A game saved by an older version (no settings) can't be resumed.
+      if (saved.G && saved.G.players && saved.G.cfg) G = saved.G;
+    }
     else ON.order = [];
     setPresence({ nm: ON.nm, tk: ON.tk, host: 1, code, gc: null, act: null, n: null });
     publish();
