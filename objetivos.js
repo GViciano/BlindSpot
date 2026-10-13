@@ -149,8 +149,8 @@ window.BLINDSPOTS_OBJETIVOS = [
   { estrellas: 3, tipo: 'escalera', n: 4 },
   { estrellas: 4, tipo: 'escalera', n: 5 },
   { estrellas: 5, tipo: 'escalera', n: 6 },
-  { estrellas: 3, tipo: 'escalera_color', n: 3 },
-  { estrellas: 4, tipo: 'escalera_color', n: 4 },
-  { estrellas: 2, tipo: 'dos_parejas' },
-  { estrellas: 3, tipo: 'full' },
+  { estrellas: 4, tipo: 'escalera_color', n: 3 },
+  { estrellas: 5, tipo: 'escalera_color', n: 4 },
+  { estrellas: 3, tipo: 'dos_parejas' },
+  { estrellas: 4, tipo: 'full' },
 ];
