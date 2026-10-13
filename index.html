@@ -385,7 +385,7 @@ const I18N = {
     p2p_not_found: 'No encuentro esa partida. Comprueba el código y que el anfitrión tenga la página abierta.',
     p2p_code_taken: 'Esta partida ya está abierta en otra pestaña o dispositivo.',
     p2p_unsupported: 'Este navegador no permite jugar online. Prueba con Chrome, Safari o Firefox actualizados.',
-    p2p_network: 'No se ha podido conectar. Revisa tu conexión a internet y vuelve a intentarlo.',
+    p2p_network: 'No se ha podido conectar con el servidor que pone en contacto a los jugadores. Puede ser un fallo momentáneo: espera un minuto y vuelve a intentarlo. Si sigue, prueba con otra red (por ejemplo, datos del móvil).',
     p2p_timeout: 'La conexión está tardando demasiado. Revisa tu conexión a internet y vuelve a intentarlo.',
     // Missions
     m: {
@@ -548,7 +548,7 @@ const I18N = {
     p2p_not_found: 'Can’t find that game. Check the code and that the host has the page open.',
     p2p_code_taken: 'This game is already open in another tab or device.',
     p2p_unsupported: 'This browser can’t play online. Try an up-to-date Chrome, Safari or Firefox.',
-    p2p_network: 'Couldn’t connect. Check your internet connection and try again.',
+    p2p_network: 'Couldn’t reach the server that puts players in touch. It may be a temporary fault: wait a minute and try again. If it keeps happening, try another network (for example, mobile data).',
     p2p_timeout: 'The connection is taking too long. Check your internet connection and try again.',
     m: {
       dice: (n, c) => n === 1 ? `1 ${c.sing} die` : `${n} ${c.pl} dice`,
@@ -604,7 +604,7 @@ function t(key, ...args) {
 }
 const tm = (key, ...args) => { const v = I18N[LANG].m[key]; return typeof v === 'function' ? v(...args) : v; };
 // ui.err holds {k, a}: a message key and its arguments, translated when shown.
-const errText = e => e ? (typeof e === 'string' ? e : t(e.k, ...(e.a || []))) : '';
+const errText = e => e ? (typeof e === 'string' ? e : t(e.k, ...(e.a || [])) + (e.detail ? ` (${e.detail})` : '')) : '';
 const errHTML = () => ui.err ? `<p class="err">${esc(errText(ui.err))}</p>` : '';
 function langHTML() {
   return `<div class="tabs lang" role="group" aria-label="${t('langLabel')}">
@@ -1222,7 +1222,7 @@ function p2pRoom(code, role) {
       connected: () => connected,
       close: () => { closed = true; clearTimeout(retry); try { peer.destroy(); } catch (e) { /* already gone */ } },
     };
-    const fail = c => { if (settled) return; settled = true; closed = true; try { peer.destroy(); } catch (e) { /* already gone */ } reject({ code: c }); };
+    const fail = (c, detail) => { if (settled) return; settled = true; closed = true; try { peer.destroy(); } catch (e) { /* already gone */ } reject({ code: c, detail }); };
     const scheduleRetry = () => { clearTimeout(retry); if (!closed) retry = setTimeout(connectToHost, 3000); };
 
     function connectToHost() {
@@ -1255,7 +1255,7 @@ function p2pRoom(code, role) {
       if (t === 'unavailable-id') return fail('code_taken');
       if (t === 'browser-incompatible') return fail('unsupported');
       if (t === 'peer-unavailable') { if (!settled) return fail('not_found'); setConn(false); scheduleRetry(); return; }
-      if (!settled) return fail('network');
+      if (!settled) return fail('network', t || (e && e.message) || '');
       setConn(false);
     });
     peer.on('disconnected', () => {
@@ -1273,7 +1273,7 @@ function p2pRoom(code, role) {
         c.on('error', gone);
       });
     }
-    setTimeout(() => fail('timeout'), 15000);
+    setTimeout(() => fail('timeout', 'timeout'), 15000);
   });
 }
 
@@ -1292,13 +1292,15 @@ async function ensureP2P() {
 }
 
 async function openP2P(code, role, saved) {
-  let tries = 0;
+  let taken = 0, flaky = 0;
   for (;;) {
     try { return { room: await p2pRoom(code, role), code }; } catch (e) {
       const c = (e && e.code) || 'network';
-      if (c === 'code_taken' && role === 'host' && !saved && tries < 3) { code = rid(4); tries++; continue; }
-      if (c === 'code_taken' && saved && tries < 6) { tries++; await sleep(3000); continue; }
-      return { err: { k: 'p2p_' + (P2P_ERRORS.includes(c) ? c : 'network') } };
+      if (c === 'code_taken' && role === 'host' && !saved && taken < 3) { code = rid(4); taken++; continue; }
+      if (c === 'code_taken' && saved && taken < 6) { taken++; await sleep(3000); continue; }
+      // The public signalling server sometimes drops a first attempt: try a few more times.
+      if ((c === 'network' || c === 'timeout') && flaky < 3) { flaky++; await sleep(1500 * flaky); continue; }
+      return { err: { k: 'p2p_' + (P2P_ERRORS.includes(c) ? c : 'network'), a: [], detail: e && e.detail } };
     }
   }
 }
