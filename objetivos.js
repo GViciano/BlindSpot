@@ -145,10 +145,10 @@ window.BLINDSPOTS_OBJETIVOS = [
   { estrellas: 1, tipo: 'suma_total_par' },
 
   // Combinaciones de números
-  { estrellas: 1, tipo: 'escalera', n: 3 },
-  { estrellas: 2, tipo: 'escalera', n: 4 },
-  { estrellas: 3, tipo: 'escalera', n: 5 },
-  { estrellas: 4, tipo: 'escalera', n: 6 },
+  { estrellas: 2, tipo: 'escalera', n: 3 },
+  { estrellas: 3, tipo: 'escalera', n: 4 },
+  { estrellas: 4, tipo: 'escalera', n: 5 },
+  { estrellas: 5, tipo: 'escalera', n: 6 },
   { estrellas: 3, tipo: 'escalera_color', n: 3 },
   { estrellas: 4, tipo: 'escalera_color', n: 4 },
   { estrellas: 2, tipo: 'dos_parejas' },
