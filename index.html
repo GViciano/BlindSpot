@@ -211,6 +211,8 @@ button.group:hover { border-color: var(--muted); }
 .err { color: var(--bad); font-size: 14px; margin: 0; }
 .info { border-radius: 10px; padding: 10px 12px; background: var(--surface-2); font-size: 14px; margin: 0; }
 .stars { color: var(--d1); letter-spacing: .05em; font-size: 13px; white-space: nowrap; }
+.home-top { display: flex; justify-content: flex-end; }
+.tabs.lang button { padding: 6px 12px; font-size: 13px; }
 .tag.off { color: var(--bad); border-color: var(--bad); background: transparent; }
 </style>
 </head>
@@ -223,13 +225,6 @@ button.group:hover { border-color: var(--muted); }
 (() => {
 'use strict';
 
-const COLORS = [
-  { sing: 'azul', pl: 'azules' },
-  { sing: 'naranja', pl: 'naranjas' },
-  { sing: 'verde', pl: 'verdes' },
-  { sing: 'morado', pl: 'morados' },
-  { sing: 'amarillo', pl: 'amarillos' },
-];
 const TYPES = ['noColor', 'exact', 'atLeast', 'atMost', 'sumGreater', 'countMore', 'exactColours', 'allColours', 'sumAtLeast', 'atMostTotal', 'atLeastTotal'];
 const DICE_PER_COLOR = 2;
 const LETTERS = 'ABCDE';
@@ -248,25 +243,388 @@ const lsGet = k => { try { return JSON.parse(localStorage.getItem(k) || 'null');
 const lsSet = (k, v) => { try { if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* storage unavailable */ } };
 const use = n => (window.claude && typeof window.claude.use === 'function') ? window.claude.use(n).catch(() => null) : Promise.resolve(null);
 
+/* ---------- Language ---------- */
+// Each viewer picks their own language; nothing language-specific travels in shared game state.
+const LANG_KEY = 'blindspots-lang';
+let LANG = (() => { const l = lsGet(LANG_KEY); return l === 'en' || l === 'es' ? l : 'es'; })();
+
+const COLOR_NAMES = {
+  es: [{ sing: 'azul', pl: 'azules' }, { sing: 'naranja', pl: 'naranjas' }, { sing: 'verde', pl: 'verdes' }, { sing: 'morado', pl: 'morados' }, { sing: 'amarillo', pl: 'amarillos' }],
+  en: [{ sing: 'blue', pl: 'blue' }, { sing: 'orange', pl: 'orange' }, { sing: 'green', pl: 'green' }, { sing: 'purple', pl: 'purple' }, { sing: 'yellow', pl: 'yellow' }],
+};
+const cname = c => COLOR_NAMES[LANG][c];
+const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+const plural = (n, one, many) => n === 1 ? one : many;
+
+const I18N = {
+  es: {
+    htmlLang: 'es',
+    langLabel: 'Idioma',
+    // Home
+    meta: '3–5 jugadores · Cooperativo · Dados y deducción',
+    tagline: ['Ves la misión de todos.', 'Todos ven la tuya.', 'Nadie ve la suya.'],
+    modeGroup: 'Modo de juego', modeLocal: 'En este dispositivo', modeOnline: 'Online',
+    // How to play
+    howTitle: 'Cómo se juega',
+    how: n => [
+      ['Tira los dados', `Quien reparte tira ${n} dados de cada color. Todo el mundo ve el resultado.`],
+      ['Forma grupos', 'Los divide en tantos grupos como jugadores, pensando en las misiones que ve.'],
+      ['Elige', 'Empezando por su izquierda, cada jugador coge un grupo. Quien reparte se queda el último.'],
+      ['Acumula', 'Los dados se suman a tu zona. Hay tantas rondas como jugadores y cada uno reparte una vez.'],
+    ],
+    howEnd: 'Al final se descubren las cartas. Si todos cumplen su misión, el equipo gana.',
+    fullRules: 'Reglas completas',
+    // Local setup
+    localTitle: 'Partida en este dispositivo',
+    players: 'Jugadores', playersCount: 'Número de jugadores', whoPlays: 'Quién juega',
+    playerName: i => `Nombre del jugador ${i}`, playerType: i => `Tipo de jugador ${i}`, defaultPlayer: i => `Jugador ${i}`, someone: 'Jugador',
+    person: 'Persona', bot: 'Bot',
+    modeAllBots: 'Solo bots: verás cómo juegan, con todas las misiones a la vista.',
+    modeOneHuman: 'Una persona con bots: los bots ven tu misión y te dan pistas permitidas.',
+    modeManyHumans: n => `${n} personas en un mismo dispositivo: os lo iréis pasando. Cada uno ve las misiones de los demás solo en su turno.`,
+    hintsToggle: 'Los bots dan pistas cuando eliges grupo',
+    start: 'Empezar',
+    // Settings
+    colours: 'Colores', perPlayer: 'Objetivos por jugador', difficulty: 'Dificultad',
+    noCatalogue: 'No se han cargado objetivos. Revisa el archivo objetivos.js.',
+    noPool: 'Ningún objetivo encaja con estos ajustes. Marca más estrellas.',
+    poolNote: (avail, need, bad) => `${avail} ${plural(avail, 'objetivo encaja', 'objetivos encajan')} con estos ajustes${avail < need ? `; hacen falta ${need}, así que alguno se repetirá entre jugadores` : ''}.${bad ? ` ${bad} del archivo tienen errores y no se usan.` : ''}`,
+    cfgText: (C, per, stars) => `${C} colores · ${per} ${plural(per, 'objetivo', 'objetivos')} por jugador · ${stars}`,
+    allStars: 'todas las dificultades', and: 'y',
+    errNoPool: 'Ningún objetivo encaja con estas estrellas y estos colores. Marca más estrellas.',
+    errNoCombo: (per, P) => `Con estos ajustes no salen ${per === 1 ? 'objetivos compatibles' : 'combinaciones de objetivos compatibles'} para ${P} jugadores. Marca más estrellas o pon menos objetivos por jugador.`,
+    // Header / status
+    rules: 'Reglas', quit: 'Salir', quitYes: 'Sí, salir', quitNo: 'Seguir',
+    gameCode: code => `Partida ${code}`, round: (r, n) => `Ronda ${r} de ${n}`, gameOver: 'Fin de la partida', waitingRoom: 'Sala de espera',
+    // Seats and cards
+    you: 'Tú', host: 'Anfitrión', offline: 'Desconectado', dealer: 'Reparte',
+    noDice: 'Sin dados todavía',
+    yourMission: 'Tu misión', hiddenMission: 'Misión oculta', nObjectives: k => `${k} objetivos`,
+    othersSeeIt: 'Los demás la ven. Tú no.', onlySeated: 'Solo la ven los jugadores sentados.', onlyHolder: 'Solo la ve quien tiene el dispositivo.',
+    missionOf: name => `Misión de ${name}`, met: 'Cumplido', failed: 'Fallado',
+    starsLabel: n => `${n} ${plural(n, 'estrella', 'estrellas')}`,
+    die: (colour, v) => `Dado ${colour} ${v}`, total: 'Total',
+    // Stage
+    turnOf: name => `Turno de ${name}`,
+    rollSub: n => `Reparte esta ronda: tira los dados y forma ${n} grupos.`,
+    rollBtn: n => `Tirar ${n} dados`, sending: 'Enviando…',
+    rolling: name => `${name} está tirando los dados…`,
+    formGroups: n => `Forma ${n} grupos`,
+    groupHelp: 'Elige un grupo y toca los dados para meterlos. Toca un dado de un grupo para sacarlo. Cada grupo necesita al menos un dado. Tú te quedarás el grupo que nadie elija.',
+    unassigned: n => `Sin repartir (${n})`, allPlaced: 'Todos los dados están en un grupo.',
+    selected: 'Seleccionado', select: 'Seleccionar', empty: 'Vacío',
+    confirmGroups: 'Confirmar grupos', undoAll: 'Deshacer todo',
+    grouping: name => `${name} está formando los grupos…`,
+    hintBest: g => `«Creo que el grupo ${g} te va mejor.»`,
+    hintMild: g => `«Ningún grupo te ayuda mucho. Yo cogería el ${g}.»`,
+    hintDanger: g => `«Cuidado con el grupo ${g}: podría ser peligroso para ti.»`,
+    botSays: name => `${name} comenta`,
+    pickGroup: 'Elige un grupo', takeGroup: g => `Coger el grupo ${g}`,
+    choosePrompt: name => `${name}, elige un grupo`,
+    chooseSub: name => `${name} ha formado los grupos pensando en lo que ve. ¿Cuál era para ti?`,
+    choosing: 'Elección de grupos', chooseWatch: (dealer, who) => `Grupos de ${dealer}. Elige ${who}.`,
+    thinking: name => `${name} está pensando…`, picking: name => `${name} está eligiendo…`,
+    forPlayer: name => `Para ${name}`, available: 'Disponible',
+    waitHostNext: name => `Esperando a que ${name} decida cómo seguir…`,
+    playAgain: 'Otra partida con objetivos nuevos', changeSettings: 'Cambiar ajustes',
+    winTitle: '¡Lo habéis conseguido!', loseTitle: 'Misión fallida',
+    winText: 'Todos los objetivos se han cumplido.',
+    loseText: n => `${n === 1 ? 'Ha fallado 1 objetivo' : `Han fallado ${n} objetivos`}. Mirad las cartas y probad otra vez.`,
+    talkOnline: 'Hablad por llamada o chat y sugerid («ese grupo te conviene»), pero nunca digáis la misión de nadie.',
+    talkLocal: 'Podéis hablar y sugerir («ese grupo te conviene»), pero nunca decir la misión de nadie.',
+    hostGone: name => `${name} (anfitrión) se ha desconectado. La partida sigue cuando vuelva a abrir la página.`,
+    spectating: 'Estás mirando la partida. No tienes asiento en ella.',
+    logTitle: 'Registro',
+    // Log
+    logStart: cfg => `Empieza la partida: ${cfg}.`,
+    logRoll: (name, n) => `${name} tira ${n} dados.`,
+    logSplit: (name, n) => `${name} reparte los dados en ${n} grupos.`,
+    logTake: (name, g) => `${name} coge el grupo ${g}.`,
+    logKeep: (name, g) => `${name} se queda con el grupo ${g}.`,
+    logWin: 'Misión cumplida.', logLose: 'Misión fallida.',
+    // Cover
+    coverLabel: 'Cambio de jugador',
+    coverTitle: name => `Pásale el dispositivo a ${name}`,
+    coverChoose: 'Te toca elegir un grupo.', coverDeal: 'Te toca repartir esta ronda.',
+    coverText: 'La pantalla mostrará las misiones de los demás, así que nadie más debe mirarla.',
+    coverBtn: name => `Soy ${name}, continuar`,
+    // Online
+    onlineTitle: 'Partida online', connecting: 'Conectando…',
+    p2pLoadFail: 'No se ha podido cargar el modo online. Revisa tu conexión a internet y recarga la página.',
+    claudeOnly: 'El modo online solo funciona al abrir esta página en claude.ai con la sesión iniciada.',
+    claudeOnlyNote: 'Cada jugador necesita una cuenta de Claude y acceso a la página. El dueño la comparte desde el menú Compartir.',
+    onlineIntro: p2p => `Cada jugador juega desde su casa con esta misma página abierta${p2p ? ', sin necesidad de cuenta' : ''}. Cada uno ve las misiones de los demás, nunca la suya.`,
+    yourName: 'Tu nombre', namePlaceholder: 'Cómo te verán los demás',
+    create: 'Crear', createGame: 'Crear partida',
+    hostNote: 'Serás el anfitrión: la partida vive en tu pantalla, así que mantenla abierta mientras jugáis.',
+    openGames: 'Partidas abiertas', noOpenGames: 'Ahora mismo no hay ninguna. Cuando alguien cree una, aparecerá aquí.',
+    gameBy: name => `Partida de ${name}`, inRoom: n => `${n} en la sala`, join: 'Unirme', joinWithCode: 'Unirse con código',
+    yourGame: 'Tu partida', code: 'Código',
+    shareP2P: 'Pásales este enlace y el código. Solo tienen que abrirlo, elegir «Online» y unirse:',
+    shareClaude: 'Pásales este código a tus amigos. Tienen que abrir esta misma página en claude.ai (compártela con ellos desde el menú Compartir), elegir «Online» y unirse.',
+    inRoomTitle: n => `En la sala (${n})`, meSuffix: ' (tú)', spectator: 'Espectador', connected: 'Conectado',
+    gamePlayers: 'Jugadores en la partida',
+    botsFill: n => `${n === 1 ? 'Un hueco libre lo ocupará un bot' : `${n} huecos libres los ocuparán bots`}. Si entra alguien más antes de empezar, ocupa su sitio.`,
+    allHumans: 'Todos los asientos son de personas.',
+    startGame: 'Empezar partida',
+    connectingGame: 'Conectando con la partida…',
+    notFound: code => `No encuentro la partida ${code}. Comprueba el código y que el anfitrión tenga la página abierta.`,
+    notFoundClaude: 'Si abajo pone que no ves a nadie más, este dispositivo y el del anfitrión no se están viendo: abrid los dos el mismo enlace en claude.ai con la sesión iniciada.',
+    playersOf: (a, b) => `Jugadores (${a} de ${b})`, botSeat: 'Hueco para un bot', watching: n => `${n} mirando`,
+    waitHostStart: name => `Esperando a que ${name} empiece…`, theHost: 'el anfitrión',
+    connLine: (state, others, p2p) => `Conexión: ${state} · ${others === 0 ? `no veo a nadie más ${p2p ? 'en la partida' : 'con la página abierta'}` : `veo a ${others} ${plural(others, 'persona', 'personas')} más ${p2p ? 'en la partida' : 'con la página abierta'}`}.`,
+    connOk: 'conectado', connWait: 'conectando…', connErr: code => `error de conexión (${code})`,
+    errCode: 'El código tiene 4 letras o números.',
+    errNoRoom: 'El modo online no está disponible en esta vista.',
+    p2p_not_found: 'No encuentro esa partida. Comprueba el código y que el anfitrión tenga la página abierta.',
+    p2p_code_taken: 'Esta partida ya está abierta en otra pestaña o dispositivo.',
+    p2p_unsupported: 'Este navegador no permite jugar online. Prueba con Chrome, Safari o Firefox actualizados.',
+    p2p_network: 'No se ha podido conectar. Revisa tu conexión a internet y vuelve a intentarlo.',
+    p2p_timeout: 'La conexión está tardando demasiado. Revisa tu conexión a internet y vuelve a intentarlo.',
+    // Missions
+    m: {
+      dice: (n, c) => n === 1 ? `1 dado ${c.sing}` : `${n} dados ${c.pl}`,
+      noColor: c => `Ningún dado ${c.sing}.`,
+      exact: d => `Exactamente ${d}.`, atLeast: d => `Al menos ${d}.`, atMost: d => `Como máximo ${d}.`,
+      sumGreater: (a, b) => `Suma ${a.sing} &gt; suma ${b.sing}.`,
+      countMore: (a, b) => `Más dados ${a.pl} que ${b.pl}.`,
+      exactColours: n => `Dados de exactamente ${n} colores distintos.`,
+      allColours: 'Al menos un dado de cada color.',
+      sumAtLeast: (c, n) => `Tus dados ${c.pl} suman ${n} o más.`,
+      atMostTotal: n => `Como máximo ${n} dados en total.`,
+      atLeastTotal: n => `Al menos ${n} dados en total.`,
+      has: (n, c) => `Tienes ${n} ${n === 1 ? c.sing : c.pl}.`,
+      sums: (a, sa, b, sb) => `Suma ${a.sing} ${sa}, suma ${b.sing} ${sb}.`,
+      counts: (na, a, nb, b) => `${na} ${a.pl} y ${nb} ${b.pl}.`,
+      colours: n => `Tienes ${n} ${plural(n, 'color', 'colores')}.`,
+      coloursOf: (n, C) => `Tienes ${n} de ${C} colores.`,
+      sumIs: (c, s) => `Tus ${c.pl} suman ${s}.`,
+      totalIs: n => `Tienes ${n} dados.`,
+    },
+    // Rules
+    rulesTitle: 'Reglas de BlindSpots', close: 'Cerrar',
+    rulesBody: n => `
+      <p>Juego cooperativo de dados y deducción para 3–5 jugadores. Cada jugador tiene una misión personal que no puede ver; los demás sí la ven y deben ayudarle con sus decisiones.</p>
+      <h3>Objetivo</h3>
+      <p>El equipo gana si al final todos han cumplido su misión. Si falla una sola, el equipo pierde y puede volver a intentarlo.</p>
+      <h3>Misiones</h3>
+      <p>Cada misión tiene uno o varios objetivos: condiciones sobre todos los dados que acumulas en la partida. Por ejemplo: «Ningún dado azul», «Exactamente 3 dados verdes», «Suma azul &gt; suma naranja» (solo cuentan los valores) o «Dados de exactamente 3 colores distintos» (solo cuenta cuántos colores tienes).</p>
+      <h3>Una ronda</h3>
+      <ul>
+        <li>Quien reparte tira los dados (aquí, ${n} de cada color).</li>
+        <li>Los divide en tantos grupos como jugadores. No hace falta que sean iguales.</li>
+        <li>Empezando por su izquierda, cada jugador elige un grupo y se lo lleva. Quien reparte recibe el último.</li>
+        <li>Los dados se añaden a la zona personal y cuentan para la misión final.</li>
+      </ul>
+      <p>Una partida dura tantas rondas como jugadores; cada uno reparte una vez. Las misiones solo se comprueban al final.</p>
+      <h3>Comunicación</h3>
+      <p>Se puede hablar y sugerir («creo que ese grupo te va mejor», «ese dado puede ser peligroso para alguien»), pero no revelar la misión de nadie.</p>
+      <h3>Ajustes de la partida</h3>
+      <ul>
+        <li>Colores: con 3 se juega con azul, naranja y verde; con 4 entra el morado y con 5 el amarillo.</li>
+        <li>Objetivos por jugador: la misión de cada jugador tiene de 1 a 3 objetivos y hay que cumplirlos todos.</li>
+        <li>Dificultad: cada objetivo tiene de 1 a 5 estrellas. Se eligen las dificultades que se quieran y los objetivos se reparten al azar entre los que las tienen.</li>
+      </ul>
+      <h3>En esta versión</h3>
+      <p>En un dispositivo, la web pide pasarlo antes de cada decisión y solo entonces muestra las misiones de los demás. Online, cada jugador ve las misiones de los demás en su pantalla y puede elegir su idioma. Los bots reparten pensando en las misiones que ven y, al elegir, cogen el grupo que menos perjudica al resto.</p>`,
+  },
+  en: {
+    htmlLang: 'en',
+    langLabel: 'Language',
+    meta: '3–5 players · Cooperative · Dice and deduction',
+    tagline: ['You can see everyone else’s mission.', 'Everyone can see yours.', 'Nobody can see their own.'],
+    modeGroup: 'Game mode', modeLocal: 'On this device', modeOnline: 'Online',
+    howTitle: 'How to play',
+    how: n => [
+      ['Roll the dice', `The dealer rolls ${n} dice of each colour. Everyone sees the result.`],
+      ['Make groups', 'They split the dice into as many groups as there are players, based on the missions they can see.'],
+      ['Choose', 'Starting on the dealer’s left, each player takes a group. The dealer keeps the last one.'],
+      ['Collect', 'The dice go to your area. There are as many rounds as players, and everyone deals once.'],
+    ],
+    howEnd: 'At the end the cards are revealed. If everyone completes their mission, the team wins.',
+    fullRules: 'Full rules',
+    localTitle: 'Game on this device',
+    players: 'Players', playersCount: 'Number of players', whoPlays: 'Who’s playing',
+    playerName: i => `Player ${i} name`, playerType: i => `Player ${i} type`, defaultPlayer: i => `Player ${i}`, someone: 'Player',
+    person: 'Person', bot: 'Bot',
+    modeAllBots: 'Bots only: watch them play, with every mission visible.',
+    modeOneHuman: 'One person with bots: the bots can see your mission and give you allowed hints.',
+    modeManyHumans: n => `${n} people sharing one device: pass it around. Each of you sees the others’ missions only on your turn.`,
+    hintsToggle: 'Bots give hints when you choose a group',
+    start: 'Start',
+    colours: 'Colours', perPlayer: 'Objectives per player', difficulty: 'Difficulty',
+    noCatalogue: 'No objectives were loaded. Check the objetivos.js file.',
+    noPool: 'No objectives match these settings. Select more stars.',
+    poolNote: (avail, need, bad) => `${avail} ${plural(avail, 'objective matches', 'objectives match')} these settings${avail < need ? `; ${need} are needed, so some will repeat between players` : ''}.${bad ? ` ${bad} in the file have errors and are not used.` : ''}`,
+    cfgText: (C, per, stars) => `${C} colours · ${per} ${plural(per, 'objective', 'objectives')} per player · ${stars}`,
+    allStars: 'all difficulties', and: 'and',
+    errNoPool: 'No objectives match these stars and colours. Select more stars.',
+    errNoCombo: (per, P) => `These settings can’t produce ${per === 1 ? 'compatible objectives' : 'compatible sets of objectives'} for ${P} players. Select more stars or use fewer objectives per player.`,
+    rules: 'Rules', quit: 'Leave', quitYes: 'Yes, leave', quitNo: 'Stay',
+    gameCode: code => `Game ${code}`, round: (r, n) => `Round ${r} of ${n}`, gameOver: 'Game over', waitingRoom: 'Waiting room',
+    you: 'You', host: 'Host', offline: 'Offline', dealer: 'Dealer',
+    noDice: 'No dice yet',
+    yourMission: 'Your mission', hiddenMission: 'Hidden mission', nObjectives: k => `${k} objectives`,
+    othersSeeIt: 'Everyone else can see it. You can’t.', onlySeated: 'Only seated players can see it.', onlyHolder: 'Only whoever holds the device can see it.',
+    missionOf: name => `${name}’s mission`, met: 'Done', failed: 'Failed',
+    starsLabel: n => `${n} ${plural(n, 'star', 'stars')}`,
+    die: (colour, v) => `${cap(colour)} die ${v}`, total: 'Total',
+    turnOf: name => `${name}’s turn`,
+    rollSub: n => `Deal this round: roll the dice and make ${n} groups.`,
+    rollBtn: n => `Roll ${n} dice`, sending: 'Sending…',
+    rolling: name => `${name} is rolling the dice…`,
+    formGroups: n => `Make ${n} groups`,
+    groupHelp: 'Pick a group and tap dice to put them in it. Tap a die in a group to take it out. Every group needs at least one die. You keep the group nobody picks.',
+    unassigned: n => `Not placed (${n})`, allPlaced: 'Every die is in a group.',
+    selected: 'Selected', select: 'Select', empty: 'Empty',
+    confirmGroups: 'Confirm groups', undoAll: 'Undo all',
+    grouping: name => `${name} is making the groups…`,
+    hintBest: g => `“I think group ${g} suits you best.”`,
+    hintMild: g => `“No group helps you much. I’d take ${g}.”`,
+    hintDanger: g => `“Careful with group ${g}: it could be dangerous for you.”`,
+    botSays: name => `${name} says`,
+    pickGroup: 'Pick a group', takeGroup: g => `Take group ${g}`,
+    choosePrompt: name => `${name}, pick a group`,
+    chooseSub: name => `${name} made these groups based on what they can see. Which one was meant for you?`,
+    choosing: 'Choosing groups', chooseWatch: (dealer, who) => `${dealer}’s groups. ${who} is choosing.`,
+    thinking: name => `${name} is thinking…`, picking: name => `${name} is choosing…`,
+    forPlayer: name => `For ${name}`, available: 'Available',
+    waitHostNext: name => `Waiting for ${name} to decide what’s next…`,
+    playAgain: 'New game with new objectives', changeSettings: 'Change settings',
+    winTitle: 'You did it!', loseTitle: 'Mission failed',
+    winText: 'Every objective was completed.',
+    loseText: n => `${n === 1 ? '1 objective failed' : `${n} objectives failed`}. Look at the cards and try again.`,
+    talkOnline: 'Talk on a call or chat and make suggestions (“that group suits you”), but never say anyone’s mission.',
+    talkLocal: 'You can talk and make suggestions (“that group suits you”), but never say anyone’s mission.',
+    hostGone: name => `${name} (host) has disconnected. The game continues when they open the page again.`,
+    spectating: 'You are watching this game. You don’t have a seat in it.',
+    logTitle: 'Log',
+    logStart: cfg => `Game starts: ${cfg}.`,
+    logRoll: (name, n) => `${name} rolls ${n} dice.`,
+    logSplit: (name, n) => `${name} splits the dice into ${n} groups.`,
+    logTake: (name, g) => `${name} takes group ${g}.`,
+    logKeep: (name, g) => `${name} keeps group ${g}.`,
+    logWin: 'Mission complete.', logLose: 'Mission failed.',
+    coverLabel: 'Player change',
+    coverTitle: name => `Pass the device to ${name}`,
+    coverChoose: 'It’s your turn to pick a group.', coverDeal: 'It’s your turn to deal this round.',
+    coverText: 'The screen will show everyone else’s missions, so nobody else should look.',
+    coverBtn: name => `I’m ${name}, continue`,
+    onlineTitle: 'Online game', connecting: 'Connecting…',
+    p2pLoadFail: 'Online mode couldn’t load. Check your internet connection and reload the page.',
+    claudeOnly: 'Online mode only works when this page is open on claude.ai and you are signed in.',
+    claudeOnlyNote: 'Every player needs a Claude account and access to the page. The owner shares it from the Share menu.',
+    onlineIntro: p2p => `Each player plays from home with this page open${p2p ? ', no account needed' : ''}. Everyone sees the others’ missions, never their own.`,
+    yourName: 'Your name', namePlaceholder: 'How others will see you',
+    create: 'Create', createGame: 'Create game',
+    hostNote: 'You’ll be the host: the game lives on your screen, so keep it open while you play.',
+    openGames: 'Open games', noOpenGames: 'There are none right now. When someone creates one, it shows up here.',
+    gameBy: name => `${name}’s game`, inRoom: n => `${n} in the room`, join: 'Join', joinWithCode: 'Join with a code',
+    yourGame: 'Your game', code: 'Code',
+    shareP2P: 'Send them this link and the code. They just open it, choose “Online” and join:',
+    shareClaude: 'Send this code to your friends. They need to open this same page on claude.ai (share it from the Share menu), choose “Online” and join.',
+    inRoomTitle: n => `In the room (${n})`, meSuffix: ' (you)', spectator: 'Spectator', connected: 'Connected',
+    gamePlayers: 'Players in the game',
+    botsFill: n => `${n === 1 ? 'A bot will take the free seat' : `Bots will take the ${n} free seats`}. If someone else joins before you start, they take that seat.`,
+    allHumans: 'Every seat is taken by a person.',
+    startGame: 'Start game',
+    connectingGame: 'Connecting to the game…',
+    notFound: code => `Can’t find game ${code}. Check the code and that the host has the page open.`,
+    notFoundClaude: 'If the line below says you can’t see anyone else, this device and the host’s can’t reach each other: both of you should open the same link on claude.ai while signed in.',
+    playersOf: (a, b) => `Players (${a} of ${b})`, botSeat: 'Seat for a bot', watching: n => `${n} watching`,
+    waitHostStart: name => `Waiting for ${name} to start…`, theHost: 'the host',
+    connLine: (state, others, p2p) => `Connection: ${state} · ${others === 0 ? `I can’t see anyone else ${p2p ? 'in the game' : 'with the page open'}` : `I can see ${others} other ${plural(others, 'person', 'people')} ${p2p ? 'in the game' : 'with the page open'}`}.`,
+    connOk: 'connected', connWait: 'connecting…', connErr: code => `connection error (${code})`,
+    errCode: 'The code is 4 letters or numbers.',
+    errNoRoom: 'Online mode isn’t available in this view.',
+    p2p_not_found: 'Can’t find that game. Check the code and that the host has the page open.',
+    p2p_code_taken: 'This game is already open in another tab or device.',
+    p2p_unsupported: 'This browser can’t play online. Try an up-to-date Chrome, Safari or Firefox.',
+    p2p_network: 'Couldn’t connect. Check your internet connection and try again.',
+    p2p_timeout: 'The connection is taking too long. Check your internet connection and try again.',
+    m: {
+      dice: (n, c) => n === 1 ? `1 ${c.sing} die` : `${n} ${c.pl} dice`,
+      noColor: c => `No ${c.sing} dice.`,
+      exact: d => `Exactly ${d}.`, atLeast: d => `At least ${d}.`, atMost: d => `At most ${d}.`,
+      sumGreater: (a, b) => `${a.capSing} total &gt; ${b.sing} total.`,
+      countMore: (a, b) => `More ${a.pl} dice than ${b.pl} dice.`,
+      exactColours: n => `Dice of exactly ${n} different colours.`,
+      allColours: 'At least one die of each colour.',
+      sumAtLeast: (c, n) => `Your ${c.pl} dice add up to ${n} or more.`,
+      atMostTotal: n => `At most ${n} dice in total.`,
+      atLeastTotal: n => `At least ${n} dice in total.`,
+      has: (n, c) => `You have ${n} ${c.sing}.`,
+      sums: (a, sa, b, sb) => `${cap(a.sing)} total ${sa}, ${b.sing} total ${sb}.`,
+      counts: (na, a, nb, b) => `${na} ${a.pl} and ${nb} ${b.pl}.`,
+      colours: n => `You have ${n} ${plural(n, 'colour', 'colours')}.`,
+      coloursOf: (n, C) => `You have ${n} of ${C} colours.`,
+      sumIs: (c, s) => `Your ${c.pl} dice add up to ${s}.`,
+      totalIs: n => `You have ${n} dice.`,
+    },
+    rulesTitle: 'BlindSpots rules', close: 'Close',
+    rulesBody: n => `
+      <p>A cooperative dice and deduction game for 3–5 players. Each player has a personal mission they cannot see; everyone else can see it and must help them through their choices.</p>
+      <h3>Goal</h3>
+      <p>The team wins if, at the end, everyone has completed their mission. If even one fails, the team loses and can try again.</p>
+      <h3>Missions</h3>
+      <p>Each mission has one or more objectives: conditions on all the dice you collect during the game. For example: “No blue dice”, “Exactly 3 green dice”, “Blue total &gt; orange total” (only the values count) or “Dice of exactly 3 different colours” (only the number of colours counts).</p>
+      <h3>A round</h3>
+      <ul>
+        <li>The dealer rolls the dice (here, ${n} of each colour).</li>
+        <li>They split them into as many groups as there are players. Groups don’t need to be the same size.</li>
+        <li>Starting on the dealer’s left, each player picks a group and takes it. The dealer gets the last one.</li>
+        <li>The dice go into each player’s area and count towards their final mission.</li>
+      </ul>
+      <p>A game lasts as many rounds as there are players; everyone deals once. Missions are only checked at the end.</p>
+      <h3>Communication</h3>
+      <p>You can talk and make suggestions (“I think that group suits you better”, “that die could be dangerous for someone”), but you can’t reveal anyone’s mission.</p>
+      <h3>Game settings</h3>
+      <ul>
+        <li>Colours: with 3 you play with blue, orange and green; 4 adds purple and 5 adds yellow.</li>
+        <li>Objectives per player: each player’s mission has 1 to 3 objectives, and all of them must be completed.</li>
+        <li>Difficulty: each objective has 1 to 5 stars. Pick any difficulties you like and objectives are dealt at random from those.</li>
+      </ul>
+      <h3>In this version</h3>
+      <p>On one device, the page asks you to pass it before each decision and only then shows the others’ missions. Online, each player sees the others’ missions on their own screen and can pick their own language. Bots deal based on the missions they can see and, when choosing, take the group that hurts the others least.</p>`,
+  },
+};
+
+// t('key', ...args): a string, or the result of a string function, in the viewer's language.
+function t(key, ...args) {
+  const v = I18N[LANG][key] ?? I18N.es[key];
+  return typeof v === 'function' ? v(...args) : v;
+}
+const tm = (key, ...args) => { const v = I18N[LANG].m[key]; return typeof v === 'function' ? v(...args) : v; };
+// ui.err holds {k, a}: a message key and its arguments, translated when shown.
+const errText = e => e ? (typeof e === 'string' ? e : t(e.k, ...(e.a || []))) : '';
+const errHTML = () => ui.err ? `<p class="err">${esc(errText(ui.err))}</p>` : '';
+function langHTML() {
+  return `<div class="tabs lang" role="group" aria-label="${t('langLabel')}">
+    <button type="button" data-action="lang" data-l="es" aria-pressed="${LANG === 'es'}" lang="es">ES</button>
+    <button type="button" data-action="lang" data-l="en" aria-pressed="${LANG === 'en'}" lang="en">EN</button>
+  </div>`;
+}
+
+
 /* ---------- Missions ---------- */
 const cw = c => `<span class="cw c${c}" aria-hidden="true"></span>`;
-const sing = c => cw(c) + COLORS[c].sing;
-const plur = c => cw(c) + COLORS[c].pl;
-const dados = (n, c) => n === 1 ? `1 dado ${sing(c)}` : `${n} dados ${plur(c)}`;
+const cn = c => cw(c) + cname(c).sing;
+const cp = c => ({ sing: cw(c) + cname(c).sing, pl: cw(c) + cname(c).pl, capSing: cw(c) + cap(cname(c).sing) });
 
 function missionText(m) {
+  const c = m.c !== undefined ? cp(m.c) : null, c2 = m.c2 !== undefined ? cp(m.c2) : null;
   switch (m.t) {
-    case 'noColor': return `Ningún dado ${sing(m.c)}.`;
-    case 'exact': return `Exactamente ${dados(m.n, m.c)}.`;
-    case 'atLeast': return `Al menos ${dados(m.n, m.c)}.`;
-    case 'atMost': return `Como máximo ${dados(m.n, m.c)}.`;
-    case 'sumGreater': return `Suma ${sing(m.c)} &gt; suma ${sing(m.c2)}.`;
-    case 'countMore': return `Más dados ${plur(m.c)} que ${plur(m.c2)}.`;
-    case 'exactColours': return `Dados de exactamente ${m.n} colores distintos.`;
-    case 'allColours': return `Al menos un dado de cada color.`;
-    case 'sumAtLeast': return `Tus dados ${plur(m.c)} suman ${m.n} o más.`;
-    case 'atMostTotal': return `Como máximo ${m.n} dados en total.`;
-    case 'atLeastTotal': return `Al menos ${m.n} dados en total.`;
+    case 'noColor': return tm('noColor', c);
+    case 'exact': return tm('exact', tm('dice', m.n, c));
+    case 'atLeast': return tm('atLeast', tm('dice', m.n, c));
+    case 'atMost': return tm('atMost', tm('dice', m.n, c));
+    case 'sumGreater': return tm('sumGreater', c, c2);
+    case 'countMore': return tm('countMore', c, c2);
+    case 'exactColours': return tm('exactColours', m.n);
+    case 'allColours': return tm('allColours');
+    case 'sumAtLeast': return tm('sumAtLeast', c, m.n);
+    case 'atMostTotal': return tm('atMostTotal', m.n);
+    case 'atLeastTotal': return tm('atLeastTotal', m.n);
   }
   return '';
 }
@@ -279,19 +637,19 @@ function stats(dice, C) {
 
 function checkMission(m, st, C) {
   const n = c => st.cnt[c], s = c => st.sum[c];
-  const has = c => `Tienes ${n(c)} ${n(c) === 1 ? COLORS[c].sing : COLORS[c].pl}.`;
+  const has = c => tm('has', n(c), cname(c));
   switch (m.t) {
     case 'noColor': return { ok: n(m.c) === 0, detail: has(m.c) };
     case 'exact': return { ok: n(m.c) === m.n, detail: has(m.c) };
     case 'atLeast': return { ok: n(m.c) >= m.n, detail: has(m.c) };
     case 'atMost': return { ok: n(m.c) <= m.n, detail: has(m.c) };
-    case 'sumGreater': return { ok: s(m.c) > s(m.c2), detail: `Suma ${COLORS[m.c].sing} ${s(m.c)}, suma ${COLORS[m.c2].sing} ${s(m.c2)}.` };
-    case 'countMore': return { ok: n(m.c) > n(m.c2), detail: `${n(m.c)} ${COLORS[m.c].pl} y ${n(m.c2)} ${COLORS[m.c2].pl}.` };
-    case 'exactColours': return { ok: st.distinct === m.n, detail: `Tienes ${st.distinct} ${st.distinct === 1 ? 'color' : 'colores'}.` };
-    case 'allColours': return { ok: st.distinct === C, detail: `Tienes ${st.distinct} de ${C} colores.` };
-    case 'sumAtLeast': return { ok: s(m.c) >= m.n, detail: `Tus ${COLORS[m.c].pl} suman ${s(m.c)}.` };
-    case 'atMostTotal': return { ok: st.total <= m.n, detail: `Tienes ${st.total} dados.` };
-    case 'atLeastTotal': return { ok: st.total >= m.n, detail: `Tienes ${st.total} dados.` };
+    case 'sumGreater': return { ok: s(m.c) > s(m.c2), detail: tm('sums', cname(m.c), s(m.c), cname(m.c2), s(m.c2)) };
+    case 'countMore': return { ok: n(m.c) > n(m.c2), detail: tm('counts', n(m.c), cname(m.c), n(m.c2), cname(m.c2)) };
+    case 'exactColours': return { ok: st.distinct === m.n, detail: tm('colours', st.distinct) };
+    case 'allColours': return { ok: st.distinct === C, detail: tm('coloursOf', st.distinct, C) };
+    case 'sumAtLeast': return { ok: s(m.c) >= m.n, detail: tm('sumIs', cname(m.c), s(m.c)) };
+    case 'atMostTotal': return { ok: st.total <= m.n, detail: tm('totalIs', st.total) };
+    case 'atLeastTotal': return { ok: st.total >= m.n, detail: tm('totalIs', st.total) };
   }
   return { ok: false, detail: '' };
 }
@@ -329,7 +687,7 @@ const TIPO = {
 function loadCatalogue() {
   const raw = Array.isArray(window.BLINDSPOTS_OBJETIVOS) ? window.BLINDSPOTS_OBJETIVOS : [];
   const list = [], bad = [];
-  const col = name => COLORS.findIndex(x => x.sing === String(name || '').toLowerCase().trim());
+  const col = name => COLOR_NAMES.es.findIndex(x => x.sing === String(name || '').toLowerCase().trim());
   raw.forEach((e, i) => {
     const spec = e && TIPO[String(e.tipo || '').toLowerCase().trim()];
     const st = e && Number(e.estrellas);
@@ -404,7 +762,7 @@ function feasible(all, C, P) {
 function genMissions(P, cfg) {
   const items = pool(cfg.C, cfg.stars);
   const need = P * cfg.per;
-  if (!items.length) return { error: 'Ningún objetivo encaja con este rango de estrellas y estos colores. Amplía el rango.' };
+  if (!items.length) return { error: { k: 'errNoPool' } };
   const unique = items.length >= need;
   for (let tries = 0; tries < 3000; tries++) {
     const allowRepeat = !unique || tries > 2000;
@@ -426,12 +784,12 @@ function genMissions(P, cfg) {
     }
     if (ok && feasible(all, cfg.C, P)) return { missions: all };
   }
-  return { error: `Con estos ajustes no salen ${cfg.per === 1 ? 'objetivos compatibles' : 'combinaciones de objetivos compatibles'} para ${P} jugadores. Amplía el rango de estrellas o pon menos objetivos por jugador.` };
+  return { error: { k: 'errNoCombo', a: [cfg.per, P] } };
 }
 
 const starsText = n => '★'.repeat(n) + '☆'.repeat(5 - n);
-const cfgText = cfg => `${cfg.C} colores · ${cfg.per} ${cfg.per === 1 ? 'objetivo' : 'objetivos'} por jugador · ${starsLabel(cfg.stars)}`;
-const starsLabel = mask => { const l = starList(mask); return l.length === 5 ? 'todas las dificultades' : (l.length > 1 ? l.slice(0, -1).join(', ') + ' y ' + l[l.length - 1] : l[0]) + '★'; };
+const starsLabel = mask => { const l = starList(mask); return l.length === 5 ? t('allStars') : (l.length > 1 ? l.slice(0, -1).join(', ') + ` ${t('and')} ` + l[l.length - 1] : l[0]) + '★'; };
+const cfgText = cfg => t('cfgText', cfg.C, cfg.per, starsLabel(cfg.stars));
 
 /* ---------- State ---------- */
 let G = null;        // the game being shown (local, hosted, or mirrored from the host)
@@ -477,7 +835,7 @@ function newLocalGame() {
   const n = S.count;
   G = {
     online: false, cfg: { C: S.colors, per: S.per, stars: S.stars }, hints: S.hints, starter: 0, C: S.colors,
-    players: Array.from({ length: n }, (_, i) => ({ name: (S.names[i] || '').trim().slice(0, 16) || `Jugador ${i + 1}`, bot: !!S.bots[i], missions: [], area: [] })),
+    players: Array.from({ length: n }, (_, i) => ({ name: (S.names[i] || '').trim().slice(0, 16) || t('defaultPlayer', i + 1), bot: !!S.bots[i], missions: [], area: [] })),
     log: [],
   };
   const err = startLevel();
@@ -491,7 +849,7 @@ function startLevel() {
   if (r.error) return r.error;
   G.players.forEach((p, i) => { p.missions = r.missions[i]; p.area = []; });
   Object.assign(G, { gid: rid(6), round: 0, active: G.starter, phase: 'roll', roll: [], groups: [], order: [], step: 0, taken: {}, results: null, win: null, log: [] });
-  log(`Empieza la partida: ${cfgText(G.cfg)}.`);
+  log(['start']);
   if (!G.online) resetViewer();
   return null;
 }
@@ -512,26 +870,26 @@ function doRoll() {
   G.roll = [];
   for (let c = 0; c < G.C; c++) for (let k = 0; k < DICE_PER_COLOR; k++) G.roll.push({ id: G.roll.length, c, v: 1 + ri(6) });
   G.phase = 'group';
-  log(`${pn(G.active)} tira ${G.roll.length} dados.`);
+  log(['roll', G.active, G.roll.length]);
 }
 
 function startChoose() {
   G.order = Array.from({ length: P() - 1 }, (_, k) => (G.active + 1 + k) % P());
   G.step = 0; G.taken = {};
   G.phase = 'choose';
-  log(`${pn(G.active)} reparte los dados en ${P()} grupos.`);
+  log(['split', G.active, P()]);
 }
 
 function take(g, p) {
   G.taken[g] = p;
-  log(`${pn(p)} coge el grupo ${LETTERS[g]}.`);
+  log(['take', p, g]);
   G.step++;
 }
 
 function finishRound() {
   const last = availGroups()[0];
   G.taken[last] = G.active;
-  log(`${pn(G.active)} se queda con el grupo ${LETTERS[last]}.`);
+  log(['keep', G.active, last]);
   G.groups.forEach((ids, g) => { G.players[G.taken[g]].area.push(...ids.map(id => ({ c: G.roll[id].c, v: G.roll[id].v }))); });
   G.round++;
   if (G.round >= P()) { reveal(); return; }
@@ -542,7 +900,7 @@ function finishRound() {
 function computeResults() {
   G.results = G.players.map(p => {
     const st = stats(p.area, G.C);
-    return p.missions.map(m => checkMission(m, st, G.C));
+    return p.missions.map(m => ({ ok: checkMission(m, st, G.C).ok }));
   });
   G.win = G.results.every(r => r.every(x => x.ok));
 }
@@ -551,7 +909,7 @@ function reveal() {
   computeResults();
   G.phase = 'reveal';
   G.cover = null;
-  log(G.win ? 'Misión cumplida.' : 'Misión fallida.');
+  log([G.win ? 'win' : 'lose']);
 }
 
 function validGroups(gs) {
@@ -742,7 +1100,7 @@ function encodeG() {
     rl: G.roll.map(d => d.c * 10 + d.v),
     gr: G.groups,
     tk: G.groups.map((_, i) => G.taken[i] ?? -1),
-    lg: G.log.slice(-6).map(l => l.slice(0, 120)),
+    lg: G.log.slice(-6).filter(l => Array.isArray(l)),
     q: G.seq,
   };
 }
@@ -758,7 +1116,7 @@ function decodeG(w) {
     const n = w.p.length;
     const die = (x, i) => { int(x, 1, 46); const c = Math.floor(x / 10), v = x % 10; int(c, 0, C - 1); int(v, 1, 6); return i === undefined ? { c, v } : { id: i, c, v }; };
     const players = w.p.map(p => ({
-      name: cleanName(p[0]) || 'Jugador', bot: p[1] === 1, key: typeof p[2] === 'string' ? p[2].slice(0, 200) : '',
+      name: cleanName(p[0]) || t('someone'), bot: p[1] === 1, key: typeof p[2] === 'string' ? p[2].slice(0, 200) : '',
       missions: p[3].slice(0, 3).map(m => {
         const t = TYPES[int(m[0], 0, TYPES.length - 1)];
         const o = { t };
@@ -783,7 +1141,7 @@ function decodeG(w) {
       online: true, cfg, hints: !!w.h, starter: int(w.st, 0, n - 1), C, round: int(w.r, 0, n), active: a, phase: ph,
       step: int(w.s, 0, n), gid: String(w.id || '').slice(0, 12), players, roll, groups, taken,
       order: Array.from({ length: n - 1 }, (_, k) => (a + 1 + k) % n),
-      log: (w.lg || []).slice(-6).map(l => String(l).slice(0, 140)), seq: w.q, results: null, win: null,
+      log: (w.lg || []).slice(-6).filter(l => Array.isArray(l) && typeof l[0] === 'string' && l.length <= 3 && l.slice(1).every(x => Number.isInteger(x) && x >= 0 && x < 100)), seq: w.q, results: null, win: null,
     };
     if (ph === 'choose' && groups.length !== n) throw 0;
     return g;
@@ -898,13 +1256,7 @@ function p2pRoom(code, role) {
   });
 }
 
-const P2P_ERRORS = {
-  not_found: 'No encuentro esa partida. Comprueba el código y que el anfitrión tenga la página abierta.',
-  code_taken: 'Esta partida ya está abierta en otra pestaña o dispositivo.',
-  unsupported: 'Este navegador no permite jugar online. Prueba con Chrome, Safari o Firefox actualizados.',
-  network: 'No se ha podido conectar. Revisa tu conexión a internet y vuelve a intentarlo.',
-  timeout: 'La conexión está tardando demasiado. Revisa tu conexión a internet y vuelve a intentarlo.',
-};
+const P2P_ERRORS = ['not_found', 'code_taken', 'unsupported', 'network', 'timeout'];
 
 // PeerJS loads only once someone opens the online tab.
 async function ensureP2P() {
@@ -925,7 +1277,7 @@ async function openP2P(code, role, saved) {
       const c = (e && e.code) || 'network';
       if (c === 'code_taken' && role === 'host' && !saved && tries < 3) { code = rid(4); tries++; continue; }
       if (c === 'code_taken' && saved && tries < 6) { tries++; await sleep(3000); continue; }
-      return { err: P2P_ERRORS[c] || P2P_ERRORS.network };
+      return { err: { k: 'p2p_' + (P2P_ERRORS.includes(c) ? c : 'network') } };
     }
   }
 }
@@ -962,7 +1314,7 @@ const inThisGame = p => p.presence && ((p.presence.host === 1 && p.presence.code
 // Host: who is waiting for this game, in the order they arrived.
 function candidates() {
   return ON.gpeers.filter(p => !p.sameTab && p.kind === 'viewer' && p.presence.gc === ON.code && typeof p.presence.nm === 'string' && peerKey(p))
-    .map(p => ({ key: peerKey(p), nm: cleanName(p.presence.nm) || 'Jugador' }));
+    .map(p => ({ key: peerKey(p), nm: cleanName(p.presence.nm) || t('someone') }));
 }
 function seatPreview() {
   const me = { key: ON.tk, nm: ON.nm, me: true };
@@ -995,7 +1347,7 @@ function cleanLob(l) {
 async function enterRoom(code, role, saved) {
   ui.err = '';
   code = String(code || '').toLowerCase().trim();
-  if (!/^[a-z0-9]{4}$/.test(code)) { ui.err = 'El código tiene 4 letras o números.'; render(); return; }
+  if (!/^[a-z0-9]{4}$/.test(code)) { ui.err = { k: 'errCode' }; render(); return; }
   if (ON.transport === 'p2p') {
     if (ui.connecting) return;
     if (ON.room) { ON.room.close(); ON.room = null; }
@@ -1008,9 +1360,9 @@ async function enterRoom(code, role, saved) {
     ON.room.onConnection(c => { ON.connected = c; render(); });
     ON.room.onPeers(ch => { ON.lobbyPeers = ch.peers.slice(); onRoomPeers(); });
   }
-  if (!ON.room) { ui.err = 'El modo online no está disponible en esta vista.'; render(); return; }
-  if (!/^[a-z0-9]{4}$/.test(code)) { ui.err = 'El código tiene 4 letras o números.'; render(); return; }
-  ON.nm = cleanName(ON.nm) || 'Jugador';
+  if (!ON.room) { ui.err = { k: 'errNoRoom' }; render(); return; }
+  if (!/^[a-z0-9]{4}$/.test(code)) { ui.err = { k: 'errCode' }; render(); return; }
+  ON.nm = cleanName(ON.nm) || t('someone');
   stopTimer();
   G = null;
   Object.assign(ON, { code, role, seen: new Set(), lastQ: -1, lastLob: null, lastOpen: null, joinedAt: Date.now(), hostSeenAt: 0, n: Date.now(), hostLob: null });
@@ -1124,9 +1476,8 @@ function hostStart() {
 function connHTML() {
   if (!ON.room) return '';
   const others = ON.room.peers().filter(p => !p.sameTab && p.kind === 'viewer').length;
-  const state = ON.roomErr ? `error de conexión (${esc(ON.roomErr)})` : ON.connected ? 'conectado' : 'conectando…';
-  const where = ON.transport === 'p2p' ? 'en la partida' : 'con la página abierta';
-  return `<p class="note">Conexión: ${state} · ${others === 0 ? `no veo a nadie más ${where}` : others === 1 ? `veo a 1 persona más ${where}` : `veo a ${others} personas más ${where}`}.</p>`;
+  const state = ON.roomErr ? t('connErr', esc(ON.roomErr)) : ON.connected ? t('connOk') : t('connWait');
+  return `<p class="note">${t('connLine', state, others, ON.transport === 'p2p')}</p>`;
 }
 
 async function initOnline(saved) {
@@ -1162,17 +1513,17 @@ function dieHTML(d, { size = '', button = false, action = '', idx = 0, roll = fa
   const pips = PIPS[d.v].map(([x, y]) => `<circle class="pip" cx="${x}" cy="${y}" r="9.5"/>`).join('');
   const svg = `<svg viewBox="0 0 100 100" aria-hidden="true"><rect class="face" x="4" y="4" width="92" height="92" rx="20"/>${pips}</svg>`;
   const cls = `die c${d.c} ${size}${roll ? ' rolling' : ''}`;
-  const label = `${COLORS[d.c].sing} ${d.v}`;
+  const label = t('die', cname(d.c).sing, d.v);
   return button
-    ? `<button type="button" class="${cls}" style="--i:${idx}" data-action="${action}" data-id="${d.id}" aria-label="Dado ${label}" ${disabled ? 'disabled' : ''}>${svg}</button>`
-    : `<span class="${cls}" style="--i:${idx}" role="img" aria-label="Dado ${label}">${svg}</span>`;
+    ? `<button type="button" class="${cls}" style="--i:${idx}" data-action="${action}" data-id="${d.id}" aria-label="${label}" ${disabled ? 'disabled' : ''}>${svg}</button>`
+    : `<span class="${cls}" style="--i:${idx}" role="img" aria-label="${label}">${svg}</span>`;
 }
 
 function statsHTML(dice) {
   const st = stats(dice, G.C);
   const parts = [];
   for (let c = 0; c < G.C; c++) if (st.cnt[c]) parts.push(`<span>${cw(c)}${st.cnt[c]} · Σ${st.sum[c]}</span>`);
-  parts.push(`<span>Total ${st.total}</span>`);
+  parts.push(`<span>${t('total')} ${st.total}</span>`);
   return `<div class="stats">${parts.join('')}</div>`;
 }
 
@@ -1187,17 +1538,19 @@ function missionCard(i, V) {
   const visible = V === 'all' || (V !== null && V !== i);
   if (!visible) {
     const mine = V === i;
-    const why = mine ? 'Los demás la ven. Tú no.' : G.online ? 'Solo la ven los jugadores sentados.' : 'Solo la ve quien tiene el dispositivo.';
+    const why = mine ? t('othersSeeIt') : G.online ? t('onlySeated') : t('onlyHolder');
     const k = p.missions.length;
-    return `<div class="mcard back"><span class="q">?</span><span class="bt"><b>${mine ? 'Tu misión' : 'Misión oculta'}${k > 1 ? ` · ${k} objetivos` : ''}</b>${why}</span></div>`;
+    return `<div class="mcard back"><span class="q">?</span><span class="bt"><b>${mine ? t('yourMission') : t('hiddenMission')}${k > 1 ? ` · ${t('nObjectives', k)}` : ''}</b>${why}</span></div>`;
   }
+  const st = stats(p.area, G.C);
   const lines = p.missions.map((m, k) => {
     const r = G.results && G.results[i][k];
-    const res = r ? `<span class="res ${r.ok ? 'ok' : 'bad'}">${r.ok ? 'Cumplido' : 'Fallado'}</span>` : '';
-    const stars = m.s ? `<span class="stars" role="img" aria-label="${m.s} ${m.s === 1 ? 'estrella' : 'estrellas'}">${starsText(m.s)}</span>` : '';
-    return `<div class="mline"><span class="txt">${stars}${stars ? '<br>' : ''}${missionText(m)}</span>${res}</div>${r ? `<div class="mdetail">${esc(r.detail)}</div>` : ''}`;
+    const res = r ? `<span class="res ${r.ok ? 'ok' : 'bad'}">${r.ok ? t('met') : t('failed')}</span>` : '';
+    const stars = m.s ? `<span class="stars" role="img" aria-label="${t('starsLabel', m.s)}">${starsText(m.s)}</span>` : '';
+    const detail = r ? `<div class="mdetail">${esc(checkMission(m, st, G.C).detail)}</div>` : '';
+    return `<div class="mline"><span class="txt">${stars}${stars ? '<br>' : ''}${missionText(m)}</span>${res}</div>${detail}`;
   }).join('');
-  return `<div class="mcard"><span class="label">Misión de ${name(i)}</span>${lines}</div>`;
+  return `<div class="mcard"><span class="label">${t('missionOf', name(i))}</span>${lines}</div>`;
 }
 
 function seatsHTML(V) {
@@ -1205,16 +1558,16 @@ function seatsHTML(V) {
   const hostKey = G.online && ON.role === 'guest' ? (hostPeer() ? peerKey(hostPeer()) : null) : null;
   return `<div class="seats">${G.players.map((p, i) => {
     const tags = [];
-    if (V === i) tags.push('<span class="tag you">Tú</span>');
-    if (p.bot) tags.push('<span class="tag">Bot</span>');
-    if (G.online && !p.bot && i === 0) tags.push('<span class="tag">Anfitrión</span>');
-    if (live && !p.bot && !live.has(p.key) && p.key !== hostKey) tags.push('<span class="tag off">Desconectado</span>');
-    if (G.phase !== 'reveal' && i === G.active) tags.push('<span class="tag act">Reparte</span>');
+    if (V === i) tags.push(`<span class="tag you">${t('you')}</span>`);
+    if (p.bot) tags.push(`<span class="tag">${t('bot')}</span>`);
+    if (G.online && !p.bot && i === 0) tags.push(`<span class="tag">${t('host')}</span>`);
+    if (live && !p.bot && !live.has(p.key) && p.key !== hostKey) tags.push(`<span class="tag off">${t('offline')}</span>`);
+    if (G.phase !== 'reveal' && i === G.active) tags.push(`<span class="tag act">${t('dealer')}</span>`);
     return `<section class="seat${G.phase !== 'reveal' && i === G.active ? ' is-active' : ''}" aria-label="${name(i)}">
       <div class="seat-head"><span class="seat-name">${name(i)}</span>${tags.join('')}</div>
       <div class="rack">${missionCard(i, V)}</div>
       <div class="area">
-        <div class="dice">${p.area.length ? p.area.map(d => dieHTML(d, { size: 'sm' })).join('') : '<span class="empty">Sin dados todavía</span>'}</div>
+        <div class="dice">${p.area.length ? p.area.map(d => dieHTML(d, { size: 'sm' })).join('') : `<span class="empty">${t('noDice')}</span>`}</div>
       </div>
       ${p.area.length ? statsHTML(p.area) : ''}
     </section>`;
@@ -1226,7 +1579,7 @@ function waitHTML(text) { return `<div class="wait"><span class="spinner" aria-h
 function groupsHTML(interactive) {
   return `<div class="groups">${G.groups.map((ids, g) => {
     const taken = G.taken[g];
-    const who = taken !== undefined ? `Para ${name(taken)}` : (interactive ? 'Disponible' : '');
+    const who = taken !== undefined ? t('forPlayer', name(taken)) : (interactive ? t('available') : '');
     const inner = `<div class="ghead"><span class="gl">${LETTERS[g]}</span><span class="gwho">${who}</span></div>
       <div class="dice">${groupDice(g).map(d => dieHTML(d)).join('')}</div>${statsHTML(groupDice(g))}`;
     const cls = `group${taken !== undefined ? ' taken' : ''}${ui.chosen === g ? ' sel' : ''}`;
@@ -1234,6 +1587,22 @@ function groupsHTML(interactive) {
       ? `<button type="button" class="${cls}" data-action="pick" data-g="${g}" aria-pressed="${ui.chosen === g}">${inner}</button>`
       : `<div class="${cls}">${inner}</div>`;
   }).join('')}</div>`;
+}
+
+// One log entry ([code, ...args]) as text in the viewer's language.
+function logText(e) {
+  if (typeof e === 'string') return e; // saved by an older version
+  const who = i => (G.players[i] ? G.players[i].name : '?');
+  switch (e[0]) {
+    case 'start': return t('logStart', cfgText(G.cfg));
+    case 'roll': return t('logRoll', who(e[1]), e[2]);
+    case 'split': return t('logSplit', who(e[1]), e[2]);
+    case 'take': return t('logTake', who(e[1]), LETTERS[e[2]] || '?');
+    case 'keep': return t('logKeep', who(e[1]), LETTERS[e[2]] || '?');
+    case 'win': return t('logWin');
+    case 'lose': return t('logLose');
+  }
+  return '';
 }
 
 function stageHTML(V) {
@@ -1244,37 +1613,37 @@ function stageHTML(V) {
   let body = '';
 
   if (G.phase === 'roll') {
-    body = `<h2>Turno de ${name(G.active)}</h2>
-      <p class="sub">Reparte esta ronda: tira los dados y forma ${P()} grupos.</p>
+    body = `<h2>${t('turnOf', name(G.active))}</h2>
+      <p class="sub">${t('rollSub', P())}</p>
       ${mine
-        ? `<div class="actions"><button type="button" class="btn primary big" data-action="roll" ${sending ? 'disabled' : ''}>${sending ? 'Enviando…' : `Tirar ${G.C * DICE_PER_COLOR} dados`}</button></div>`
-        : waitHTML(`${name(G.active)} está tirando los dados…`)}`;
+        ? `<div class="actions"><button type="button" class="btn primary big" data-action="roll" ${sending ? 'disabled' : ''}>${sending ? t('sending') : t('rollBtn', G.C * DICE_PER_COLOR)}</button></div>`
+        : waitHTML(t('rolling', name(G.active)))}`;
   } else if (G.phase === 'group') {
     if (mine) {
       const free = G.roll.filter(d => ui.assign[d.id] === -1);
       const sizes = Array(P()).fill(0);
       G.roll.forEach(d => { if (ui.assign[d.id] >= 0) sizes[ui.assign[d.id]]++; });
       const ready = free.length === 0 && sizes.every(s => s > 0) && !sending;
-      body = `<h2>Forma ${P()} grupos</h2>
-        <p class="sub">Elige un grupo y toca los dados para meterlos. Toca un dado de un grupo para sacarlo. Cada grupo necesita al menos un dado. Tú te quedarás el grupo que nadie elija.</p>
-        <div class="tray"><span class="label">Sin repartir (${free.length})</span>
-          <div class="dice">${free.length ? free.map((d, k) => dieHTML(d, { button: true, action: 'place', idx: k, roll: animate, size: 'lg' })).join('') : '<span class="empty">Todos los dados están en un grupo.</span>'}</div>
+      body = `<h2>${t('formGroups', P())}</h2>
+        <p class="sub">${t('groupHelp')}</p>
+        <div class="tray"><span class="label">${t('unassigned', free.length)}</span>
+          <div class="dice">${free.length ? free.map((d, k) => dieHTML(d, { button: true, action: 'place', idx: k, roll: animate, size: 'lg' })).join('') : `<span class="empty">${t('allPlaced')}</span>`}</div>
         </div>
         <div class="groups">${Array.from({ length: P() }, (_, g) => {
           const ds = G.roll.filter(d => ui.assign[d.id] === g);
           return `<div class="group${ui.sel === g ? ' sel' : ''}" data-action="sel" data-g="${g}" style="cursor:pointer">
-            <button type="button" class="ghead gpick" data-action="sel" data-g="${g}" aria-pressed="${ui.sel === g}"><span class="gl">${LETTERS[g]}</span><span class="gwho">${ui.sel === g ? 'Seleccionado' : 'Seleccionar'}</span></button>
-            <div class="dice">${ds.length ? ds.map(d => dieHTML(d, { button: true, action: 'unplace' })).join('') : '<span class="empty">Vacío</span>'}</div>
+            <button type="button" class="ghead gpick" data-action="sel" data-g="${g}" aria-pressed="${ui.sel === g}"><span class="gl">${LETTERS[g]}</span><span class="gwho">${ui.sel === g ? t('selected') : t('select')}</span></button>
+            <div class="dice">${ds.length ? ds.map(d => dieHTML(d, { button: true, action: 'unplace' })).join('') : `<span class="empty">${t('empty')}</span>`}</div>
           </div>`;
         }).join('')}</div>
         <div class="actions">
-          <button type="button" class="btn primary" data-action="confirm-groups" ${ready ? '' : 'disabled'}>${sending ? 'Enviando…' : 'Confirmar grupos'}</button>
-          <button type="button" class="btn ghost" data-action="clear-groups">Deshacer todo</button>
+          <button type="button" class="btn primary" data-action="confirm-groups" ${ready ? '' : 'disabled'}>${sending ? t('sending') : t('confirmGroups')}</button>
+          <button type="button" class="btn ghost" data-action="clear-groups">${t('undoAll')}</button>
         </div>`;
     } else {
-      body = `<h2>Turno de ${name(G.active)}</h2>
+      body = `<h2>${t('turnOf', name(G.active))}</h2>
         <div class="dice">${G.roll.map((d, k) => dieHTML(d, { idx: k, roll: animate })).join('')}</div>
-        ${waitHTML(`${name(G.active)} está formando los grupos…`)}`;
+        ${waitHTML(t('grouping', name(G.active)))}`;
     }
   } else if (G.phase === 'choose') {
     if (mine) {
@@ -1282,46 +1651,44 @@ function stageHTML(V) {
       const h = ui.hint;
       let hint = '';
       if (h && !h.none) {
-        const lines = [];
-        if (!h.mild) lines.push(`«Creo que el grupo ${LETTERS[h.rec]} te va mejor.»`);
-        else lines.push(`«Ningún grupo te ayuda mucho. Yo cogería el ${LETTERS[h.rec]}.»`);
-        h.danger.forEach(g => lines.push(`«Cuidado con el grupo ${LETTERS[g]}: podría ser peligroso para ti.»`));
-        hint = `<div class="hint"><span class="who">${name(h.bot)} comenta</span>${lines.map(l => `<span>${l}</span>`).join('')}</div>`;
+        const lines = [h.mild ? t('hintMild', LETTERS[h.rec]) : t('hintBest', LETTERS[h.rec])];
+        h.danger.forEach(g => lines.push(t('hintDanger', LETTERS[g])));
+        hint = `<div class="hint"><span class="who">${t('botSays', name(h.bot))}</span>${lines.map(l => `<span>${l}</span>`).join('')}</div>`;
       }
-      const label = sending ? 'Enviando…' : ui.chosen === null ? 'Elige un grupo' : `Coger el grupo ${LETTERS[ui.chosen]}`;
-      body = `<h2>${name(a)}, elige un grupo</h2>
-        <p class="sub">${name(G.active)} ha formado los grupos pensando en lo que ve. ¿Cuál era para ti?</p>
+      const label = sending ? t('sending') : ui.chosen === null ? t('pickGroup') : t('takeGroup', LETTERS[ui.chosen]);
+      body = `<h2>${t('choosePrompt', name(a))}</h2>
+        <p class="sub">${t('chooseSub', name(G.active))}</p>
         ${groupsHTML(!sending)}
         ${hint}
         <div class="actions"><button type="button" class="btn primary" data-action="take" ${ui.chosen === null || sending ? 'disabled' : ''}>${label}</button></div>`;
     } else {
-      body = `<h2>Elección de grupos</h2>
-        <p class="sub">Grupos de ${name(G.active)}. Elige ${name(a)}.</p>
+      body = `<h2>${t('choosing')}</h2>
+        <p class="sub">${t('chooseWatch', name(G.active), name(a))}</p>
         ${groupsHTML(false)}
-        ${waitHTML(`${name(a)} está ${G.players[a].bot ? 'pensando' : 'eligiendo'}…`)}`;
+        ${waitHTML(G.players[a].bot ? t('thinking', name(a)) : t('picking', name(a)))}`;
     }
   } else if (G.phase === 'reveal') {
     const failed = G.results.reduce((n, r) => n + r.filter(x => !x.ok).length, 0);
     const controls = isGuest
-      ? waitHTML(`Esperando a que ${name(0)} decida cómo seguir…`)
+      ? waitHTML(t('waitHostNext', name(0)))
       : `<div class="actions">
-          <button type="button" class="btn primary big" data-action="retry">Otra partida con objetivos nuevos</button>
-          <button type="button" class="btn ghost" data-action="new">Cambiar ajustes</button>
-        </div>${ui.err ? `<p class="err">${esc(ui.err)}</p>` : ''}`;
+          <button type="button" class="btn primary big" data-action="retry">${t('playAgain')}</button>
+          <button type="button" class="btn ghost" data-action="new">${t('changeSettings')}</button>
+        </div>${errHTML()}`;
     body = `<div class="banner ${G.win ? 'win' : 'lose'}">
-        <h2>${G.win ? '¡Lo habéis conseguido!' : 'Misión fallida'}</h2>
-        <p>${G.win ? 'Todos los objetivos se han cumplido.' : `${failed === 1 ? 'Ha fallado 1 objetivo' : `Han fallado ${failed} objetivos`}. Mirad las cartas y probad otra vez.`}</p>
+        <h2>${G.win ? t('winTitle') : t('loseTitle')}</h2>
+        <p>${G.win ? t('winText') : t('loseText', failed)}</p>
       </div>${controls}`;
   }
 
   let talk = '';
-  if (G.phase !== 'reveal' && G.online) talk = '<p class="talk">Hablad por llamada o chat y sugerid («ese grupo te conviene»), pero nunca digáis la misión de nadie.</p>';
-  else if (G.phase !== 'reveal' && multi()) talk = '<p class="talk">Podéis hablar y sugerir («ese grupo te conviene»), pero nunca decir la misión de nadie.</p>';
+  if (G.phase !== 'reveal' && G.online) talk = `<p class="talk">${t('talkOnline')}</p>`;
+  else if (G.phase !== 'reveal' && multi()) talk = `<p class="talk">${t('talkLocal')}</p>`;
   let warn = '';
-  if (isGuest && !hostPeer() && Date.now() - ON.joinedAt > 4000) warn = `<p class="info">${name(0)} (anfitrión) se ha desconectado. La partida sigue cuando vuelva a abrir la página.</p>`;
-  if (G.online && V === null && G.phase !== 'reveal') warn += '<p class="info">Estás mirando la partida. No tienes asiento en ella.</p>';
-  const recent = G.log.slice(-6).map(l => `<li>${esc(l)}</li>`).join('');
-  return `<section class="stage" aria-live="polite">${warn}${body}${talk}${G.online ? connHTML() : ''}<div class="log"><span class="label">Registro</span><ol>${recent}</ol></div></section>`;
+  if (isGuest && !hostPeer() && Date.now() - ON.joinedAt > 4000) warn = `<p class="info">${t('hostGone', name(0))}</p>`;
+  if (G.online && V === null && G.phase !== 'reveal') warn += `<p class="info">${t('spectating')}</p>`;
+  const recent = G.log.slice(-6).map(l => `<li>${esc(logText(l))}</li>`).join('');
+  return `<section class="stage" aria-live="polite">${warn}${body}${talk}${G.online ? connHTML() : ''}<div class="log"><span class="label">${t('logTitle')}</span><ol>${recent}</ol></div></section>`;
 }
 
 function headerHTML(status) {
@@ -1329,19 +1696,18 @@ function headerHTML(status) {
       <p class="logo">BLIND<span class="dot"></span>SPOTS</p>
       <span class="status">${status}</span>
       <span class="spacer"></span>
-      <button type="button" class="btn ghost" data-action="rules">Reglas</button>
+      ${langHTML()}
+      <button type="button" class="btn ghost" data-action="rules">${t('rules')}</button>
       ${ui.quit
-        ? `<button type="button" class="btn danger" data-action="quit-yes">Sí, salir</button><button type="button" class="btn ghost" data-action="quit-no">Seguir</button>`
-        : `<button type="button" class="btn ghost" data-action="quit">Salir</button>`}
+        ? `<button type="button" class="btn danger" data-action="quit-yes">${t('quitYes')}</button><button type="button" class="btn ghost" data-action="quit-no">${t('quitNo')}</button>`
+        : `<button type="button" class="btn ghost" data-action="quit">${t('quit')}</button>`}
     </header>`;
 }
 
 function gameHTML() {
   const V = viewerOf();
-  const where = G.online ? `Partida ${ON.code.toUpperCase()} · ` : '';
-  const status = G.phase === 'reveal'
-    ? `${where}Fin de la partida`
-    : `${where}Ronda ${G.round + 1} de ${P()}`;
+  const where = G.online ? `${t('gameCode', ON.code.toUpperCase())} · ` : '';
+  const status = G.phase === 'reveal' ? `${where}${t('gameOver')}` : `${where}${t('round', G.round + 1, P())}`;
   return `${headerHTML(status)}
     <div class="board">${stageHTML(V)}${seatsHTML(V)}</div>
     ${!G.online && G.cover !== null && G.cover !== undefined ? coverHTML() : ''}`;
@@ -1349,40 +1715,41 @@ function gameHTML() {
 
 function coverHTML() {
   const i = G.cover;
-  const what = G.phase === 'choose' ? 'Te toca elegir un grupo.' : 'Te toca repartir esta ronda.';
-  return `<div class="overlay" role="dialog" aria-modal="true" aria-label="Cambio de jugador"><div class="cover">
+  const what = G.phase === 'choose' ? t('coverChoose') : t('coverDeal');
+  return `<div class="overlay" role="dialog" aria-modal="true" aria-label="${t('coverLabel')}"><div class="cover">
     <div class="eye" aria-hidden="true">?</div>
-    <h2>Pásale el dispositivo a ${name(i)}</h2>
-    <p>${what} La pantalla mostrará las misiones de los demás, así que nadie más debe mirarla.</p>
-    <button type="button" class="btn primary big" data-action="cover-ok">Soy ${name(i)}, continuar</button>
+    <h2>${t('coverTitle', name(i))}</h2>
+    <p>${what} ${t('coverText')}</p>
+    <button type="button" class="btn primary big" data-action="cover-ok">${t('coverBtn', name(i))}</button>
   </div></div>`;
 }
 
 function waitingRoomHTML() {
   const code = ON.code.toUpperCase();
+  const status = `${t('gameCode', code)} · ${t('waitingRoom')}`;
   if (ON.role === 'host') {
     const seats = seatPreview();
     const nh = Math.min(5, seats.length);
     const total = Math.min(5, Math.max(3, ON.lob.n, nh));
-    const rows = seats.map((s, i) => `<li><span class="grow">${esc(s.nm)}${s.me ? ' (tú)' : ''}</span>${i === 0 ? '<span class="tag">Anfitrión</span>' : i >= 5 ? '<span class="tag">Espectador</span>' : '<span class="tag">Conectado</span>'}</li>`).join('');
+    const rows = seats.map((s, i) => `<li><span class="grow">${esc(s.nm)}${s.me ? t('meSuffix') : ''}</span><span class="tag">${i === 0 ? t('host') : i >= 5 ? t('spectator') : t('connected')}</span></li>`).join('');
     const botsN = total - nh;
-    return `${headerHTML(`Partida ${code} · Sala de espera`)}
+    return `${headerHTML(status)}
       <div class="setup">
         <section class="panel">
-          <h2>Tu partida</h2>
-          <div class="field"><span class="label">Código</span><div><span class="code">${code}</span></div>
+          <h2>${t('yourGame')}</h2>
+          <div class="field"><span class="label">${t('code')}</span><div><span class="code">${code}</span></div>
             <p class="note">${ON.transport === 'p2p'
-              ? `Pásales este enlace y el código. Solo tienen que abrirlo, elegir «Online» y unirse: <span style="user-select:all;overflow-wrap:anywhere">${esc(location.href.split('#')[0])}</span>`
-              : 'Pásales este código a tus amigos. Tienen que abrir esta misma página en claude.ai (compártela con ellos desde el menú Compartir), elegir «Online» y unirse.'}</p></div>
-          <div class="field"><span class="label">En la sala (${seats.length})</span><ul class="rows">${rows}</ul></div>
-          <div class="field"><span class="label">Jugadores en la partida</span>
-            <div class="seg" role="group" aria-label="Número de jugadores">${[3, 4, 5].map(k => `<button type="button" data-action="on-count" data-n="${k}" aria-pressed="${total === k}" ${k < nh ? 'disabled' : ''}>${k}</button>`).join('')}</div>
-            <p class="note">${botsN > 0 ? `${botsN === 1 ? 'Un hueco libre lo ocupará un bot' : `${botsN} huecos libres los ocuparán bots`}. Si entra alguien más antes de empezar, ocupa su sitio.` : 'Todos los asientos son de personas.'}</p>
+              ? `${t('shareP2P')} <span style="user-select:all;overflow-wrap:anywhere">${esc(location.href.split('#')[0])}</span>`
+              : t('shareClaude')}</p></div>
+          <div class="field"><span class="label">${t('inRoomTitle', seats.length)}</span><ul class="rows">${rows}</ul></div>
+          <div class="field"><span class="label">${t('gamePlayers')}</span>
+            <div class="seg" role="group" aria-label="${t('playersCount')}">${[3, 4, 5].map(k => `<button type="button" data-action="on-count" data-n="${k}" aria-pressed="${total === k}" ${k < nh ? 'disabled' : ''}>${k}</button>`).join('')}</div>
+            <p class="note">${botsN > 0 ? t('botsFill', botsN) : t('allHumans')}</p>
           </div>
           ${settingsHTML('on', ON.lob, total)}
-          <label class="toggle"><input id="on-hints" type="checkbox" data-action="on-hints" ${ON.lob.h ? 'checked' : ''}> Los bots dan pistas cuando eliges grupo</label>
-          <div class="actions"><button type="button" class="btn primary big" data-action="on-start" ${pool(ON.lob.C, ON.lob.stars).length ? '' : 'disabled'}>Empezar partida</button></div>
-          ${ui.err ? `<p class="err">${esc(ui.err)}</p>` : ''}
+          <label class="toggle"><input id="on-hints" type="checkbox" data-action="on-hints" ${ON.lob.h ? 'checked' : ''}> ${t('hintsToggle')}</label>
+          <div class="actions"><button type="button" class="btn primary big" data-action="on-start" ${pool(ON.lob.C, ON.lob.stars).length ? '' : 'disabled'}>${t('startGame')}</button></div>
+          ${errHTML()}
           ${connHTML()}
         </section>
         ${howtoPanel()}
@@ -1392,52 +1759,45 @@ function waitingRoomHTML() {
   const h = hostPeer();
   let inner;
   if (!h || !lob) {
-    inner = Date.now() - ON.joinedAt < 4000 ? waitHTML('Conectando con la partida…')
-      : `<p class="info">No encuentro la partida ${code}. Comprueba el código y que el anfitrión tenga la página abierta. ${ON.transport === 'p2p' ? '' : 'Si abajo pone que no ves a nadie más, este dispositivo y el del anfitrión no se están viendo: abrid los dos el mismo enlace en claude.ai con la sesión iniciada.'}</p>`;
+    inner = Date.now() - ON.joinedAt < 4000 ? waitHTML(t('connectingGame'))
+      : `<p class="info">${t('notFound', code)} ${ON.transport === 'p2p' ? '' : t('notFoundClaude')}</p>`;
   } else {
     const seats = Array.isArray(lob.seats) ? lob.seats.slice(0, 5).map(cleanName) : [];
     const n = Math.min(5, Math.max(3, Number(lob.n) || 3, seats.length));
-    inner = `<div class="field"><span class="label">Jugadores (${seats.length} de ${n})</span>
-        <ul class="rows">${seats.map((s, i) => `<li><span class="grow">${esc(s || 'Jugador')}</span>${i === 0 ? '<span class="tag">Anfitrión</span>' : ''}</li>`).join('')}
-        ${Array.from({ length: Math.max(0, n - seats.length) }, () => '<li><span class="grow empty">Hueco para un bot</span></li>').join('')}</ul></div>
-      <p class="note">${lobCfgText(lob)}${lob.spec ? ` · ${lob.spec} mirando` : ''}</p>
-      ${waitHTML(`Esperando a que ${esc(cleanName(h.presence.nm) || 'el anfitrión')} empiece…`)}`;
+    inner = `<div class="field"><span class="label">${t('playersOf', seats.length, n)}</span>
+        <ul class="rows">${seats.map((s, i) => `<li><span class="grow">${esc(s || t('someone'))}</span>${i === 0 ? `<span class="tag">${t('host')}</span>` : ''}</li>`).join('')}
+        ${Array.from({ length: Math.max(0, n - seats.length) }, () => `<li><span class="grow empty">${t('botSeat')}</span></li>`).join('')}</ul></div>
+      <p class="note">${lobCfgText(lob)}${lob.spec ? ` · ${t('watching', lob.spec)}` : ''}</p>
+      ${waitHTML(t('waitHostStart', esc(cleanName(h.presence.nm) || t('theHost'))))}`;
   }
-  return `${headerHTML(`Partida ${code} · Sala de espera`)}
-    <div class="setup"><section class="panel"><h2>Partida ${code}</h2>${inner}${connHTML()}</section>${howtoPanel()}</div>`;
+  return `${headerHTML(status)}
+    <div class="setup"><section class="panel"><h2>${t('gameCode', code)}</h2>${inner}${connHTML()}</section>${howtoPanel()}</div>`;
 }
 
 function howtoPanel() {
   return `<section class="panel">
-    <h2>Cómo se juega</h2>
-    <ol class="howto">
-      <li><span><b>Tira los dados</b>Quien reparte tira ${DICE_PER_COLOR} dados de cada color. Todo el mundo ve el resultado.</span></li>
-      <li><span><b>Forma grupos</b>Los divide en tantos grupos como jugadores, pensando en las misiones que ve.</span></li>
-      <li><span><b>Elige</b>Empezando por su izquierda, cada jugador coge un grupo. Quien reparte se queda el último.</span></li>
-      <li><span><b>Acumula</b>Los dados se suman a tu zona. Hay tantas rondas como jugadores y cada uno reparte una vez.</span></li>
-    </ol>
-    <p class="note">Al final se descubren las cartas. Si todos cumplen su misión, el equipo gana.</p>
-    <button type="button" class="btn ghost" data-action="rules">Reglas completas</button>
+    <h2>${t('howTitle')}</h2>
+    <ol class="howto">${t('how', DICE_PER_COLOR).map(([b, txt]) => `<li><span><b>${b}</b>${txt}</span></li>`).join('')}</ol>
+    <p class="note">${t('howEnd')}</p>
+    <button type="button" class="btn ghost" data-action="rules">${t('fullRules')}</button>
   </section>`;
 }
 
-// Colours, objectives per player and the difficulty range; shared by local and online setup.
+// Colours, objectives per player and difficulty; shared by local and online setup.
 function settingsHTML(pre, cfg, players) {
-  const seg = (label, key, values, cur, fmt, small) => `<div class="field"><span class="label">${label}</span>
-    <div class="seg" role="group" aria-label="${label}">${values.map(v => `<button type="button" data-action="${pre}-${key}" data-n="${v}" aria-pressed="${cur === v}">${fmt(v)}</button>`).join('')}</div>${small || ''}</div>`;
+  const seg = (label, key, values, cur) => `<div class="field"><span class="label">${label}</span>
+    <div class="seg" role="group" aria-label="${label}">${values.map(v => `<button type="button" data-action="${pre}-${key}" data-n="${v}" aria-pressed="${cur === v}">${v}</button>`).join('')}</div></div>`;
   const avail = pool(cfg.C, cfg.stars).length;
-  const need = players * cfg.per;
-  const note = !CATALOGUE.list.length
-    ? '<p class="err">No se han cargado objetivos. Revisa el archivo objetivos.js.</p>'
-    : avail === 0 ? '<p class="err">Ningún objetivo encaja con estos ajustes. Marca más estrellas.</p>'
-    : `<p class="note">${avail} ${avail === 1 ? 'objetivo encaja' : 'objetivos encajan'} con estos ajustes${avail < need ? `; hacen falta ${need}, así que alguno se repetirá entre jugadores` : ''}.${CATALOGUE.bad.length ? ` ${CATALOGUE.bad.length} del archivo tienen errores y no se usan.` : ''}</p>`;
-  return seg('Colores', 'colors', [3, 4, 5], cfg.C, v => `${v}`)
-    + seg('Objetivos por jugador', 'per', [1, 2, 3], cfg.per, v => `${v}`)
-    + `<div class="field"><span class="label">Dificultad</span>
-        <div class="seg" role="group" aria-label="Dificultad">${[1, 2, 3, 4, 5].map(v => `<button type="button" data-action="${pre}-star" data-n="${v}" aria-pressed="${!!(cfg.stars & (1 << (v - 1)))}">${v}★</button>`).join('')}</div>${note}</div>`;
+  const note = !CATALOGUE.list.length ? `<p class="err">${t('noCatalogue')}</p>`
+    : avail === 0 ? `<p class="err">${t('noPool')}</p>`
+    : `<p class="note">${t('poolNote', avail, players * cfg.per, CATALOGUE.bad.length)}</p>`;
+  return seg(t('colours'), 'colors', [3, 4, 5], cfg.C)
+    + seg(t('perPlayer'), 'per', [1, 2, 3], cfg.per)
+    + `<div class="field"><span class="label">${t('difficulty')}</span>
+        <div class="seg" role="group" aria-label="${t('difficulty')}">${[1, 2, 3, 4, 5].map(v => `<button type="button" data-action="${pre}-star" data-n="${v}" aria-pressed="${!!(cfg.stars & (1 << (v - 1)))}">${v}★</button>`).join('')}</div>${note}</div>`;
 }
 
-// Applies a settings button to a config object; keeps min ≤ max.
+// Applies a settings button to a config object.
 function applySetting(cfg, key, v) {
   if (key === 'colors') cfg.C = v;
   if (key === 'per') cfg.per = v;
@@ -1458,73 +1818,71 @@ function localSetupHTML() {
   const rows = Array.from({ length: n }, (_, i) => `
     <div class="prow">
       <span class="num">${i + 1}</span>
-      <input id="pname-${i}" type="text" maxlength="16" value="${esc(S.names[i])}" data-name="${i}" aria-label="Nombre del jugador ${i + 1}">
-      <div class="seg" role="group" aria-label="Tipo de jugador ${i + 1}">
-        <button type="button" data-action="human" data-i="${i}" aria-pressed="${!S.bots[i]}">Persona</button>
-        <button type="button" data-action="bot" data-i="${i}" aria-pressed="${!!S.bots[i]}">Bot</button>
+      <input id="pname-${i}" type="text" maxlength="16" value="${esc(S.names[i])}" data-name="${i}" aria-label="${t('playerName', i + 1)}">
+      <div class="seg" role="group" aria-label="${t('playerType', i + 1)}">
+        <button type="button" data-action="human" data-i="${i}" aria-pressed="${!S.bots[i]}">${t('person')}</button>
+        <button type="button" data-action="bot" data-i="${i}" aria-pressed="${!!S.bots[i]}">${t('bot')}</button>
       </div>
     </div>`).join('');
   const nh = S.bots.slice(0, n).filter(b => !b).length;
-  const modeNote = nh === 0 ? 'Solo bots: verás cómo juegan, con todas las misiones a la vista.'
-    : nh === 1 ? 'Una persona con bots: los bots ven tu misión y te dan pistas permitidas.'
-    : `${nh} personas en un mismo dispositivo: os lo iréis pasando. Cada uno ve las misiones de los demás solo en su turno.`;
+  const modeNote = nh === 0 ? t('modeAllBots') : nh === 1 ? t('modeOneHuman') : t('modeManyHumans', nh);
   return `<section class="panel">
-      <h2>Partida en este dispositivo</h2>
-      <div class="field"><span class="label">Jugadores</span>
-        <div class="seg" role="group" aria-label="Número de jugadores">${[3, 4, 5].map(k => `<button type="button" data-action="count" data-n="${k}" aria-pressed="${n === k}">${k}</button>`).join('')}</div>
+      <h2>${t('localTitle')}</h2>
+      <div class="field"><span class="label">${t('players')}</span>
+        <div class="seg" role="group" aria-label="${t('playersCount')}">${[3, 4, 5].map(k => `<button type="button" data-action="count" data-n="${k}" aria-pressed="${n === k}">${k}</button>`).join('')}</div>
       </div>
-      <div class="field"><span class="label">Quién juega</span><div class="players">${rows}</div><p class="note">${modeNote}</p></div>
+      <div class="field"><span class="label">${t('whoPlays')}</span><div class="players">${rows}</div><p class="note">${modeNote}</p></div>
       ${settingsHTML('set', { C: S.colors, per: S.per, stars: S.stars }, n)}
-      <label class="toggle"><input id="hints" type="checkbox" data-action="hints" ${S.hints ? 'checked' : ''}> Los bots dan pistas cuando eliges grupo</label>
-      <div class="actions"><button type="button" class="btn primary big" data-action="start" ${pool(S.colors, S.stars).length ? '' : 'disabled'}>Empezar</button></div>
-      ${ui.err ? `<p class="err">${esc(ui.err)}</p>` : ''}
+      <label class="toggle"><input id="hints" type="checkbox" data-action="hints" ${S.hints ? 'checked' : ''}> ${t('hintsToggle')}</label>
+      <div class="actions"><button type="button" class="btn primary big" data-action="start" ${pool(S.colors, S.stars).length ? '' : 'disabled'}>${t('start')}</button></div>
+      ${errHTML()}
     </section>`;
 }
 
 function onlineSetupHTML() {
-  if (ON.status === 'pending' || ON.status === 'idle') return `<section class="panel"><h2>Partida online</h2>${waitHTML('Conectando…')}</section>`;
+  if (ON.status === 'pending' || ON.status === 'idle') return `<section class="panel"><h2>${t('onlineTitle')}</h2>${waitHTML(t('connecting'))}</section>`;
   if (ON.status === 'none' && ON.transport === 'p2p') {
-    return `<section class="panel"><h2>Partida online</h2>
-      <p class="info">No se ha podido cargar el modo online. Revisa tu conexión a internet y recarga la página.</p></section>`;
+    return `<section class="panel"><h2>${t('onlineTitle')}</h2><p class="info">${t('p2pLoadFail')}</p></section>`;
   }
   if (ON.status === 'none') {
-    return `<section class="panel"><h2>Partida online</h2>
-      <p class="info">El modo online solo funciona al abrir esta página en claude.ai con la sesión iniciada.</p>
-      <p class="note">Cada jugador necesita una cuenta de Claude y acceso a la página. El dueño la comparte desde el menú Compartir.</p></section>`;
+    return `<section class="panel"><h2>${t('onlineTitle')}</h2>
+      <p class="info">${t('claudeOnly')}</p>
+      <p class="note">${t('claudeOnlyNote')}</p></section>`;
   }
   const open = ON.lobbyPeers.filter(p => !p.sameTab && p.presence && p.presence.open && /^[a-z0-9]{4}$/.test(p.presence.open.code));
   const games = open.map(p => {
     const o = p.presence.open;
-    return `<li><span class="grow"><b>Partida de ${esc(cleanName(o.nm) || 'alguien')}</b> · ${esc(o.code.toUpperCase())} · ${Math.min(9, Number(o.n) || 1)} en la sala</span>
-      <button type="button" class="btn" data-action="on-join-list" data-code="${esc(o.code)}">Unirme</button></li>`;
+    return `<li><span class="grow"><b>${t('gameBy', esc(cleanName(o.nm) || t('someone')))}</b> · ${esc(o.code.toUpperCase())} · ${t('inRoom', Math.min(9, Number(o.n) || 1))}</span>
+      <button type="button" class="btn" data-action="on-join-list" data-code="${esc(o.code)}">${t('join')}</button></li>`;
   }).join('');
   return `<section class="panel">
-      <h2>Partida online</h2>
-      <p class="note">Cada jugador juega desde su casa con esta misma página abierta${ON.transport === 'p2p' ? ', sin necesidad de cuenta' : ''}. Cada uno ve las misiones de los demás, nunca la suya.</p>
-      <div class="field"><label class="label" for="on-name">Tu nombre</label>
-        <div class="inline"><input id="on-name" type="text" maxlength="16" value="${esc(ON.nm)}" data-online-name="1" placeholder="Cómo te verán los demás"></div></div>
-      <div class="field"><span class="label">Crear</span>
-        <div class="actions"><button type="button" class="btn primary big" data-action="on-create">Crear partida</button></div>
-        <p class="note">Serás el anfitrión: la partida vive en tu pantalla, así que mantenla abierta mientras jugáis.</p></div>
-      ${ON.transport === 'p2p' ? '' : `<div class="field"><span class="label">Partidas abiertas</span>
-        ${games ? `<ul class="rows">${games}</ul>` : '<p class="note">Ahora mismo no hay ninguna. Cuando alguien cree una, aparecerá aquí.</p>'}</div>`}
-      <div class="field"><label class="label" for="on-code">Unirse con código</label>
+      <h2>${t('onlineTitle')}</h2>
+      <p class="note">${t('onlineIntro', ON.transport === 'p2p')}</p>
+      <div class="field"><label class="label" for="on-name">${t('yourName')}</label>
+        <div class="inline"><input id="on-name" type="text" maxlength="16" value="${esc(ON.nm)}" data-online-name="1" placeholder="${t('namePlaceholder')}"></div></div>
+      <div class="field"><span class="label">${t('create')}</span>
+        <div class="actions"><button type="button" class="btn primary big" data-action="on-create">${t('createGame')}</button></div>
+        <p class="note">${t('hostNote')}</p></div>
+      ${ON.transport === 'p2p' ? '' : `<div class="field"><span class="label">${t('openGames')}</span>
+        ${games ? `<ul class="rows">${games}</ul>` : `<p class="note">${t('noOpenGames')}</p>`}</div>`}
+      <div class="field"><label class="label" for="on-code">${t('joinWithCode')}</label>
         <div class="inline"><input id="on-code" class="short" type="text" maxlength="4" value="${esc(ui.joinCode)}" data-join-code="1" placeholder="K3F9" autocomplete="off">
-        <button type="button" class="btn" data-action="on-join">Unirme</button></div></div>
-      ${ui.connecting ? waitHTML('Conectando…') : ''}
-      ${ui.err ? `<p class="err">${esc(ui.err)}</p>` : ''}
+        <button type="button" class="btn" data-action="on-join">${t('join')}</button></div></div>
+      ${ui.connecting ? waitHTML(t('connecting')) : ''}
+      ${errHTML()}
       ${connHTML()}
     </section>`;
 }
 
 function homeHTML() {
-  return `<section class="hero">
-      <span class="meta">3–5 jugadores · Cooperativo · Dados y deducción</span>
+  return `<div class="home-top">${langHTML()}</div>
+    <section class="hero">
+      <span class="meta">${t('meta')}</span>
       <h1>BLIND<span class="dot" aria-hidden="true"></span>SPOTS</h1>
-      <p><span>Ves la misión de todos.</span> <span>Todos ven la tuya.</span> <span>Nadie ve la suya.</span></p>
-      <div><div class="tabs" role="group" aria-label="Modo de juego">
-        <button type="button" data-action="mode" data-m="local" aria-pressed="${ui.mode === 'local'}">En este dispositivo</button>
-        <button type="button" data-action="mode" data-m="online" aria-pressed="${ui.mode === 'online'}">Online</button>
+      <p>${t('tagline').map(x => `<span>${x}</span>`).join(' ')}</p>
+      <div><div class="tabs" role="group" aria-label="${t('modeGroup')}">
+        <button type="button" data-action="mode" data-m="local" aria-pressed="${ui.mode === 'local'}">${t('modeLocal')}</button>
+        <button type="button" data-action="mode" data-m="online" aria-pressed="${ui.mode === 'online'}">${t('modeOnline')}</button>
       </div></div>
     </section>
     <div class="setup">${ui.mode === 'online' ? onlineSetupHTML() : localSetupHTML()}${howtoPanel()}</div>`;
@@ -1532,31 +1890,9 @@ function homeHTML() {
 
 function rulesHTML() {
   return `<div class="overlay dim" data-action="rules-close-bg"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="rules-title">
-    <h2 id="rules-title">Reglas de BlindSpots</h2>
-    <p>Juego cooperativo de dados y deducción para 3–5 jugadores. Cada jugador tiene una misión personal que no puede ver; los demás sí la ven y deben ayudarle con sus decisiones.</p>
-    <h3>Objetivo</h3>
-    <p>El equipo gana el nivel si al final todos han cumplido su misión. Si falla una sola, el equipo pierde el nivel y puede volver a intentarlo.</p>
-    <h3>Misiones</h3>
-    <p>Cada misión tiene uno o varios objetivos: condiciones sobre todos los dados que acumulas en la partida. Por ejemplo: «Ningún dado azul», «Exactamente 3 dados verdes», «Suma azul &gt; suma naranja» (solo cuentan los valores) o «Dados de exactamente 3 colores distintos» (solo cuenta cuántos colores tienes).</p>
-    <h3>Una ronda</h3>
-    <ul>
-      <li>Quien reparte tira los dados del nivel (aquí, ${DICE_PER_COLOR} de cada color).</li>
-      <li>Los divide en tantos grupos como jugadores. No hace falta que sean iguales.</li>
-      <li>Empezando por su izquierda, cada jugador elige un grupo y se lo lleva. Quien reparte recibe el último.</li>
-      <li>Los dados se añaden a la zona personal y cuentan para la misión final.</li>
-    </ul>
-    <p>Un nivel dura tantas rondas como jugadores; cada uno reparte una vez. Las misiones solo se comprueban al final.</p>
-    <h3>Comunicación</h3>
-    <p>Se puede hablar y sugerir («creo que ese grupo te va mejor», «ese dado puede ser peligroso para alguien»), pero no revelar la misión de nadie.</p>
-    <h3>Ajustes de la partida</h3>
-    <ul>
-      <li>Colores: con 3 se juega con azul, naranja y verde; con 4 entra el morado y con 5 el amarillo.</li>
-      <li>Objetivos por jugador: la misión de cada jugador tiene de 1 a 3 objetivos y hay que cumplirlos todos.</li>
-      <li>Dificultad: cada objetivo tiene de 1 a 5 estrellas. Se eligen las dificultades que se quieran y los objetivos se reparten al azar entre los que las tienen.</li>
-    </ul>
-    <h3>En esta versión</h3>
-    <p>En un dispositivo, la web pide pasarlo antes de cada decisión y solo entonces muestra las misiones de los demás. Online, cada jugador ve las misiones de los demás en su pantalla. Los bots reparten pensando en las misiones que ven y, al elegir, cogen el grupo que menos perjudica al resto.</p>
-    <div class="actions"><button type="button" class="btn primary" data-action="rules-close">Cerrar</button></div>
+    <h2 id="rules-title">${t('rulesTitle')}</h2>
+    ${t('rulesBody', DICE_PER_COLOR)}
+    <div class="actions"><button type="button" class="btn primary" data-action="rules-close">${t('close')}</button></div>
   </div></div>`;
 }
 
@@ -1575,6 +1911,7 @@ function render() {
   const active = document.activeElement;
   const focusId = active && active.id;
   const caret = active && typeof active.selectionStart === 'number' ? active.selectionStart : null;
+  document.documentElement.lang = t('htmlLang');
   let html;
   if (G) { syncUiKey(); html = gameHTML(); }
   else if (ON.role) html = waitingRoomHTML();
@@ -1609,6 +1946,7 @@ $app.addEventListener('click', e => {
   const g = el.dataset.g !== undefined ? +el.dataset.g : null;
 
   switch (actn) {
+    case 'lang': LANG = el.dataset.l === 'en' ? 'en' : 'es'; lsSet(LANG_KEY, LANG); ui.hint = null; break;
     case 'rules': ui.rules = true; break;
     case 'rules-close': case 'rules-close-bg': ui.rules = false; break;
     case 'mode': ui.mode = el.dataset.m; ui.err = ''; if (ui.mode === 'online') ensureP2P(); break;

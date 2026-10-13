@@ -6,6 +6,10 @@ Juego cooperativo de dados y deducción para 3–5 jugadores.
 
 Todo el juego está en `index.html`, sin dependencias ni build.
 
+## Idioma
+
+La web está en español y en inglés. Cada jugador elige su idioma con el selector ES / EN (arriba a la derecha) y se recuerda en su navegador; en una partida online cada uno la ve en el suyo.
+
 ## Modos de juego
 
 - **En este dispositivo:** varias personas se pasan el móvil u ordenador, o una persona juega con bots.
