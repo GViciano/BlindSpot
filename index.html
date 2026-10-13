@@ -209,7 +209,6 @@ button.group:hover { border-color: var(--muted); }
 .inline input.short { flex: 0 1 140px; text-transform: uppercase; letter-spacing: .12em; font-weight: 700; }
 .err { color: var(--bad); font-size: 14px; margin: 0; }
 .info { border-radius: 10px; padding: 10px 12px; background: var(--surface-2); font-size: 14px; margin: 0; }
-.stars-range { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
 .stars { color: var(--d1); letter-spacing: .05em; font-size: 13px; white-space: nowrap; }
 .tag.off { color: var(--bad); border-color: var(--bad); background: transparent; }
 </style>
@@ -346,8 +345,11 @@ function loadCatalogue() {
 const CATALOGUE = loadCatalogue();
 
 // The objectives that can come up with these settings.
-function pool(C, smin, smax) {
-  return CATALOGUE.list.filter(m => m.s >= smin && m.s <= smax
+// `stars` is a bit mask: bit k-1 set means objectives with k stars can come up.
+const ALL_STARS = 31;
+const starList = mask => [1, 2, 3, 4, 5].filter(k => mask & (1 << (k - 1)));
+function pool(C, stars) {
+  return CATALOGUE.list.filter(m => (stars & (1 << (m.s - 1)))
     && mcolours(m).every(c => c < C)
     && !(m.t === 'exactColours' && m.n > C));
 }
@@ -399,7 +401,7 @@ function feasible(all, C, P) {
 // Deals `per` objectives to each of P players from the filtered catalogue.
 // Prefers combinations the dice can satisfy and no repeats; returns {missions} or {error}.
 function genMissions(P, cfg) {
-  const items = pool(cfg.C, cfg.smin, cfg.smax);
+  const items = pool(cfg.C, cfg.stars);
   const need = P * cfg.per;
   if (!items.length) return { error: 'Ningún objetivo encaja con este rango de estrellas y estos colores. Amplía el rango.' };
   const unique = items.length >= need;
@@ -427,7 +429,8 @@ function genMissions(P, cfg) {
 }
 
 const starsText = n => '★'.repeat(n) + '☆'.repeat(5 - n);
-const cfgText = cfg => `${cfg.C} colores · ${cfg.per} ${cfg.per === 1 ? 'objetivo' : 'objetivos'} por jugador · ${cfg.smin === cfg.smax ? `${cfg.smin}★` : `${cfg.smin}–${cfg.smax}★`}`;
+const cfgText = cfg => `${cfg.C} colores · ${cfg.per} ${cfg.per === 1 ? 'objetivo' : 'objetivos'} por jugador · ${starsLabel(cfg.stars)}`;
+const starsLabel = mask => { const l = starList(mask); return l.length === 5 ? 'todas las dificultades' : (l.length > 1 ? l.slice(0, -1).join(', ') + ' y ' + l[l.length - 1] : l[0]) + '★'; };
 
 /* ---------- State ---------- */
 let G = null;        // the game being shown (local, hosted, or mirrored from the host)
@@ -437,8 +440,7 @@ let S = {
   bots: [false, true, true, true, true],
   colors: 3,
   per: 1,
-  smin: 1,
-  smax: 5,
+  stars: ALL_STARS,
   hints: true,
 };
 let timer = null;
@@ -448,7 +450,7 @@ const ui = { connecting: false, rules: false, quit: false, mode: 'local', key: n
 // Online session.
 const ON = {
   status: 'pending', room: null, game: null, code: null, role: null, nm: '', tk: '', myId: null,
-  gpeers: [], lobbyPeers: [], order: [], connected: false, roomErr: '', transport: 'claude', lob: { n: 4, C: 3, per: 1, smin: 1, smax: 5, h: true }, hostLob: null,
+  gpeers: [], lobbyPeers: [], order: [], connected: false, roomErr: '', transport: 'claude', lob: { n: 4, C: 3, per: 1, stars: ALL_STARS, h: true }, hostLob: null,
   hostSeenAt: 0, joinedAt: 0, n: 0, seen: new Set(), lastQ: -1, unsub: [],
 };
 
@@ -473,7 +475,7 @@ function persist() {
 function newLocalGame() {
   const n = S.count;
   G = {
-    online: false, cfg: { C: S.colors, per: S.per, smin: S.smin, smax: S.smax }, hints: S.hints, starter: 0, C: S.colors,
+    online: false, cfg: { C: S.colors, per: S.per, stars: S.stars }, hints: S.hints, starter: 0, C: S.colors,
     players: Array.from({ length: n }, (_, i) => ({ name: (S.names[i] || '').trim().slice(0, 16) || `Jugador ${i + 1}`, bot: !!S.bots[i], missions: [], area: [] })),
     log: [],
   };
@@ -734,7 +736,7 @@ function saveOnline() {
 
 function encodeG() {
   return {
-    v: 2, cf: [G.cfg.C, G.cfg.per, G.cfg.smin, G.cfg.smax], h: G.hints ? 1 : 0, st: G.starter, C: G.C, r: G.round, a: G.active, ph: G.phase, s: G.step, id: G.gid,
+    v: 2, cf: [G.cfg.C, G.cfg.per, G.cfg.stars], h: G.hints ? 1 : 0, st: G.starter, C: G.C, r: G.round, a: G.active, ph: G.phase, s: G.step, id: G.gid,
     p: G.players.map(p => [p.name, p.bot ? 1 : 0, p.key || '', p.missions.map(m => [TYPES.indexOf(m.t), m.c ?? -1, m.c2 ?? -1, m.n ?? -1, m.s || 0]), p.area.map(d => d.c * 10 + d.v)]),
     rl: G.roll.map(d => d.c * 10 + d.v),
     gr: G.groups,
@@ -750,7 +752,7 @@ function decodeG(w) {
     const int = (x, lo, hi) => { if (!Number.isInteger(x) || x < lo || x > hi) throw 0; return x; };
     const C = int(w.C, 3, 5);
     const cf = Array.isArray(w.cf) ? w.cf : [];
-    const cfg = { C, per: int(cf[1], 1, 3), smin: int(cf[2], 1, 5), smax: int(cf[3], 1, 5) };
+    const cfg = { C, per: int(cf[1], 1, 3), stars: int(cf[2], 1, ALL_STARS) };
     if (!Array.isArray(w.p) || w.p.length < 3 || w.p.length > 5) throw 0;
     const n = w.p.length;
     const die = (x, i) => { int(x, 1, 46); const c = Math.floor(x / 10), v = x % 10; int(c, 0, C - 1); int(v, 1, 6); return i === undefined ? { c, v } : { id: i, c, v }; };
@@ -789,7 +791,7 @@ function decodeG(w) {
 
 function lobWire() {
   const seats = seatPreview();
-  return { n: ON.lob.n, cf: [ON.lob.C, ON.lob.per, ON.lob.smin, ON.lob.smax], h: ON.lob.h ? 1 : 0, seats: seats.slice(0, 5).map(s => s.nm), spec: Math.max(0, seats.length - 5) };
+  return { n: ON.lob.n, cf: [ON.lob.C, ON.lob.per, ON.lob.stars], h: ON.lob.h ? 1 : 0, seats: seats.slice(0, 5).map(s => s.nm), spec: Math.max(0, seats.length - 5) };
 }
 
 /* ---------- Online outside claude.ai: PeerJS ---------- */
@@ -979,14 +981,13 @@ function hostPeer() {
 
 // Fills in any setting a saved lobby lacks (older versions saved levels instead).
 function cleanLob(l) {
-  const d = { n: 4, C: 3, per: 1, smin: 1, smax: 5, h: true };
+  const d = { n: 4, C: 3, per: 1, stars: ALL_STARS, h: true };
   if (!l || typeof l !== 'object') return d;
   const ok = (v, lo, hi) => Number.isInteger(v) && v >= lo && v <= hi;
   const out = {
     n: ok(l.n, 3, 5) ? l.n : d.n, C: ok(l.C, 3, 5) ? l.C : d.C, per: ok(l.per, 1, 3) ? l.per : d.per,
-    smin: ok(l.smin, 1, 5) ? l.smin : d.smin, smax: ok(l.smax, 1, 5) ? l.smax : d.smax, h: l.h !== false,
+    stars: ok(l.stars, 1, ALL_STARS) ? l.stars : d.stars, h: l.h !== false,
   };
-  if (out.smin > out.smax) out.smax = out.smin;
   return out;
 }
 
@@ -1110,7 +1111,7 @@ function hostStart() {
   const botNames = BOT_NAMES.filter(n => !usedNames.has(n.toLowerCase()));
   const players = seats.map(s => ({ name: s.nm, bot: false, key: s.key, missions: [], area: [] }));
   while (players.length < total) players.push({ name: botNames.shift() || `Bot ${players.length + 1}`, bot: true, key: '', missions: [], area: [] });
-  G = { online: true, cfg: { C: ON.lob.C, per: ON.lob.per, smin: ON.lob.smin, smax: ON.lob.smax }, hints: ON.lob.h, starter: 0, C: ON.lob.C, players, log: [], seq: 0 };
+  G = { online: true, cfg: { C: ON.lob.C, per: ON.lob.per, stars: ON.lob.stars }, hints: ON.lob.h, starter: 0, C: ON.lob.C, players, log: [], seq: 0 };
   const err = startLevel();
   if (err) { G = null; ui.err = err; render(); return; }
   advance();
@@ -1379,7 +1380,7 @@ function waitingRoomHTML() {
           </div>
           ${settingsHTML('on', ON.lob, total)}
           <label class="toggle"><input id="on-hints" type="checkbox" data-action="on-hints" ${ON.lob.h ? 'checked' : ''}> Los bots dan pistas cuando eliges grupo</label>
-          <div class="actions"><button type="button" class="btn primary big" data-action="on-start" ${pool(ON.lob.C, ON.lob.smin, ON.lob.smax).length ? '' : 'disabled'}>Empezar partida</button></div>
+          <div class="actions"><button type="button" class="btn primary big" data-action="on-start" ${pool(ON.lob.C, ON.lob.stars).length ? '' : 'disabled'}>Empezar partida</button></div>
           ${ui.err ? `<p class="err">${esc(ui.err)}</p>` : ''}
           ${connHTML()}
         </section>
@@ -1423,33 +1424,32 @@ function howtoPanel() {
 function settingsHTML(pre, cfg, players) {
   const seg = (label, key, values, cur, fmt, small) => `<div class="field"><span class="label">${label}</span>
     <div class="seg" role="group" aria-label="${label}">${values.map(v => `<button type="button" data-action="${pre}-${key}" data-n="${v}" aria-pressed="${cur === v}">${fmt(v)}</button>`).join('')}</div>${small || ''}</div>`;
-  const avail = pool(cfg.C, cfg.smin, cfg.smax).length;
+  const avail = pool(cfg.C, cfg.stars).length;
   const need = players * cfg.per;
   const note = !CATALOGUE.list.length
     ? '<p class="err">No se han cargado objetivos. Revisa el archivo objetivos.js.</p>'
-    : avail === 0 ? '<p class="err">Ningún objetivo encaja con estos ajustes. Amplía el rango de estrellas.</p>'
+    : avail === 0 ? '<p class="err">Ningún objetivo encaja con estos ajustes. Marca más estrellas.</p>'
     : `<p class="note">${avail} ${avail === 1 ? 'objetivo encaja' : 'objetivos encajan'} con estos ajustes${avail < need ? `; hacen falta ${need}, así que alguno se repetirá entre jugadores` : ''}.${CATALOGUE.bad.length ? ` ${CATALOGUE.bad.length} del archivo tienen errores y no se usan.` : ''}</p>`;
   return seg('Colores', 'colors', [3, 4, 5], cfg.C, v => `${v}`)
     + seg('Objetivos por jugador', 'per', [1, 2, 3], cfg.per, v => `${v}`)
-    + `<div class="field"><span class="label">Dificultad de los objetivos</span>
-        <div class="stars-range">
-          <span class="note">Desde</span><div class="seg" role="group" aria-label="Estrellas mínimas">${[1, 2, 3, 4, 5].map(v => `<button type="button" data-action="${pre}-smin" data-n="${v}" aria-pressed="${cfg.smin === v}">${v}★</button>`).join('')}</div>
-          <span class="note">hasta</span><div class="seg" role="group" aria-label="Estrellas máximas">${[1, 2, 3, 4, 5].map(v => `<button type="button" data-action="${pre}-smax" data-n="${v}" aria-pressed="${cfg.smax === v}">${v}★</button>`).join('')}</div>
-        </div>${note}</div>`;
+    + `<div class="field"><span class="label">Dificultad</span>
+        <div class="seg" role="group" aria-label="Dificultad">${[1, 2, 3, 4, 5].map(v => `<button type="button" data-action="${pre}-star" data-n="${v}" aria-pressed="${!!(cfg.stars & (1 << (v - 1)))}">${v}★</button>`).join('')}</div>${note}</div>`;
 }
 
 // Applies a settings button to a config object; keeps min ≤ max.
 function applySetting(cfg, key, v) {
   if (key === 'colors') cfg.C = v;
   if (key === 'per') cfg.per = v;
-  if (key === 'smin') { cfg.smin = v; if (cfg.smax < v) cfg.smax = v; }
-  if (key === 'smax') { cfg.smax = v; if (cfg.smin > v) cfg.smin = v; }
+  if (key === 'star') {
+    const next = cfg.stars ^ (1 << (v - 1));
+    if (next) cfg.stars = next; // at least one difficulty stays selected
+  }
 }
 
 function lobCfgText(lob) {
   const cf = Array.isArray(lob.cf) ? lob.cf.map(Number) : [];
-  if (!(cf[0] >= 3 && cf[0] <= 5 && cf[1] >= 1 && cf[1] <= 3 && cf[2] >= 1 && cf[2] <= 5 && cf[3] >= 1 && cf[3] <= 5)) return '';
-  return cfgText({ C: cf[0], per: cf[1], smin: cf[2], smax: cf[3] });
+  if (!(cf[0] >= 3 && cf[0] <= 5 && cf[1] >= 1 && cf[1] <= 3 && Number.isInteger(cf[2]) && cf[2] >= 1 && cf[2] <= ALL_STARS)) return '';
+  return cfgText({ C: cf[0], per: cf[1], stars: cf[2] });
 }
 
 function localSetupHTML() {
@@ -1473,9 +1473,9 @@ function localSetupHTML() {
         <div class="seg" role="group" aria-label="Número de jugadores">${[3, 4, 5].map(k => `<button type="button" data-action="count" data-n="${k}" aria-pressed="${n === k}">${k}</button>`).join('')}</div>
       </div>
       <div class="field"><span class="label">Quién juega</span><div class="players">${rows}</div><p class="note">${modeNote}</p></div>
-      ${settingsHTML('set', { C: S.colors, per: S.per, smin: S.smin, smax: S.smax }, n)}
+      ${settingsHTML('set', { C: S.colors, per: S.per, stars: S.stars }, n)}
       <label class="toggle"><input id="hints" type="checkbox" data-action="hints" ${S.hints ? 'checked' : ''}> Los bots dan pistas cuando eliges grupo</label>
-      <div class="actions"><button type="button" class="btn primary big" data-action="start" ${pool(S.colors, S.smin, S.smax).length ? '' : 'disabled'}>Empezar</button></div>
+      <div class="actions"><button type="button" class="btn primary big" data-action="start" ${pool(S.colors, S.stars).length ? '' : 'disabled'}>Empezar</button></div>
       ${ui.err ? `<p class="err">${esc(ui.err)}</p>` : ''}
     </section>`;
 }
@@ -1551,7 +1551,7 @@ function rulesHTML() {
     <ul>
       <li>Colores: con 3 se juega con azul, naranja y verde; con 4 entra el morado y con 5 el amarillo.</li>
       <li>Objetivos por jugador: la misión de cada jugador tiene de 1 a 3 objetivos y hay que cumplirlos todos.</li>
-      <li>Dificultad: cada objetivo tiene de 1 a 5 estrellas. Los objetivos se reparten al azar entre los que están en el rango elegido.</li>
+      <li>Dificultad: cada objetivo tiene de 1 a 5 estrellas. Se eligen las dificultades que se quieran y los objetivos se reparten al azar entre los que las tienen.</li>
     </ul>
     <h3>En esta versión</h3>
     <p>En un dispositivo, la web pide pasarlo antes de cada decisión y solo entonces muestra las misiones de los demás. Online, cada jugador ve las misiones de los demás en su pantalla. Los bots reparten pensando en las misiones que ven y, al elegir, cogen el grupo que menos perjudica al resto.</p>
@@ -1614,10 +1614,10 @@ $app.addEventListener('click', e => {
     case 'count': S.count = +el.dataset.n; persist(); break;
     case 'human': S.bots[+el.dataset.i] = false; persist(); break;
     case 'bot': S.bots[+el.dataset.i] = true; persist(); break;
-    case 'set-colors': case 'set-per': case 'set-smin': case 'set-smax': {
-      const cfg = { C: S.colors, per: S.per, smin: S.smin, smax: S.smax };
+    case 'set-colors': case 'set-per': case 'set-star': {
+      const cfg = { C: S.colors, per: S.per, stars: S.stars };
       applySetting(cfg, actn.slice(4), +el.dataset.n);
-      Object.assign(S, { colors: cfg.C, per: cfg.per, smin: cfg.smin, smax: cfg.smax });
+      Object.assign(S, { colors: cfg.C, per: cfg.per, stars: cfg.stars });
       ui.err = ''; persist(); break;
     }
     case 'hints': S.hints = el.checked; persist(); return;
@@ -1657,7 +1657,7 @@ $app.addEventListener('click', e => {
     case 'on-join': enterRoom(ui.joinCode, 'guest'); return;
     case 'on-join-list': enterRoom(el.dataset.code, 'guest'); return;
     case 'on-count': ON.lob.n = +el.dataset.n; publish(); saveOnline(); break;
-    case 'on-colors': case 'on-per': case 'on-smin': case 'on-smax':
+    case 'on-colors': case 'on-per': case 'on-star':
       applySetting(ON.lob, actn.slice(3), +el.dataset.n); ui.err = ''; publish(); saveOnline(); break;
     case 'on-hints': ON.lob.h = el.checked; publish(); saveOnline(); return;
     case 'on-start': hostStart(); return;
@@ -1678,6 +1678,9 @@ function start(data) {
   let saved = data && (data.G !== undefined || data.S) ? data : lsGet(STORE_KEY);
   if (saved) {
     if (saved.S) S = Object.assign(S, saved.S);
+    // Settings saved by an older version used a star range instead of a set.
+    if (!Number.isInteger(S.stars) || S.stars < 1 || S.stars > ALL_STARS) S.stars = ALL_STARS;
+    delete S.smin; delete S.smax;
     if (saved.G && saved.G.players && !saved.G.online) G = saved.G;
   }
   const onl = (data && data.onl) || lsGet(ONLINE_KEY);

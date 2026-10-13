@@ -15,7 +15,7 @@ Todo el juego está en `index.html`, sin dependencias ni build.
 
 - **Colores:** 3 (azul, naranja, verde), 4 (más morado) o 5 (más amarillo).
 - **Objetivos por jugador:** de 1 a 3. La misión de cada jugador se cumple si cumple todos sus objetivos.
-- **Dificultad:** un rango de estrellas, por ejemplo de 2★ a 5★. Los objetivos se reparten al azar entre los que están en ese rango y usan colores en juego.
+- **Dificultad:** se marcan las estrellas que se quieran (1★ a 5★, por ejemplo solo 2★ y 4★). Los objetivos se reparten al azar entre los que tienen esas estrellas y usan colores en juego.
 
 ## Objetivos
 
