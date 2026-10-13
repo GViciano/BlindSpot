@@ -24,7 +24,7 @@ La web está en español y en inglés. Cada jugador elige su idioma con el selec
 
 ## Objetivos
 
-Los objetivos están en [`objetivos.js`](objetivos.js), uno por línea, con sus estrellas (1–5), su tipo y sus datos. Al principio del archivo están todos los tipos disponibles. Para cambiar los objetivos basta con editar ese archivo; el juego no necesita cambios.
+Los objetivos están en [`objetivos.js`](objetivos.js), uno por línea, con sus estrellas (1–5), su tipo y sus datos. Al principio del archivo están todos los tipos disponibles: de colores (ningún azul, exactamente 2 verdes…) y de números (sin pares, exactamente 2 dados con el mismo número, ningún dado mayor que 4, suma total…). Para cambiar los objetivos basta con editar ese archivo; el juego no necesita cambios.
 
 ## Publicación
 

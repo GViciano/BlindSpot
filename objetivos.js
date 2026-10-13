@@ -7,7 +7,7 @@
 // Cada objetivo es una línea con:
 //   estrellas: dificultad, de 1 a 5.
 //   tipo:      qué hay que conseguir (lista abajo).
-//   color, color2, n: los datos que pida ese tipo.
+//   color, color2, n, numero: los datos que pida ese tipo.
 //
 // Colores: 'azul', 'naranja', 'verde', 'morado', 'amarillo'.
 //
@@ -23,6 +23,23 @@
 //   todos_colores      Al menos un dado de cada color en juego.
 //   total_al_menos     Al menos `n` dados en total.
 //   total_como_maximo  Como máximo `n` dados en total.
+//
+// Tipos que miran el número de los dados (sin importar el color):
+//   sin_pares          Ningún dado con número par (2, 4, 6).
+//   sin_impares        Ningún dado con número impar (1, 3, 5).
+//   pares_exactos      Exactamente `n` dados con número par.
+//   impares_exactos    Exactamente `n` dados con número impar.
+//   mas_pares          Más dados con número par que con número impar.
+//   mas_impares        Más dados con número impar que con número par.
+//   repetidos_exactos  Exactamente `n` dados con el mismo número (ninguno sale más de `n` veces).
+//   repetidos_al_menos Al menos `n` dados con el mismo número.
+//   valor_maximo       Ningún dado mayor que `n`.
+//   valor_minimo       Ningún dado menor que `n`.
+//   sin_numero         Ningún dado con el número `numero`.
+//   numero_al_menos    Al menos `n` dados con el número `numero`.
+//   suma_total_maxima  Todos tus dados suman `n` o menos.
+//   suma_total_minima  Todos tus dados suman `n` o más.
+//   suma_total_par     Todos tus dados suman un número par.
 //
 // Las estrellas de esta lista son provisionales.
 
@@ -87,4 +104,38 @@ window.BLINDSPOTS_OBJETIVOS = [
   { estrellas: 4, tipo: 'total_como_maximo', n: 5 },
   { estrellas: 5, tipo: 'exactamente', color: 'verde', n: 4 },
   { estrellas: 5, tipo: 'suma_al_menos', color: 'azul', n: 18 },
+
+  // Objetivos sobre los números de los dados
+  { estrellas: 3, tipo: 'sin_pares' },
+  { estrellas: 3, tipo: 'sin_impares' },
+  { estrellas: 3, tipo: 'pares_exactos', n: 2 },
+  { estrellas: 3, tipo: 'pares_exactos', n: 3 },
+  { estrellas: 3, tipo: 'impares_exactos', n: 2 },
+  { estrellas: 4, tipo: 'impares_exactos', n: 4 },
+  { estrellas: 2, tipo: 'mas_pares' },
+  { estrellas: 2, tipo: 'mas_impares' },
+  { estrellas: 3, tipo: 'repetidos_exactos', n: 2 },
+  { estrellas: 4, tipo: 'repetidos_exactos', n: 3 },
+  { estrellas: 2, tipo: 'repetidos_al_menos', n: 3 },
+  { estrellas: 3, tipo: 'repetidos_al_menos', n: 4 },
+  { estrellas: 5, tipo: 'repetidos_al_menos', n: 5 },
+  { estrellas: 2, tipo: 'valor_maximo', n: 5 },
+  { estrellas: 3, tipo: 'valor_maximo', n: 4 },
+  { estrellas: 4, tipo: 'valor_maximo', n: 3 },
+  { estrellas: 2, tipo: 'valor_minimo', n: 2 },
+  { estrellas: 3, tipo: 'valor_minimo', n: 3 },
+  { estrellas: 4, tipo: 'valor_minimo', n: 4 },
+  { estrellas: 1, tipo: 'sin_numero', numero: 6 },
+  { estrellas: 1, tipo: 'sin_numero', numero: 1 },
+  { estrellas: 1, tipo: 'sin_numero', numero: 3 },
+  { estrellas: 2, tipo: 'numero_al_menos', numero: 6, n: 2 },
+  { estrellas: 2, tipo: 'numero_al_menos', numero: 1, n: 2 },
+  { estrellas: 3, tipo: 'numero_al_menos', numero: 6, n: 3 },
+  { estrellas: 3, tipo: 'numero_al_menos', numero: 4, n: 3 },
+  { estrellas: 3, tipo: 'suma_total_maxima', n: 20 },
+  { estrellas: 4, tipo: 'suma_total_maxima', n: 15 },
+  { estrellas: 2, tipo: 'suma_total_minima', n: 25 },
+  { estrellas: 3, tipo: 'suma_total_minima', n: 30 },
+  { estrellas: 5, tipo: 'suma_total_minima', n: 40 },
+  { estrellas: 1, tipo: 'suma_total_par' },
 ];

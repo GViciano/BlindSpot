@@ -225,7 +225,8 @@ button.group:hover { border-color: var(--muted); }
 (() => {
 'use strict';
 
-const TYPES = ['noColor', 'exact', 'atLeast', 'atMost', 'sumGreater', 'countMore', 'exactColours', 'allColours', 'sumAtLeast', 'atMostTotal', 'atLeastTotal'];
+const TYPES = ['noColor', 'exact', 'atLeast', 'atMost', 'sumGreater', 'countMore', 'exactColours', 'allColours', 'sumAtLeast', 'atMostTotal', 'atLeastTotal',
+  'noEven', 'noOdd', 'exactEven', 'exactOdd', 'moreEven', 'moreOdd', 'repeatExact', 'repeatAtLeast', 'maxValue', 'minValue', 'noNumber', 'atLeastNumber', 'sumAllMax', 'sumAllMin', 'sumAllEven'];
 const BAG_PER_COLOUR = 15;                       // dice of each colour in the bag
 const rollCount = P => P * 2 - 1;                  // dice drawn from the bag each round
 const totalDrawn = P => P * rollCount(P);          // one round per player
@@ -406,6 +407,27 @@ const I18N = {
       coloursOf: (n, C) => `Tienes ${n} de ${C} colores.`,
       sumIs: (c, s) => `Tus ${c.pl} suman ${s}.`,
       totalIs: n => `Tienes ${n} dados.`,
+      noEven: 'Ningún dado con número par.',
+      noOdd: 'Ningún dado con número impar.',
+      exactEven: n => `Exactamente ${n} ${plural(n, 'dado con número par', 'dados con número par')}.`,
+      exactOdd: n => `Exactamente ${n} ${plural(n, 'dado con número impar', 'dados con número impar')}.`,
+      moreEven: 'Más dados con número par que con número impar.',
+      moreOdd: 'Más dados con número impar que con número par.',
+      repeatExact: n => `Exactamente ${n} dados con el mismo número (ningún número sale más de ${n} veces).`,
+      repeatAtLeast: n => `Al menos ${n} dados con el mismo número.`,
+      maxValue: n => `Ningún dado mayor que ${n}.`,
+      minValue: n => `Ningún dado menor que ${n}.`,
+      noNumber: v => `Ningún dado con un ${v}.`,
+      atLeastNumber: (n, v) => `Al menos ${n} ${plural(n, 'dado', 'dados')} con un ${v}.`,
+      sumAllMax: n => `Tus dados suman ${n} o menos en total.`,
+      sumAllMin: n => `Tus dados suman ${n} o más en total.`,
+      sumAllEven: 'Tus dados suman un número par en total.',
+      evenOdd: (e, o) => `Tienes ${e} ${plural(e, 'par', 'pares')} y ${o} ${plural(o, 'impar', 'impares')}.`,
+      maxRepIs: n => `Tu número más repetido sale ${n} ${plural(n, 'vez', 'veces')}.`,
+      aboveIs: (k, n) => `Tienes ${k} ${plural(k, 'dado mayor', 'dados mayores')} que ${n}.`,
+      belowIs: (k, n) => `Tienes ${k} ${plural(k, 'dado menor', 'dados menores')} que ${n}.`,
+      numberIs: (k, v) => `Tienes ${k} ${plural(k, 'dado', 'dados')} con un ${v}.`,
+      sumAllIs: s => `Tus dados suman ${s}.`,
     },
     // Rules
     rulesTitle: 'Reglas de BlindSpots', close: 'Cerrar',
@@ -568,6 +590,27 @@ const I18N = {
       coloursOf: (n, C) => `You have ${n} of ${C} colours.`,
       sumIs: (c, s) => `Your ${c.pl} dice add up to ${s}.`,
       totalIs: n => `You have ${n} dice.`,
+      noEven: 'No dice showing an even number.',
+      noOdd: 'No dice showing an odd number.',
+      exactEven: n => `Exactly ${n} ${plural(n, 'die', 'dice')} showing an even number.`,
+      exactOdd: n => `Exactly ${n} ${plural(n, 'die', 'dice')} showing an odd number.`,
+      moreEven: 'More dice showing even numbers than odd numbers.',
+      moreOdd: 'More dice showing odd numbers than even numbers.',
+      repeatExact: n => `Exactly ${n} dice showing the same number (no number appears more than ${n} times).`,
+      repeatAtLeast: n => `At least ${n} dice showing the same number.`,
+      maxValue: n => `No die higher than ${n}.`,
+      minValue: n => `No die lower than ${n}.`,
+      noNumber: v => `No die showing a ${v}.`,
+      atLeastNumber: (n, v) => `At least ${n} ${plural(n, 'die', 'dice')} showing a ${v}.`,
+      sumAllMax: n => `Your dice add up to ${n} or less in total.`,
+      sumAllMin: n => `Your dice add up to ${n} or more in total.`,
+      sumAllEven: 'Your dice add up to an even number in total.',
+      evenOdd: (e, o) => `You have ${e} even and ${o} odd.`,
+      maxRepIs: n => `Your most repeated number appears ${n} ${plural(n, 'time', 'times')}.`,
+      aboveIs: (k, n) => `You have ${k} ${plural(k, 'die', 'dice')} higher than ${n}.`,
+      belowIs: (k, n) => `You have ${k} ${plural(k, 'die', 'dice')} lower than ${n}.`,
+      numberIs: (k, v) => `You have ${k} ${plural(k, 'die', 'dice')} showing a ${v}.`,
+      sumAllIs: s => `Your dice add up to ${s}.`,
     },
     rulesTitle: 'BlindSpots rules', close: 'Close',
     rulesBody: () => `
@@ -633,14 +676,35 @@ function missionText(m) {
     case 'sumAtLeast': return tm('sumAtLeast', c, m.n);
     case 'atMostTotal': return tm('atMostTotal', m.n);
     case 'atLeastTotal': return tm('atLeastTotal', m.n);
+    case 'noEven': return tm('noEven');
+    case 'noOdd': return tm('noOdd');
+    case 'exactEven': return tm('exactEven', m.n);
+    case 'exactOdd': return tm('exactOdd', m.n);
+    case 'moreEven': return tm('moreEven');
+    case 'moreOdd': return tm('moreOdd');
+    case 'repeatExact': return tm('repeatExact', m.n);
+    case 'repeatAtLeast': return tm('repeatAtLeast', m.n);
+    case 'maxValue': return tm('maxValue', m.n);
+    case 'minValue': return tm('minValue', m.n);
+    case 'noNumber': return tm('noNumber', m.v);
+    case 'atLeastNumber': return tm('atLeastNumber', m.n, m.v);
+    case 'sumAllMax': return tm('sumAllMax', m.n);
+    case 'sumAllMin': return tm('sumAllMin', m.n);
+    case 'sumAllEven': return tm('sumAllEven');
   }
   return '';
 }
 
 function stats(dice, C) {
-  const cnt = Array(C).fill(0), sum = Array(C).fill(0);
-  for (const d of dice) { cnt[d.c]++; sum[d.c] += d.v; }
-  return { cnt, sum, total: dice.length, distinct: cnt.filter(x => x > 0).length };
+  const cnt = Array(C).fill(0), sum = Array(C).fill(0), val = Array(7).fill(0);
+  let all = 0;
+  for (const d of dice) { cnt[d.c]++; sum[d.c] += d.v; val[d.v]++; all += d.v; }
+  const even = val[2] + val[4] + val[6];
+  return {
+    cnt, sum, val, all, even, odd: dice.length - even, total: dice.length,
+    distinct: cnt.filter(x => x > 0).length, maxRep: Math.max(...val),
+    above: k => val.slice(k + 1).reduce((a, b) => a + b, 0), below: k => val.slice(1, k).reduce((a, b) => a + b, 0),
+  };
 }
 
 function checkMission(m, st, C) {
@@ -658,6 +722,21 @@ function checkMission(m, st, C) {
     case 'sumAtLeast': return { ok: s(m.c) >= m.n, detail: tm('sumIs', cname(m.c), s(m.c)) };
     case 'atMostTotal': return { ok: st.total <= m.n, detail: tm('totalIs', st.total) };
     case 'atLeastTotal': return { ok: st.total >= m.n, detail: tm('totalIs', st.total) };
+    case 'noEven': return { ok: st.even === 0, detail: tm('evenOdd', st.even, st.odd) };
+    case 'noOdd': return { ok: st.odd === 0, detail: tm('evenOdd', st.even, st.odd) };
+    case 'exactEven': return { ok: st.even === m.n, detail: tm('evenOdd', st.even, st.odd) };
+    case 'exactOdd': return { ok: st.odd === m.n, detail: tm('evenOdd', st.even, st.odd) };
+    case 'moreEven': return { ok: st.even > st.odd, detail: tm('evenOdd', st.even, st.odd) };
+    case 'moreOdd': return { ok: st.odd > st.even, detail: tm('evenOdd', st.even, st.odd) };
+    case 'repeatExact': return { ok: st.maxRep === m.n, detail: tm('maxRepIs', st.maxRep) };
+    case 'repeatAtLeast': return { ok: st.maxRep >= m.n, detail: tm('maxRepIs', st.maxRep) };
+    case 'maxValue': return { ok: st.above(m.n) === 0, detail: tm('aboveIs', st.above(m.n), m.n) };
+    case 'minValue': return { ok: st.below(m.n) === 0, detail: tm('belowIs', st.below(m.n), m.n) };
+    case 'noNumber': return { ok: st.val[m.v] === 0, detail: tm('numberIs', st.val[m.v], m.v) };
+    case 'atLeastNumber': return { ok: st.val[m.v] >= m.n, detail: tm('numberIs', st.val[m.v], m.v) };
+    case 'sumAllMax': return { ok: st.all <= m.n, detail: tm('sumAllIs', st.all) };
+    case 'sumAllMin': return { ok: st.all >= m.n, detail: tm('sumAllIs', st.all) };
+    case 'sumAllEven': return { ok: st.all % 2 === 0, detail: tm('sumAllIs', st.all) };
   }
   return { ok: false, detail: '' };
 }
@@ -679,6 +758,21 @@ function missionDist(m, st, C, roundsLeft) {
     case 'sumAtLeast': return Math.max(0, m.n - s(m.c)) / 3.5 * w;
     case 'atMostTotal': return Math.max(0, st.total - m.n) * IRREV;
     case 'atLeastTotal': return Math.max(0, m.n - st.total) * 0.6 * w;
+    case 'noEven': return st.even * IRREV;
+    case 'noOdd': return st.odd * IRREV;
+    case 'exactEven': return st.even > m.n ? (st.even - m.n) * IRREV : (m.n - st.even) * w;
+    case 'exactOdd': return st.odd > m.n ? (st.odd - m.n) * IRREV : (m.n - st.odd) * w;
+    case 'moreEven': { const d = st.odd - st.even; return d >= 0 ? (d + 1) * w : 0; }
+    case 'moreOdd': { const d = st.even - st.odd; return d >= 0 ? (d + 1) * w : 0; }
+    case 'repeatExact': return st.maxRep > m.n ? (st.maxRep - m.n) * IRREV : (m.n - st.maxRep) * w;
+    case 'repeatAtLeast': return Math.max(0, m.n - st.maxRep) * w;
+    case 'maxValue': return st.above(m.n) * IRREV;
+    case 'minValue': return st.below(m.n) * IRREV;
+    case 'noNumber': return st.val[m.v] * IRREV;
+    case 'atLeastNumber': return Math.max(0, m.n - st.val[m.v]) * w;
+    case 'sumAllMax': return Math.max(0, st.all - m.n) / 3 * IRREV;
+    case 'sumAllMin': return Math.max(0, m.n - st.all) / 3.5 * w;
+    case 'sumAllEven': return st.all % 2 ? 0.5 * w : 0;
   }
   return 0;
 }
@@ -689,6 +783,12 @@ const TIPO = {
   como_maximo: { t: 'atMost', c: 1, n: 1 }, suma_mayor: { t: 'sumGreater', c: 1, c2: 1 }, mas_dados: { t: 'countMore', c: 1, c2: 1 },
   suma_al_menos: { t: 'sumAtLeast', c: 1, n: 1 }, colores_exactos: { t: 'exactColours', n: 1 }, todos_colores: { t: 'allColours' },
   total_al_menos: { t: 'atLeastTotal', n: 1 }, total_como_maximo: { t: 'atMostTotal', n: 1 },
+  sin_pares: { t: 'noEven' }, sin_impares: { t: 'noOdd' }, pares_exactos: { t: 'exactEven', n: 1 }, impares_exactos: { t: 'exactOdd', n: 1 },
+  mas_pares: { t: 'moreEven' }, mas_impares: { t: 'moreOdd' },
+  repetidos_exactos: { t: 'repeatExact', n: 1 }, repetidos_al_menos: { t: 'repeatAtLeast', n: 1 },
+  valor_maximo: { t: 'maxValue', n: 1 }, valor_minimo: { t: 'minValue', n: 1 },
+  sin_numero: { t: 'noNumber', v: 1 }, numero_al_menos: { t: 'atLeastNumber', v: 1, n: 1 },
+  suma_total_maxima: { t: 'sumAllMax', n: 1 }, suma_total_minima: { t: 'sumAllMin', n: 1 }, suma_total_par: { t: 'sumAllEven' },
 };
 
 // Reads window.BLINDSPOTS_OBJETIVOS into missions; entries it cannot understand are skipped.
@@ -703,7 +803,8 @@ function loadCatalogue() {
     const m = { t: spec.t, s: st };
     if (spec.c) { m.c = col(e.color); if (m.c < 0) { bad.push(i + 1); return; } }
     if (spec.c2) { m.c2 = col(e.color2); if (m.c2 < 0 || m.c2 === m.c) { bad.push(i + 1); return; } }
-    if (spec.n) { m.n = Number(e.n); if (!Number.isInteger(m.n) || m.n < 0 || m.n > 40) { bad.push(i + 1); return; } }
+    if (spec.n) { m.n = Number(e.n); if (!Number.isInteger(m.n) || m.n < 0 || m.n > 99) { bad.push(i + 1); return; } }
+    if (spec.v) { m.v = Number(e.numero); if (!Number.isInteger(m.v) || m.v < 1 || m.v > 6) { bad.push(i + 1); return; } }
     list.push(m);
   });
   if (bad.length) console.warn('BlindSpots: objetivos ignorados (posición en la lista):', bad.join(', '));
@@ -721,7 +822,7 @@ function pool(C, stars) {
     && !(m.t === 'exactColours' && m.n > C));
 }
 
-const mkey = m => [m.t, m.c, m.c2, m.n].join(':');
+const mkey = m => [m.t, m.c, m.c2, m.n, m.v].join(':');
 const mcolours = m => [m.c, m.c2].filter(x => x !== undefined);
 
 // Per-player bounds on dice counts implied by the missions.
@@ -742,6 +843,13 @@ function bounds(ms, C, P) {
       case 'atLeastTotal': tlo = Math.max(tlo, m.n); break;
     }
   }
+  const has = t => ms.find(m => m.t === t);
+  if (has('noEven') && has('noOdd')) return null;                       // every player gets dice
+  const mx = has('maxValue'), mn = has('minValue');
+  if (mx && mn && mn.n > mx.n) return null;
+  if (has('sumAllMax') && has('sumAllMax').n < P) return null;          // at least P dice of value 1+
+  if ((has('noEven') && (has('exactEven') || has('moreEven'))) || (has('noOdd') && (has('exactOdd') || has('moreOdd')))) return null;
+  if (has('moreEven') && has('moreOdd')) return null;
   for (let c = 0; c < C; c++) if (lo[c] > hi[c]) return null;
   tlo = Math.max(tlo, lo.reduce((a, b) => a + b, 0));
   thi = Math.min(thi, hi.reduce((a, b) => a + b, 0));
@@ -1114,7 +1222,7 @@ function saveOnline() {
 function encodeG() {
   return {
     v: 2, cf: [G.cfg.C, G.cfg.per, G.cfg.stars], h: G.hints ? 1 : 0, st: G.starter, C: G.C, r: G.round, a: G.active, ph: G.phase, s: G.step, id: G.gid,
-    p: G.players.map(p => [p.name, p.bot ? 1 : 0, p.key || '', p.missions.map(m => [TYPES.indexOf(m.t), m.c ?? -1, m.c2 ?? -1, m.n ?? -1, m.s || 0]), p.area.map(d => d.c * 10 + d.v)]),
+    p: G.players.map(p => [p.name, p.bot ? 1 : 0, p.key || '', p.missions.map(m => [TYPES.indexOf(m.t), m.c ?? -1, m.c2 ?? -1, m.n ?? -1, m.s || 0, m.v || 0]), p.area.map(d => d.c * 10 + d.v)]),
     rl: G.roll.map(d => d.c * 10 + d.v),
     bg: G.bag || [],
     gr: G.groups,
@@ -1141,8 +1249,10 @@ function decodeG(w) {
         const o = { t };
         if (m[1] >= 0) o.c = int(m[1], 0, C - 1);
         if (m[2] >= 0) o.c2 = int(m[2], 0, C - 1);
-        if (m[3] >= 0) o.n = int(m[3], 0, 40);
+        if (m[3] >= 0) o.n = int(m[3], 0, 99);
         if (m[4] > 0) o.s = int(m[4], 1, 5);
+        if (m[5] > 0) o.v = int(m[5], 1, 6);
+        if (/^(noNumber|atLeastNumber)$/.test(t) && o.v === undefined) throw 0;
         if (/^(noColor|exact|atLeast|atMost|sumGreater|countMore|sumAtLeast)$/.test(t) && o.c === undefined) throw 0;
         if (/^(sumGreater|countMore)$/.test(t) && o.c2 === undefined) throw 0;
         return o;
