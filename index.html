@@ -252,6 +252,9 @@ const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = ri(i +
 const esc = s => String(s).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
 const rid = n => Array.from({ length: n }, () => 'abcdefghjkmnpqrstuvwxyz23456789'[ri(31)]).join('');
 const lsGet = k => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return null; } };
+// Per-tab storage: each tab is its own player, and a reload keeps its seat.
+const ssGet = k => { try { return JSON.parse(sessionStorage.getItem(k) || 'null'); } catch (e) { return null; } };
+const ssSet = (k, v) => { try { if (v === null) sessionStorage.removeItem(k); else sessionStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* storage unavailable */ } };
 const lsSet = (k, v) => { try { if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* storage unavailable */ } };
 const use = n => (window.claude && typeof window.claude.use === 'function') ? window.claude.use(n).catch(() => null) : Promise.resolve(null);
 
@@ -377,6 +380,7 @@ const I18N = {
     claudeOnlyNote: 'Cada jugador necesita una cuenta de Claude y acceso a la página. El dueño la comparte desde el menú Compartir.',
     onlineIntro: p2p => `Cada jugador juega desde su casa con esta misma página abierta${p2p ? ', sin necesidad de cuenta' : ''}. Cada uno ve las misiones de los demás, nunca la suya.`,
     yourName: 'Tu nombre', namePlaceholder: 'Cómo te verán los demás',
+    resumeGame: (code, name) => `Volver a la partida ${code} como ${name}`,
     create: 'Crear', createGame: 'Crear partida',
     hostNote: 'Serás el anfitrión: la partida vive en tu pantalla, así que mantenla abierta mientras jugáis.',
     openGames: 'Partidas abiertas', noOpenGames: 'Ahora mismo no hay ninguna. Cuando alguien cree una, aparecerá aquí.',
@@ -583,6 +587,7 @@ const I18N = {
     claudeOnlyNote: 'Every player needs a Claude account and access to the page. The owner shares it from the Share menu.',
     onlineIntro: p2p => `Each player plays from home with this page open${p2p ? ', no account needed' : ''}. Everyone sees the others’ missions, never their own.`,
     yourName: 'Your name', namePlaceholder: 'How others will see you',
+    resumeGame: (code, name) => `Back to game ${code} as ${name}`,
     create: 'Create', createGame: 'Create game',
     hostNote: 'You’ll be the host: the game lives on your screen, so keep it open while you play.',
     openGames: 'Open games', noOpenGames: 'There are none right now. When someone creates one, it shows up here.',
@@ -1328,9 +1333,13 @@ function mySeat() {
 const peerKey = p => (p.presence && typeof p.presence.tk === 'string' && p.presence.tk.length >= 8 ? p.presence.tk.slice(0, 40) : null);
 const cleanName = s => String(s || '').replace(/[\u0000-\u001f\u007f-\u009f​-‏‪-‮⁠-⁤﻿]/g, '').trim().slice(0, 16);
 
+// The session goes to this tab's storage (resumed on reload) and to the browser's
+// (offered as a "back to the game" button in a new tab, never joined on its own).
 function saveOnline() {
-  if (!ON.role) { lsSet(ONLINE_KEY, null); return; }
-  lsSet(ONLINE_KEY, { role: ON.role, code: ON.code, nm: ON.nm, G: ON.role === 'host' ? G : null, lob: ON.lob, order: ON.order });
+  if (!ON.role) { ssSet(ONLINE_KEY, null); lsSet(ONLINE_KEY, null); return; }
+  const sess = { role: ON.role, code: ON.code, nm: ON.nm, tk: ON.tk, G: ON.role === 'host' ? G : null, lob: ON.lob, order: ON.order };
+  ssSet(ONLINE_KEY, sess);
+  lsSet(ONLINE_KEY, sess);
 }
 
 function encodeG() {
@@ -1729,7 +1738,12 @@ function connHTML() {
 }
 
 async function initOnline(saved) {
-  ON.tk = (() => { let t = lsGet(TOKEN_KEY); if (typeof t !== 'string' || t.length < 8) { t = rid(12); lsSet(TOKEN_KEY, t); } return t; })();
+  ON.tk = (() => {
+    let t = saved && typeof saved.tk === 'string' && saved.tk.length >= 8 ? saved.tk : ssGet(TOKEN_KEY);
+    if (typeof t !== 'string' || t.length < 8) t = rid(12);
+    ssSet(TOKEN_KEY, t);
+    return t;
+  })();
   ON.nm = (saved && saved.nm) || cleanName(S.names[0]) || '';
   const room = await use('room');
   if (!room && !window.claude) {
@@ -2121,6 +2135,7 @@ function onlineSetupHTML() {
   return `<section class="panel">
       <h2>${t('onlineTitle')}</h2>
       <p class="note">${t('onlineIntro', ON.transport === 'p2p')}</p>
+      ${ON.resumable ? `<div class="field"><div class="actions"><button type="button" class="btn" data-action="on-resume">${t('resumeGame', esc(ON.resumable.code.toUpperCase()), esc(cleanName(ON.resumable.nm) || t('someone')))}</button></div></div>` : ''}
       <div class="field"><label class="label" for="on-name">${t('yourName')}</label>
         <div class="inline"><input id="on-name" type="text" maxlength="16" value="${esc(ON.nm)}" data-online-name="1" placeholder="${t('namePlaceholder')}"></div></div>
       <div class="field"><span class="label">${t('create')}</span>
@@ -2255,8 +2270,17 @@ $app.addEventListener('click', e => {
       if (ON.role === 'host') { publish(); announce(); saveOnline(); } else persist();
       break;
     // Online
-    case 'on-create': enterRoom(rid(4), 'host'); return;
-    case 'on-join': enterRoom(ui.joinCode, 'guest'); return;
+    case 'on-create': ON.resumable = null; enterRoom(rid(4), 'host'); return;
+    case 'on-resume': {
+      const r = ON.resumable;
+      ON.resumable = null;
+      if (!r) break;
+      if (typeof r.tk === 'string' && r.tk.length >= 8) { ON.tk = r.tk; ssSet(TOKEN_KEY, r.tk); }
+      ON.nm = cleanName(r.nm) || ON.nm;
+      enterRoom(r.code, r.role, r);
+      return;
+    }
+    case 'on-join': ON.resumable = null; enterRoom(ui.joinCode, 'guest'); return;
     case 'on-join-list': enterRoom(el.dataset.code, 'guest'); return;
     case 'on-count': ON.lob.n = +el.dataset.n; publish(); saveOnline(); break;
     case 'on-colors': case 'on-per': case 'on-star': case 'on-need':
@@ -2286,7 +2310,10 @@ function start(data) {
     delete S.smin; delete S.smax;
     if (saved.G && saved.G.players && !saved.G.online) G = saved.G;
   }
-  const onl = (data && data.onl) || lsGet(ONLINE_KEY);
+  // Resume on its own only this tab's game; a game saved by another tab becomes a button.
+  const onl = (data && data.onl) || ssGet(ONLINE_KEY);
+  const other = lsGet(ONLINE_KEY);
+  ON.resumable = !onl && other && other.role && other.code ? other : null;
   const savedName = lsGet(ONLINE_KEY + '-name');
   if (onl && onl.role) ui.mode = 'online';
   if (data && data.mode) ui.mode = data.mode;
@@ -2294,7 +2321,7 @@ function start(data) {
   render();
   initOnline(onl && onl.role ? onl : (typeof savedName === 'string' ? { nm: savedName } : null));
 }
-window.claude?.hot?.snapshot?.(() => ({ G: G && !G.online ? G : null, S, mode: ui.mode, onl: ON.role ? { role: ON.role, code: ON.code, nm: ON.nm, G: ON.role === 'host' ? G : null, lob: ON.lob, order: ON.order } : null }));
+window.claude?.hot?.snapshot?.(() => ({ G: G && !G.online ? G : null, S, mode: ui.mode, onl: ON.role ? { role: ON.role, code: ON.code, nm: ON.nm, tk: ON.tk, G: ON.role === 'host' ? G : null, lob: ON.lob, order: ON.order } : null }));
 window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude?.hot?.data ?? {});
 })();
 </script>
