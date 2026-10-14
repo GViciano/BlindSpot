@@ -222,6 +222,12 @@ button.group:hover { border-color: var(--muted); }
 .bonus.hit { color: var(--ok); font-weight: 700; }
 .goal { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 10px; background: var(--surface-2); border: 1px solid var(--line); font-size: 14px; }
 .goal-big { font-family: var(--font-display); font-size: 22px; color: var(--d1); white-space: nowrap; }
+.order { display: grid; gap: 6px; }
+.order-list { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; font-size: 14px; }
+.order-list .now { font-weight: 700; padding: 2px 8px; border-radius: 6px; background: var(--ink); color: var(--surface); }
+.order-list .done { color: var(--muted); text-decoration: line-through; }
+.order-list .sep { color: var(--muted); }
+.tag.turn { background: transparent; }
 .tag.off { color: var(--bad); border-color: var(--bad); background: transparent; }
 </style>
 </head>
@@ -365,6 +371,8 @@ const I18N = {
     logTitle: 'Registro',
     // Log
     logStart: cfg => `Empieza la partida: ${cfg}.`,
+    logFirst: name => `Empieza repartiendo ${name} (elegido al azar).`,
+    orderLabel: 'Orden de juego', turnN: n => `${n}º`,
     logRoll: (name, n) => `${name} tira ${n} dados.`,
     logSplit: (name, n) => `${name} reparte los dados en ${n} grupos.`,
     logTake: (name, g) => `${name} coge el grupo ${g}.`,
@@ -576,6 +584,8 @@ const I18N = {
     spectating: 'You are watching this game. You don’t have a seat in it.',
     logTitle: 'Log',
     logStart: cfg => `Game starts: ${cfg}.`,
+    logFirst: name => `${name} deals first (chosen at random).`,
+    orderLabel: 'Turn order', turnN: n => `#${n}`,
     logRoll: (name, n) => `${name} rolls ${n} dice.`,
     logSplit: (name, n) => `${name} splits the dice into ${n} groups.`,
     logTake: (name, g) => `${name} takes group ${g}.`,
@@ -1071,7 +1081,7 @@ function persist() {
 function newLocalGame() {
   const n = S.count;
   G = {
-    online: false, cfg: { C: Math.max(S.colors, minColours(n)), per: S.per, stars: S.stars, need: S.need || 0 }, hints: S.hints, starter: 0, C: Math.max(S.colors, minColours(n)),
+    online: false, cfg: { C: Math.max(S.colors, minColours(n)), per: S.per, stars: S.stars, need: S.need || 0 }, hints: S.hints, starter: ri(n), C: Math.max(S.colors, minColours(n)),
     players: Array.from({ length: n }, (_, i) => ({ name: (S.names[i] || '').trim().slice(0, 16) || t('defaultPlayer', i + 1), bot: !!S.bots[i], missions: [], area: [] })),
     log: [],
   };
@@ -1087,6 +1097,7 @@ function startLevel() {
   G.players.forEach((p, i) => { p.missions = r.missions[i]; p.area = []; });
   Object.assign(G, { bag: Array(G.C).fill(BAG_PER_COLOUR), gid: rid(6), round: 0, active: G.starter, phase: 'roll', roll: [], groups: [], order: [], step: 0, taken: {}, results: null, win: null, log: [] });
   log(['start']);
+  log(['first', G.starter]);
   if (!G.online) resetViewer();
   return null;
 }
@@ -1739,7 +1750,7 @@ function hostStart() {
   const players = seats.map(s => ({ name: s.nm, bot: false, key: s.key, missions: [], area: [] }));
   while (players.length < total) players.push({ name: botNames.shift() || `Bot ${players.length + 1}`, bot: true, key: '', missions: [], area: [] });
   ON.lob.C = Math.max(ON.lob.C, minColours(total));
-  G = { online: true, cfg: { C: ON.lob.C, per: ON.lob.per, stars: ON.lob.stars, need: ON.lob.need || 0 }, hints: ON.lob.h, starter: 0, C: ON.lob.C, players, log: [], seq: 0 };
+  G = { online: true, cfg: { C: ON.lob.C, per: ON.lob.per, stars: ON.lob.stars, need: ON.lob.need || 0 }, hints: ON.lob.h, starter: ri(players.length), C: ON.lob.C, players, log: [], seq: 0 };
   const err = startLevel();
   if (err) { G = null; ui.err = err; render(); return; }
   advance();
@@ -1843,6 +1854,7 @@ function seatsHTML(V) {
     if (p.bot) tags.push(`<span class="tag">${t('bot')}</span>`);
     if (G.online && !p.bot && i === 0) tags.push(`<span class="tag">${t('host')}</span>`);
     if (live && !p.bot && !live.has(p.key) && p.key !== hostKey) tags.push(`<span class="tag off">${t('offline')}</span>`);
+    tags.push(`<span class="tag turn" title="${t('orderLabel')}">${t('turnN', (i - G.starter + P()) % P() + 1)}</span>`);
     if (G.phase !== 'reveal' && i === G.active) tags.push(`<span class="tag act">${t('dealer')}</span>`);
     return `<section class="seat${G.phase !== 'reveal' && i === G.active ? ' is-active' : ''}" aria-label="${name(i)}">
       <div class="seat-head"><span class="seat-name">${name(i)}</span>${tags.join('')}</div>
@@ -1876,6 +1888,7 @@ function logText(e) {
   const who = i => (G.players[i] ? G.players[i].name : '?');
   switch (e[0]) {
     case 'start': return t('logStart', cfgText(G.cfg));
+    case 'first': return t('logFirst', who(e[1]));
     case 'roll': return t('logRoll', who(e[1]), e[2]);
     case 'split': return t('logSplit', who(e[1]), e[2]);
     case 'take': return t('logTake', who(e[1]), LETTERS[e[2]] || '?');
@@ -1972,7 +1985,12 @@ function stageHTML(V) {
   if (isGuest && !hostPeer() && Date.now() - ON.joinedAt > 4000) warn = `<p class="info">${t('hostGone', name(0))}</p>`;
   if (G.online && V === null && G.phase !== 'reveal') warn += `<p class="info">${t('spectating')}</p>`;
   const recent = G.log.slice(-6).map(l => `<li>${esc(logText(l))}</li>`).join('');
-  return `<section class="stage" aria-live="polite">${goal}${warn}${body}${talk}${G.online ? connHTML() : ''}<div class="log"><span class="label">${t('logTitle')}</span><ol>${recent}</ol></div></section>`;
+  const order = Array.from({ length: P() }, (_, k) => (G.starter + k) % P()).map((p, k) => {
+    const cls = G.phase === 'reveal' || k < G.round ? 'done' : k === G.round ? 'now' : '';
+    return `<span class="${cls}">${k + 1}. ${name(p)}</span>`;
+  }).join('<span class="sep" aria-hidden="true">→</span>');
+  const orderHTML = `<div class="order"><span class="label">${t('orderLabel')}</span><div class="order-list">${order}</div></div>`;
+  return `<section class="stage" aria-live="polite">${goal}${orderHTML}${warn}${body}${talk}${G.online ? connHTML() : ''}<div class="log"><span class="label">${t('logTitle')}</span><ol>${recent}</ol></div></section>`;
 }
 
 function headerHTML(status) {
@@ -2277,7 +2295,7 @@ $app.addEventListener('click', e => {
     case 'pick': ui.chosen = g; break;
     case 'take': if (ui.chosen !== null) act('take', { g: ui.chosen }); return;
     case 'retry': {
-      G.starter = (G.starter + 1) % P();
+      G.starter = ri(P());
       const err = startLevel();
       ui.err = err || '';
       if (!err) advance();
