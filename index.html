@@ -407,6 +407,7 @@ const I18N = {
     p2p_unsupported: 'Este navegador no permite jugar online. Prueba con Chrome, Safari o Firefox actualizados.',
     p2p_network: 'No se ha podido conectar con el servidor que pone en contacto a los jugadores. Puede ser un fallo momentáneo: espera un minuto y vuelve a intentarlo. Si sigue, prueba con otra red (por ejemplo, datos del móvil).',
     p2p_timeout: 'La conexión está tardando demasiado. Revisa tu conexión a internet y vuelve a intentarlo.',
+    p2p_ice: 'La partida existe, pero no se ha podido conectar directamente con el anfitrión: alguna de las dos redes lo bloquea. Prueba con otra red (por ejemplo, datos del móvil en vez de wifi) o que haga de anfitrión otra persona.',
     // Missions
     m: {
       dice: (n, c) => n === 1 ? `1 dado ${c.sing}` : `${n} dados ${c.pl}`,
@@ -614,6 +615,7 @@ const I18N = {
     p2p_unsupported: 'This browser can’t play online. Try an up-to-date Chrome, Safari or Firefox.',
     p2p_network: 'Couldn’t reach the server that puts players in touch. It may be a temporary fault: wait a minute and try again. If it keeps happening, try another network (for example, mobile data).',
     p2p_timeout: 'The connection is taking too long. Check your internet connection and try again.',
+    p2p_ice: 'The game exists, but a direct connection to the host couldn’t be made: one of the two networks is blocking it. Try another network (for example, mobile data instead of wifi) or let someone else host.',
     m: {
       dice: (n, c) => n === 1 ? `1 ${c.sing} die` : `${n} ${c.pl} dice`,
       noColor: c => `No ${c.sing} dice.`,
@@ -1462,6 +1464,17 @@ function p2pRoom(code, role) {
       if (closed || peer.destroyed) return;
       const c = peer.connect(hostId, { reliable: true, serialization: 'json' });
       hostConn = c;
+      // The host was found but the direct link between the two browsers can fail
+      // (some networks block it). Notice that instead of waiting forever.
+      if (!settled) {
+        const started = Date.now();
+        const watch = setInterval(() => {
+          if (settled || closed) { clearInterval(watch); return; }
+          const st = c.peerConnection && c.peerConnection.iceConnectionState;
+          if (st === 'failed') { clearInterval(watch); fail('ice', 'ice-failed'); }
+          else if (Date.now() - started > 25000) { clearInterval(watch); fail('ice', 'no-route'); }
+        }, 500);
+      }
       c.on('open', () => { setConn(true); c.send({ t: 'p', pr: mine }); if (!settled) { settled = true; resolve(api); } });
       c.on('data', m => {
         if (!m || m.t !== 'peers' || !Array.isArray(m.list)) return;
@@ -1506,11 +1519,12 @@ function p2pRoom(code, role) {
         c.on('error', gone);
       });
     }
-    setTimeout(() => fail('timeout', 'timeout'), 15000);
+    const signalTimer = setTimeout(() => { if (!myId) fail('timeout', 'timeout'); }, 15000);
+    peer.on('open', () => clearTimeout(signalTimer));
   });
 }
 
-const P2P_ERRORS = ['not_found', 'code_taken', 'unsupported', 'network', 'timeout'];
+const P2P_ERRORS = ['not_found', 'code_taken', 'unsupported', 'network', 'timeout', 'ice'];
 
 // PeerJS loads only once someone opens the online tab.
 async function ensureP2P() {
