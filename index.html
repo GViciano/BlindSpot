@@ -1350,7 +1350,7 @@ function saveOnline() {
 
 function encodeG() {
   return {
-    v: 2, cf: [G.cfg.C, G.cfg.per, G.cfg.stars], h: G.hints ? 1 : 0, st: G.starter, C: G.C, r: G.round, a: G.active, ph: G.phase, s: G.step, id: G.gid,
+    v: 2, cf: [G.cfg.C, G.cfg.per, G.cfg.stars, G.cfg.need || 0], h: G.hints ? 1 : 0, st: G.starter, C: G.C, r: G.round, a: G.active, ph: G.phase, s: G.step, id: G.gid,
     p: G.players.map(p => [p.name, p.bot ? 1 : 0, p.key || '', p.missions.map(m => [TYPES.indexOf(m.t), m.c ?? -1, m.c2 ?? -1, m.n ?? -1, m.s || 0, m.v || 0]), p.area.map(d => d.c * 10 + d.v)]),
     rl: G.roll.map(d => d.c * 10 + d.v),
     bg: G.bag || [],
