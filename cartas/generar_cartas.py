@@ -22,7 +22,7 @@ FONT = "'DejaVu Sans', sans-serif"
 
 # Advance widths of DejaVu Sans Bold, in em.
 CHAR_W = {**{d: 0.70 for d in '0123456789'}, '=': 0.84, '≤': 0.84, '≥': 0.84, '>': 0.84, '×': 0.84, 'Σ': 0.72,
-          '#': 0.84, '*': 0.52, '→': 0.84, '+': 0.84, '★': 0.84, '…': 1.0, '✓': 0.84}
+          '#': 0.84, '*': 0.52, '→': 0.84, '+': 0.84, '★': 0.84, '…': 1.0, '✓': 0.84, '♛': 0.9, '▲': 0.77, '▼': 0.77}
 MAX_ROW = CARD_W - 12
 
 PIPS = {
@@ -235,6 +235,20 @@ def card_content(o):
         return Row(4).faces([2, 2], 11, overlap=0).faces([5, 5], 11, overlap=0).svg(cy), None
     if t == 'full':
         return Row(3.5).faces([3, 3, 3], 10, overlap=0).faces([6, 6], 10, overlap=0).svg(cy), None
+    # Comparisons with the other players: a crown, then up (most) or down (fewest).
+    rank = {'mas_dados_que_nadie': ('▲', lambda r: r.text('#', 14).any_die(16)),
+            'menos_dados_que_nadie': ('▼', lambda r: r.text('#', 14).any_die(16)),
+            'mas_puntos_que_nadie': ('▲', lambda r: r.text('Σ', 14).any_die(16)),
+            'menos_puntos_que_nadie': ('▼', lambda r: r.text('Σ', 14).any_die(16)),
+            'mas_puntos_color_que_nadie': ('▲', lambda r: r.text('Σ', 14).die(c, 16)),
+            'menos_puntos_color_que_nadie': ('▼', lambda r: r.text('Σ', 14).die(c, 16)),
+            'mas_dados_color_que_nadie': ('▲', lambda r: r.text('#', 14).die(c, 16)),
+            'mas_colores_que_nadie': ('▲', lambda r: r.wheel(20)),
+            'mas_numero_que_nadie': ('▲', lambda r: r.text('#', 14).faces([v], 16))}
+    if t in rank:
+        arrow, subject = rank[t]
+        top = Row(1.5).text('♛', 16, GOLD).text(arrow, 14, INK)
+        return top.svg(cy - 11) + subject(Row()).svg(cy + 9), None
     raise ValueError(f'tipo sin dibujo: {t}')
 
 

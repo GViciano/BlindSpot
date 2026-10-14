@@ -45,6 +45,17 @@
 //   dos_parejas        Dos números distintos que salgan al menos 2 veces cada uno.
 //   full               Un número que salga al menos 3 veces y otro al menos 2.
 //
+// Tipos que comparan con los demás jugadores (hay que ser el primero en solitario; empatar no vale):
+//   mas_dados_que_nadie            Más dados que cualquier otro jugador.
+//   menos_dados_que_nadie          Menos dados que cualquier otro jugador.
+//   mas_puntos_que_nadie           Que tus dados sumen más que los de cualquier otro.
+//   menos_puntos_que_nadie         Que tus dados sumen menos que los de cualquier otro.
+//   mas_puntos_color_que_nadie     Que tus dados de `color` sumen más que los de cualquier otro.
+//   menos_puntos_color_que_nadie   Que tus dados de `color` sumen menos que los de cualquier otro.
+//   mas_dados_color_que_nadie      Más dados de `color` que cualquier otro jugador.
+//   mas_colores_que_nadie          Dados de más colores distintos que cualquier otro.
+//   mas_numero_que_nadie           Más dados con el número `numero` que cualquier otro.
+//
 // * Estos tipos dan 1 estrella extra si se consigue la cifra exacta.
 //
 // Las estrellas de esta lista son provisionales.
@@ -155,4 +166,24 @@ window.BLINDSPOTS_OBJETIVOS = [
   { estrellas: 5, tipo: 'escalera_color', n: 4 },
   { estrellas: 3, tipo: 'dos_parejas' },
   { estrellas: 4, tipo: 'full' },
+
+  // Comparaciones con los demás jugadores
+  { estrellas: 3, tipo: 'mas_dados_que_nadie' },
+  { estrellas: 3, tipo: 'menos_dados_que_nadie' },
+  { estrellas: 3, tipo: 'mas_puntos_que_nadie' },
+  { estrellas: 3, tipo: 'menos_puntos_que_nadie' },
+  { estrellas: 3, tipo: 'mas_puntos_color_que_nadie', color: 'azul' },
+  { estrellas: 3, tipo: 'mas_puntos_color_que_nadie', color: 'naranja' },
+  { estrellas: 3, tipo: 'mas_puntos_color_que_nadie', color: 'verde' },
+  { estrellas: 3, tipo: 'mas_puntos_color_que_nadie', color: 'morado' },
+  { estrellas: 3, tipo: 'mas_puntos_color_que_nadie', color: 'amarillo' },
+  { estrellas: 3, tipo: 'menos_puntos_color_que_nadie', color: 'azul' },
+  { estrellas: 3, tipo: 'menos_puntos_color_que_nadie', color: 'verde' },
+  { estrellas: 3, tipo: 'menos_puntos_color_que_nadie', color: 'amarillo' },
+  { estrellas: 2, tipo: 'mas_dados_color_que_nadie', color: 'naranja' },
+  { estrellas: 2, tipo: 'mas_dados_color_que_nadie', color: 'verde' },
+  { estrellas: 2, tipo: 'mas_dados_color_que_nadie', color: 'morado' },
+  { estrellas: 3, tipo: 'mas_colores_que_nadie' },
+  { estrellas: 3, tipo: 'mas_numero_que_nadie', numero: 6 },
+  { estrellas: 3, tipo: 'mas_numero_que_nadie', numero: 1 },
 ];

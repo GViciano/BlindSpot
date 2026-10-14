@@ -241,7 +241,8 @@ button.group:hover { border-color: var(--muted); }
 'use strict';
 
 const TYPES = ['noColor', 'exact', 'atLeast', 'atMost', 'sumGreater', 'countMore', 'exactColours', 'allColours', 'sumAtLeast', 'atMostTotal', 'atLeastTotal',
-  'noEven', 'noOdd', 'exactEven', 'exactOdd', 'moreEven', 'moreOdd', 'repeatExact', 'repeatAtLeast', 'maxValue', 'minValue', 'noNumber', 'atLeastNumber', 'sumAllMax', 'sumAllMin', 'sumAllEven', 'straight', 'colourStraight', 'twoPairs', 'fullHouse'];
+  'noEven', 'noOdd', 'exactEven', 'exactOdd', 'moreEven', 'moreOdd', 'repeatExact', 'repeatAtLeast', 'maxValue', 'minValue', 'noNumber', 'atLeastNumber', 'sumAllMax', 'sumAllMin', 'sumAllEven', 'straight', 'colourStraight', 'twoPairs', 'fullHouse',
+  'mostDice', 'fewestDice', 'mostPoints', 'fewestPoints', 'mostColourPoints', 'fewestColourPoints', 'mostColourDice', 'mostColours', 'mostNumber'];
 const BAG_PER_COLOUR = 15;                       // dice of each colour in the bag
 const rollCount = P => P * 2 - 1;                  // dice drawn from the bag each round
 const totalDrawn = P => P * rollCount(P);          // one round per player
@@ -471,6 +472,21 @@ const I18N = {
       colourRunIs: n => `Tu escalera más larga de un solo color es de ${n}.`,
       pairsIs: k => `Tienes ${k} ${plural(k, 'número repetido', 'números repetidos')}.`,
       fullIs: (a, b) => `Tus dos números más repetidos salen ${a} y ${b} veces.`,
+      mostDice: 'Ten más dados que cualquier otro jugador.',
+      fewestDice: 'Ten menos dados que cualquier otro jugador.',
+      mostPoints: 'Que tus dados sumen más puntos que los de cualquier otro jugador.',
+      fewestPoints: 'Que tus dados sumen menos puntos que los de cualquier otro jugador.',
+      mostColourPoints: c => `Que tus dados ${c.pl} sumen más puntos que los de cualquier otro jugador.`,
+      fewestColourPoints: c => `Que tus dados ${c.pl} sumen menos puntos que los de cualquier otro jugador.`,
+      mostColourDice: c => `Ten más dados ${c.pl} que cualquier otro jugador.`,
+      mostColours: 'Ten dados de más colores distintos que cualquier otro jugador.',
+      mostNumber: v => `Ten más dados con un ${v} que cualquier otro jugador.`,
+      rankDice: (a, b, most) => `Tienes ${a} dados; de los demás, el que ${most ? 'más' : 'menos'} tiene ${b}.`,
+      rankPoints: (a, b, most) => `Sumas ${a}; de los demás, el que ${most ? 'más' : 'menos'} suma ${b}.`,
+      rankColourPoints: (c, a, b, most) => `Tus ${c.pl} suman ${a}; de los demás, el que ${most ? 'más' : 'menos'} suma ${b}.`,
+      rankColourDice: (c, a, b) => `Tienes ${a} ${a === 1 ? c.sing : c.pl}; de los demás, el que más tiene ${b}.`,
+      rankColours: (a, b) => `Tienes ${a} ${plural(a, 'color', 'colores')}; de los demás, el que más tiene ${b}.`,
+      rankNumber: (v, a, b) => `Tienes ${a} ${plural(a, 'dado', 'dados')} con un ${v}; de los demás, el que más tiene ${b}.`,
     },
     // Rules
     rulesTitle: 'Reglas de BlindSpots', close: 'Cerrar',
@@ -681,6 +697,21 @@ const I18N = {
       colourRunIs: n => `Your longest single-colour straight is ${n}.`,
       pairsIs: k => `You have ${k} repeated ${plural(k, 'number', 'numbers')}.`,
       fullIs: (a, b) => `Your two most repeated numbers appear ${a} and ${b} times.`,
+      mostDice: 'Have more dice than any other player.',
+      fewestDice: 'Have fewer dice than any other player.',
+      mostPoints: 'Have your dice add up to more points than any other player’s.',
+      fewestPoints: 'Have your dice add up to fewer points than any other player’s.',
+      mostColourPoints: c => `Have your ${c.pl} dice add up to more points than any other player’s.`,
+      fewestColourPoints: c => `Have your ${c.pl} dice add up to fewer points than any other player’s.`,
+      mostColourDice: c => `Have more ${c.pl} dice than any other player.`,
+      mostColours: 'Have dice of more different colours than any other player.',
+      mostNumber: v => `Have more dice showing a ${v} than any other player.`,
+      rankDice: (a, b, most) => `You have ${a} dice; among the others, the ${most ? 'most' : 'fewest'} is ${b}.`,
+      rankPoints: (a, b, most) => `Your total is ${a}; among the others, the ${most ? 'highest' : 'lowest'} is ${b}.`,
+      rankColourPoints: (c, a, b, most) => `Your ${c.pl} dice add up to ${a}; among the others, the ${most ? 'highest' : 'lowest'} is ${b}.`,
+      rankColourDice: (c, a, b) => `You have ${a} ${c.pl}; among the others, the most is ${b}.`,
+      rankColours: (a, b) => `You have ${a} ${plural(a, 'colour', 'colours')}; among the others, the most is ${b}.`,
+      rankNumber: (v, a, b) => `You have ${a} ${plural(a, 'die', 'dice')} showing a ${v}; among the others, the most is ${b}.`,
     },
     rulesTitle: 'BlindSpots rules', close: 'Close',
     rulesBody: () => `
@@ -765,6 +796,49 @@ function earnedStars(m, st, C) {
   return (m.s || 1) + (BONUS_TYPES.includes(m.t) && exactHit(m, st) ? 1 : 0);
 }
 
+// Objectives that compare a player with everyone else. `st.others` holds the other
+// players' stats; the player must be strictly first (a tie does not count).
+const MOST = { mostDice: 1, mostPoints: 1, mostColourPoints: 1, mostColourDice: 1, mostColours: 1, mostNumber: 1 };
+const FEWEST = { fewestDice: 1, fewestPoints: 1, fewestColourPoints: 1 };
+const isRank = m => !!(MOST[m.t] || FEWEST[m.t]);
+function rankValue(m, s) {
+  switch (m.t) {
+    case 'mostDice': case 'fewestDice': return s.total;
+    case 'mostPoints': case 'fewestPoints': return s.all;
+    case 'mostColourPoints': case 'fewestColourPoints': return s.sum[m.c];
+    case 'mostColourDice': return s.cnt[m.c];
+    case 'mostColours': return s.distinct;
+    case 'mostNumber': return s.val[m.v];
+  }
+  return 0;
+}
+// {mine, best, ok}: best is the others' highest (or lowest) value.
+function rank(m, st) {
+  const mine = rankValue(m, st), vals = (st.others || []).map(o => rankValue(m, o));
+  if (!vals.length) return { mine, best: 0, ok: true };
+  const best = MOST[m.t] ? Math.max(...vals) : Math.min(...vals);
+  return { mine, best, ok: MOST[m.t] ? mine > best : mine < best };
+}
+function rankDetail(m, st) {
+  const r = rank(m, st), most = !!MOST[m.t];
+  switch (m.t) {
+    case 'mostDice': case 'fewestDice': return tm('rankDice', r.mine, r.best, most);
+    case 'mostPoints': case 'fewestPoints': return tm('rankPoints', r.mine, r.best, most);
+    case 'mostColourPoints': case 'fewestColourPoints': return tm('rankColourPoints', cname(m.c), r.mine, r.best, most);
+    case 'mostColourDice': return tm('rankColourDice', cname(m.c), r.mine, r.best);
+    case 'mostColours': return tm('rankColours', r.mine, r.best);
+    case 'mostNumber': return tm('rankNumber', m.v, r.mine, r.best);
+  }
+  return '';
+}
+// Stats for player i with the other players' stats attached.
+function statsWithOthers(i, extra = []) {
+  const p = G.players[i];
+  const st = stats(extra.length ? p.area.concat(extra) : p.area, G.C);
+  st.others = G.players.filter((_, j) => j !== i).map(o => stats(o.area, G.C));
+  return st;
+}
+
 function missionText(m) {
   const c = m.c !== undefined ? cp(m.c) : null, c2 = m.c2 !== undefined ? cp(m.c2) : null;
   switch (m.t) {
@@ -798,6 +872,15 @@ function missionText(m) {
     case 'colourStraight': return tm('colourStraight', m.n);
     case 'twoPairs': return tm('twoPairs');
     case 'fullHouse': return tm('fullHouse');
+    case 'mostDice': return tm('mostDice');
+    case 'fewestDice': return tm('fewestDice');
+    case 'mostPoints': return tm('mostPoints');
+    case 'fewestPoints': return tm('fewestPoints');
+    case 'mostColourPoints': return tm('mostColourPoints', cp(m.c));
+    case 'fewestColourPoints': return tm('fewestColourPoints', cp(m.c));
+    case 'mostColourDice': return tm('mostColourDice', cp(m.c));
+    case 'mostColours': return tm('mostColours');
+    case 'mostNumber': return tm('mostNumber', m.v);
   }
   return '';
 }
@@ -820,6 +903,7 @@ function stats(dice, C) {
 }
 
 function checkMission(m, st, C) {
+  if (isRank(m)) return { ok: rank(m, st).ok, detail: rankDetail(m, st) };
   const n = c => st.cnt[c], s = c => st.sum[c];
   const has = c => tm('has', n(c), cname(c));
   switch (m.t) {
@@ -861,6 +945,11 @@ function checkMission(m, st, C) {
 // overshooting an upper limit is permanent and weighs much more.
 function missionDist(m, st, C, roundsLeft) {
   const w = roundsLeft === 0 ? 3 : 1;
+  if (isRank(m)) {
+    const r = rank(m, st), gap = MOST[m.t] ? r.best - r.mine + 1 : r.mine - r.best + 1;
+    const scale = /Points/.test(m.t) ? 3 : 1;
+    return gap > 0 ? gap / scale * w : 0;
+  }
   const n = c => st.cnt[c], s = c => st.sum[c];
   switch (m.t) {
     case 'noColor': return n(m.c) * IRREV;
@@ -910,6 +999,11 @@ const TIPO = {
   sin_numero: { t: 'noNumber', v: 1 }, numero_al_menos: { t: 'atLeastNumber', v: 1, n: 1 },
   suma_total_maxima: { t: 'sumAllMax', n: 1 }, suma_total_minima: { t: 'sumAllMin', n: 1 }, suma_total_par: { t: 'sumAllEven' },
   escalera: { t: 'straight', n: 1 }, escalera_color: { t: 'colourStraight', n: 1 }, dos_parejas: { t: 'twoPairs' }, full: { t: 'fullHouse' },
+  mas_dados_que_nadie: { t: 'mostDice' }, menos_dados_que_nadie: { t: 'fewestDice' },
+  mas_puntos_que_nadie: { t: 'mostPoints' }, menos_puntos_que_nadie: { t: 'fewestPoints' },
+  mas_puntos_color_que_nadie: { t: 'mostColourPoints', c: 1 }, menos_puntos_color_que_nadie: { t: 'fewestColourPoints', c: 1 },
+  mas_dados_color_que_nadie: { t: 'mostColourDice', c: 1 }, mas_colores_que_nadie: { t: 'mostColours' },
+  mas_numero_que_nadie: { t: 'mostNumber', v: 1 },
 };
 
 // Reads window.BLINDSPOTS_OBJETIVOS into missions; entries it cannot understand are skipped.
@@ -972,6 +1066,8 @@ function bounds(ms, C, P) {
   if (has('sumAllMax') && has('sumAllMax').n < P) return null;          // at least P dice of value 1+
   if ((has('noEven') && (has('exactEven') || has('moreEven'))) || (has('noOdd') && (has('exactOdd') || has('moreOdd')))) return null;
   if (has('moreEven') && has('moreOdd')) return null;
+  if ((has('mostDice') && has('fewestDice')) || (has('mostPoints') && has('fewestPoints'))) return null;
+  if (ms.some(a => a.t === 'mostColourPoints' && ms.some(b => b.t === 'fewestColourPoints' && b.c === a.c))) return null;
   const run = Math.max(0, ...ms.filter(m => m.t === 'straight' || m.t === 'colourStraight').map(m => m.n));
   if (run > 6 || (run >= 2 && (has('noEven') || has('noOdd')))) return null;
   if (run && mx && mx.n < run) return null;
@@ -993,6 +1089,9 @@ function bounds(ms, C, P) {
 function feasible(all, C, P) {
   const bs = all.map(ms => bounds(ms, C, P));
   if (bs.some(b => !b)) return false;
+  // Only one player can be strictly first at the same thing.
+  const ranks = all.flat().filter(isRank).map(m => [m.t, m.c, m.v].join(':'));
+  if (new Set(ranks).size < ranks.length) return false;
   // Colours come out of the bag at random, so only rule out the impossible:
   // needing more of a colour than the bag holds, or refusing a colour that must come out.
   const total = totalDrawn(P), mustDraw = Math.max(0, total - BAG_PER_COLOUR * (C - 1));
@@ -1158,8 +1257,8 @@ function starsInPlay() { return G.players.reduce((a, p) => a + p.missions.reduce
 function teamNeed() { const n = G.cfg.need || 0; return n ? Math.min(n, starsInPlay()) : 0; }
 
 function computeResults() {
-  G.results = G.players.map(p => {
-    const st = stats(p.area, G.C);
+  G.results = G.players.map((p, i) => {
+    const st = statsWithOthers(i);
     return p.missions.map(m => ({ ok: checkMission(m, st, G.C).ok, earned: earnedStars(m, st, G.C), bonus: BONUS_TYPES.includes(m.t) && checkMission(m, st, G.C).ok && exactHit(m, st) }));
   });
   G.earned = G.results.reduce((a, r) => a + r.reduce((b, x) => b + x.earned, 0), 0);
@@ -1206,7 +1305,7 @@ function applyAction(seat, a) {
 /* ---------- Bots ---------- */
 function evalPlayer(i, extra) {
   const p = G.players[i];
-  const st = stats(extra.length ? p.area.concat(extra) : p.area, G.C);
+  const st = statsWithOthers(i, extra);
   return p.missions.reduce((a, m) => a + missionDist(m, st, G.C, roundsLeft()), 0);
 }
 
@@ -1833,7 +1932,7 @@ function missionCard(i, V) {
     const k = p.missions.length;
     return `<div class="mcard back"><span class="q">?</span><span class="bt"><b>${mine ? t('yourMission') : t('hiddenMission')}${k > 1 ? ` · ${t('nObjectives', k)}` : ''}</b>${why}</span></div>`;
   }
-  const st = stats(p.area, G.C);
+  const st = statsWithOthers(i);
   const lines = p.missions.map((m, k) => {
     const r = G.results && G.results[i][k];
     const res = r ? `<span class="res ${r.ok ? 'ok' : 'bad'}">${r.ok ? `${t('met')} +${r.earned}★` : t('failed')}</span>` : '';

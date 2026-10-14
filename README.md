@@ -26,7 +26,7 @@ La web está en español y en inglés. Cada jugador elige su idioma con el selec
 
 ## Objetivos
 
-Los objetivos están en [`objetivos.js`](objetivos.js), uno por línea, con sus estrellas (1–5), su tipo y sus datos. Al principio del archivo están todos los tipos disponibles: de colores (ningún azul, exactamente 2 verdes…) y de números (sin pares, exactamente 2 dados con el mismo número, ningún dado mayor que 4, suma total, escaleras, dos parejas, full…). Los objetivos de tipo «al menos» se muestran sin esas palabras («2 dados azules» = 2 o más) y, como los de «como máximo» y los de suma, llevan un *: si se consigue la cifra exacta dan 1★ extra. Para cambiar los objetivos basta con editar ese archivo; el juego no necesita cambios.
+Los objetivos están en [`objetivos.js`](objetivos.js), uno por línea, con sus estrellas (1–5), su tipo y sus datos. Al principio del archivo están todos los tipos disponibles: de colores (ningún azul, exactamente 2 verdes…) y de números (sin pares, exactamente 2 dados con el mismo número, ningún dado mayor que 4, suma total, escaleras, dos parejas, full…) y de comparación con los demás (más dados que nadie, menos puntos que nadie…). Los objetivos de tipo «al menos» se muestran sin esas palabras («2 dados azules» = 2 o más) y, como los de «como máximo» y los de suma, llevan un *: si se consigue la cifra exacta dan 1★ extra. Para cambiar los objetivos basta con editar ese archivo; el juego no necesita cambios.
 
 ## Publicación
 
