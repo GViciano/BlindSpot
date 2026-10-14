@@ -214,6 +214,12 @@ button.group:hover { border-color: var(--muted); }
 .home-top { display: flex; justify-content: flex-end; }
 .tabs.lang button { padding: 6px 12px; font-size: 13px; }
 .stats .stats-all { color: var(--ink); font-weight: 700; }
+.stepper { display: flex; align-items: center; gap: 10px; }
+.stepper .btn { width: 44px; padding: 8px 0; font-size: 18px; }
+.stepper .btn:disabled { opacity: .4; cursor: not-allowed; }
+.stepper-val { min-width: 76px; text-align: center; font-weight: 700; font-size: 16px; font-variant-numeric: tabular-nums; }
+.bonus { font-size: 12px; color: var(--muted); margin-top: -4px; }
+.bonus.hit { color: var(--ok); font-weight: 700; }
 .tag.off { color: var(--bad); border-color: var(--bad); background: transparent; }
 </style>
 </head>
@@ -297,6 +303,14 @@ const I18N = {
     poolNote: (avail, need, bad) => `${avail} ${plural(avail, 'objetivo encaja', 'objetivos encajan')} con estos ajustes${avail < need ? `; hacen falta ${need}, así que alguno se repetirá entre jugadores` : ''}.${bad ? ` ${bad} del archivo tienen errores y no se usan.` : ''}`,
     cfgText: (C, per, stars) => `${C} colores · ${per} ${plural(per, 'objetivo', 'objetivos')} por jugador · ${stars}`,
     allStars: 'todas las dificultades', and: 'y',
+    needLabel: 'Estrellas del equipo para ganar', needAllShort: 'Todas', less: 'Menos', more: 'Más',
+    needAllNote: 'Hay que cumplir todos los objetivos de todos los jugadores.',
+    needNote: n => `Se suman las estrellas de los objetivos que cumple cada jugador. Con ${n}★ entre todos, el equipo gana. Los objetivos con * dan 1★ extra si se clava la cifra exacta.`,
+    needN: n => `${n}★ para ganar`, needAll: 'hay que cumplirlo todo',
+    goalStars: (n, total) => `Objetivo del equipo: conseguir ${n}★ entre todos (hay ${total}★ en juego, más las extra).`,
+    goalAll: 'Objetivo del equipo: cumplir todos los objetivos.',
+    teamStars: (got, need) => `Habéis conseguido ${got}★ de las ${need}★ necesarias.`,
+    tryAgain: 'Mirad las cartas y probad otra vez.',
     errNoPool: 'Ningún objetivo encaja con estas estrellas y estos colores. Marca más estrellas.',
     errNoCombo: (per, P) => `Con estos ajustes no salen ${per === 1 ? 'objetivos compatibles' : 'combinaciones de objetivos compatibles'} para ${P} jugadores. Marca más estrellas o pon menos objetivos por jugador.`,
     // Header / status
@@ -393,14 +407,14 @@ const I18N = {
     m: {
       dice: (n, c) => n === 1 ? `1 dado ${c.sing}` : `${n} dados ${c.pl}`,
       noColor: c => `Ningún dado ${c.sing}.`,
-      exact: d => `Exactamente ${d}.`, atLeast: d => `Al menos ${d}.`, atMost: d => `Como máximo ${d}.`,
+      exact: d => `Exactamente ${d}.`, atLeast: d => `${cap(d)}.`, atMost: d => `Como máximo ${d}.`,
       sumGreater: (a, b) => `Suma ${a.sing} &gt; suma ${b.sing}.`,
       countMore: (a, b) => `Más dados ${a.pl} que ${b.pl}.`,
       exactColours: n => `Dados de exactamente ${n} colores distintos.`,
       allColours: 'Al menos un dado de cada color.',
       sumAtLeast: (c, n) => `Tus dados ${c.pl} suman ${n} o más.`,
       atMostTotal: n => `Como máximo ${n} dados en total.`,
-      atLeastTotal: n => `Al menos ${n} dados en total.`,
+      atLeastTotal: n => `${n} dados en total.`,
       has: (n, c) => `Tienes ${n} ${n === 1 ? c.sing : c.pl}.`,
       sums: (a, sa, b, sb) => `Suma ${a.sing} ${sa}, suma ${b.sing} ${sb}.`,
       counts: (na, a, nb, b) => `${na} ${a.pl} y ${nb} ${b.pl}.`,
@@ -415,11 +429,11 @@ const I18N = {
       moreEven: 'Más dados con número par que con número impar.',
       moreOdd: 'Más dados con número impar que con número par.',
       repeatExact: n => `Exactamente ${n} dados con el mismo número (ningún número sale más de ${n} veces).`,
-      repeatAtLeast: n => `Al menos ${n} dados con el mismo número.`,
+      repeatAtLeast: n => `${n} dados con el mismo número.`,
       maxValue: n => `Ningún dado mayor que ${n}.`,
       minValue: n => `Ningún dado menor que ${n}.`,
       noNumber: v => `Ningún dado con un ${v}.`,
-      atLeastNumber: (n, v) => `Al menos ${n} ${plural(n, 'dado', 'dados')} con un ${v}.`,
+      atLeastNumber: (n, v) => `${n} ${plural(n, 'dado', 'dados')} con un ${v}.`,
       sumAllMax: n => `Tus dados suman ${n} o menos en total.`,
       sumAllMin: n => `Tus dados suman ${n} o más en total.`,
       sumAllEven: 'Tus dados suman un número par en total.',
@@ -429,6 +443,10 @@ const I18N = {
       belowIs: (k, n) => `Tienes ${k} ${plural(k, 'dado menor', 'dados menores')} que ${n}.`,
       numberIs: (k, v) => `Tienes ${k} ${plural(k, 'dado', 'dados')} con un ${v}.`,
       sumAllIs: s => `Tus dados suman ${s}.`,
+      bonus: what => `* Si consigues exactamente ${what}: +1★ extra.`,
+      diceTotal: n => `${n} dados en total`, sameNumber: n => `${n} dados con el mismo número`,
+      withNumber: (n, v) => `${n} ${plural(n, 'dado', 'dados')} con un ${v}`,
+      colourSum: (c, n) => `una suma de ${n} en tus dados ${c.pl}`, totalSum: n => `una suma total de ${n}`,
       straight: n => `Una escalera de ${n}: ${n} números seguidos, como ${Array.from({ length: n }, (_, i) => i + 1).join('-')}.`,
       colourStraight: n => `Una escalera de ${n} del mismo color: ${n} números seguidos en dados de un solo color.`,
       twoPairs: 'Dos parejas: dos números distintos que salgan al menos 2 veces cada uno.',
@@ -461,6 +479,8 @@ const I18N = {
         <li>Colores: con 3 se juega con azul, naranja y verde; con 4 entra el morado y con 5 el amarillo.</li>
         <li>Objetivos por jugador: la misión de cada jugador tiene de 1 a 3 objetivos y hay que cumplirlos todos.</li>
         <li>Dificultad: cada objetivo tiene de 1 a 5 estrellas. Se eligen las dificultades que se quieran y los objetivos se reparten al azar entre los que las tienen.</li>
+        <li>Estrellas del equipo para ganar: con «Todas» hay que cumplir todos los objetivos. Con un número, se suman las estrellas de los objetivos que cumple cada jugador y el equipo gana si llega a esa cifra entre todos.</li>
+        <li>Objetivos con *: «2 dados azules» se cumple con 2 o más (y «como máximo 1» con 1 o menos). Si se consigue la cifra exacta, el objetivo da 1★ extra.</li>
       </ul>
       <h3>En esta versión</h3>
       <p>En un dispositivo, la web pide pasarlo antes de cada decisión y solo entonces muestra las misiones de los demás. Online, cada jugador ve las misiones de los demás en su pantalla y puede elegir su idioma. Los bots reparten pensando en las misiones que ven y, al elegir, cogen el grupo que menos perjudica al resto.</p>`,
@@ -495,6 +515,14 @@ const I18N = {
     poolNote: (avail, need, bad) => `${avail} ${plural(avail, 'objective matches', 'objectives match')} these settings${avail < need ? `; ${need} are needed, so some will repeat between players` : ''}.${bad ? ` ${bad} in the file have errors and are not used.` : ''}`,
     cfgText: (C, per, stars) => `${C} colours · ${per} ${plural(per, 'objective', 'objectives')} per player · ${stars}`,
     allStars: 'all difficulties', and: 'and',
+    needLabel: 'Team stars to win', needAllShort: 'All', less: 'Fewer', more: 'More',
+    needAllNote: 'Every objective of every player must be completed.',
+    needNote: n => `The stars of the objectives each player completes are added up. With ${n}★ between you, the team wins. Objectives marked * give 1★ extra if you hit the exact amount.`,
+    needN: n => `${n}★ to win`, needAll: 'complete everything',
+    goalStars: (n, total) => `Team goal: earn ${n}★ between you (${total}★ in play, plus extras).`,
+    goalAll: 'Team goal: complete every objective.',
+    teamStars: (got, need) => `You earned ${got}★ of the ${need}★ needed.`,
+    tryAgain: 'Look at the cards and try again.',
     errNoPool: 'No objectives match these stars and colours. Select more stars.',
     errNoCombo: (per, P) => `These settings can’t produce ${per === 1 ? 'compatible objectives' : 'compatible sets of objectives'} for ${P} players. Select more stars or use fewer objectives per player.`,
     rules: 'Rules', quit: 'Leave', quitYes: 'Yes, leave', quitNo: 'Stay',
@@ -584,14 +612,14 @@ const I18N = {
     m: {
       dice: (n, c) => n === 1 ? `1 ${c.sing} die` : `${n} ${c.pl} dice`,
       noColor: c => `No ${c.sing} dice.`,
-      exact: d => `Exactly ${d}.`, atLeast: d => `At least ${d}.`, atMost: d => `At most ${d}.`,
+      exact: d => `Exactly ${d}.`, atLeast: d => `${cap(d)}.`, atMost: d => `At most ${d}.`,
       sumGreater: (a, b) => `${a.capSing} total &gt; ${b.sing} total.`,
       countMore: (a, b) => `More ${a.pl} dice than ${b.pl} dice.`,
       exactColours: n => `Dice of exactly ${n} different colours.`,
       allColours: 'At least one die of each colour.',
       sumAtLeast: (c, n) => `Your ${c.pl} dice add up to ${n} or more.`,
       atMostTotal: n => `At most ${n} dice in total.`,
-      atLeastTotal: n => `At least ${n} dice in total.`,
+      atLeastTotal: n => `${n} dice in total.`,
       has: (n, c) => `You have ${n} ${c.sing}.`,
       sums: (a, sa, b, sb) => `${cap(a.sing)} total ${sa}, ${b.sing} total ${sb}.`,
       counts: (na, a, nb, b) => `${na} ${a.pl} and ${nb} ${b.pl}.`,
@@ -606,11 +634,11 @@ const I18N = {
       moreEven: 'More dice showing even numbers than odd numbers.',
       moreOdd: 'More dice showing odd numbers than even numbers.',
       repeatExact: n => `Exactly ${n} dice showing the same number (no number appears more than ${n} times).`,
-      repeatAtLeast: n => `At least ${n} dice showing the same number.`,
+      repeatAtLeast: n => `${n} dice showing the same number.`,
       maxValue: n => `No die higher than ${n}.`,
       minValue: n => `No die lower than ${n}.`,
       noNumber: v => `No die showing a ${v}.`,
-      atLeastNumber: (n, v) => `At least ${n} ${plural(n, 'die', 'dice')} showing a ${v}.`,
+      atLeastNumber: (n, v) => `${n} ${plural(n, 'die', 'dice')} showing a ${v}.`,
       sumAllMax: n => `Your dice add up to ${n} or less in total.`,
       sumAllMin: n => `Your dice add up to ${n} or more in total.`,
       sumAllEven: 'Your dice add up to an even number in total.',
@@ -620,6 +648,10 @@ const I18N = {
       belowIs: (k, n) => `You have ${k} ${plural(k, 'die', 'dice')} lower than ${n}.`,
       numberIs: (k, v) => `You have ${k} ${plural(k, 'die', 'dice')} showing a ${v}.`,
       sumAllIs: s => `Your dice add up to ${s}.`,
+      bonus: what => `* Get exactly ${what}: +1★ extra.`,
+      diceTotal: n => `${n} dice in total`, sameNumber: n => `${n} dice showing the same number`,
+      withNumber: (n, v) => `${n} ${plural(n, 'die', 'dice')} showing a ${v}`,
+      colourSum: (c, n) => `a total of ${n} on your ${c.pl} dice`, totalSum: n => `a total of ${n}`,
       straight: n => `A straight of ${n}: ${n} numbers in a row, like ${Array.from({ length: n }, (_, i) => i + 1).join('-')}.`,
       colourStraight: n => `A straight of ${n} in one colour: ${n} numbers in a row on dice of a single colour.`,
       twoPairs: 'Two pairs: two different numbers that each appear at least twice.',
@@ -651,6 +683,8 @@ const I18N = {
         <li>Colours: with 3 you play with blue, orange and green; 4 adds purple and 5 adds yellow.</li>
         <li>Objectives per player: each player’s mission has 1 to 3 objectives, and all of them must be completed.</li>
         <li>Difficulty: each objective has 1 to 5 stars. Pick any difficulties you like and objectives are dealt at random from those.</li>
+        <li>Team stars to win: with “All”, every objective must be completed. With a number, the stars of the objectives each player completes are added up, and the team wins if it reaches that number between everyone.</li>
+        <li>Objectives marked *: “2 blue dice” is met with 2 or more (and “at most 1” with 1 or fewer). Hitting the exact amount gives 1★ extra.</li>
       </ul>
       <h3>In this version</h3>
       <p>On one device, the page asks you to pass it before each decision and only then shows the others’ missions. Online, each player sees the others’ missions on their own screen and can pick their own language. Bots deal based on the missions they can see and, when choosing, take the group that hurts the others least.</p>`,
@@ -678,6 +712,37 @@ function langHTML() {
 const cw = c => `<span class="cw c${c}" aria-hidden="true"></span>`;
 const cn = c => cw(c) + cname(c).sing;
 const cp = c => ({ sing: cw(c) + cname(c).sing, pl: cw(c) + cname(c).pl, capSing: cw(c) + cap(cname(c).sing) });
+
+// "At least" / "at most" objectives also give 1 extra star when the amount is hit exactly.
+const BONUS_TYPES = ['atLeast', 'atMost', 'atLeastTotal', 'atMostTotal', 'repeatAtLeast', 'atLeastNumber', 'sumAtLeast', 'sumAllMin', 'sumAllMax'];
+function exactHit(m, st) {
+  switch (m.t) {
+    case 'atLeast': case 'atMost': return st.cnt[m.c] === m.n;
+    case 'atLeastTotal': case 'atMostTotal': return st.total === m.n;
+    case 'repeatAtLeast': return st.maxRep === m.n;
+    case 'atLeastNumber': return st.val[m.v] === m.n;
+    case 'sumAtLeast': return st.sum[m.c] === m.n;
+    case 'sumAllMin': case 'sumAllMax': return st.all === m.n;
+  }
+  return false;
+}
+function bonusText(m) {
+  const c = m.c !== undefined ? cp(m.c) : null;
+  switch (m.t) {
+    case 'atLeast': case 'atMost': return tm('bonus', tm('dice', m.n, c));
+    case 'atLeastTotal': case 'atMostTotal': return tm('bonus', tm('diceTotal', m.n));
+    case 'repeatAtLeast': return tm('bonus', tm('sameNumber', m.n));
+    case 'atLeastNumber': return tm('bonus', tm('withNumber', m.n, m.v));
+    case 'sumAtLeast': return tm('bonus', tm('colourSum', c, m.n));
+    case 'sumAllMin': case 'sumAllMax': return tm('bonus', tm('totalSum', m.n));
+  }
+  return '';
+}
+// Stars an objective earns: its stars if met, plus 1 for an exact hit on bonus types.
+function earnedStars(m, st, C) {
+  if (!checkMission(m, st, C).ok) return 0;
+  return (m.s || 1) + (BONUS_TYPES.includes(m.t) && exactHit(m, st) ? 1 : 0);
+}
 
 function missionText(m) {
   const c = m.c !== undefined ? cp(m.c) : null, c2 = m.c2 !== undefined ? cp(m.c2) : null;
@@ -850,6 +915,7 @@ const CATALOGUE = loadCatalogue();
 // The objectives that can come up with these settings.
 // `stars` is a bit mask: bit k-1 set means objectives with k stars can come up.
 const ALL_STARS = 31;
+const MAX_NEED = 60;
 const starList = mask => [1, 2, 3, 4, 5].filter(k => mask & (1 << (k - 1)));
 function pool(C, stars) {
   return CATALOGUE.list.filter(m => (stars & (1 << (m.s - 1)))
@@ -949,7 +1015,7 @@ function genMissions(P, cfg) {
 
 const starsText = n => '★'.repeat(n) + '☆'.repeat(5 - n);
 const starsLabel = mask => { const l = starList(mask); return l.length === 5 ? t('allStars') : (l.length > 1 ? l.slice(0, -1).join(', ') + ` ${t('and')} ` + l[l.length - 1] : l[0]) + '★'; };
-const cfgText = cfg => t('cfgText', cfg.C, cfg.per, starsLabel(cfg.stars));
+const cfgText = cfg => t('cfgText', cfg.C, cfg.per, starsLabel(cfg.stars)) + ' · ' + (cfg.need ? t('needN', cfg.need) : t('needAll'));
 
 /* ---------- State ---------- */
 let G = null;        // the game being shown (local, hosted, or mirrored from the host)
@@ -969,7 +1035,7 @@ const ui = { connecting: false, rules: false, quit: false, mode: 'local', key: n
 // Online session.
 const ON = {
   status: 'pending', room: null, game: null, code: null, role: null, nm: '', tk: '', myId: null,
-  gpeers: [], lobbyPeers: [], order: [], connected: false, roomErr: '', transport: 'claude', lob: { n: 4, C: 3, per: 1, stars: ALL_STARS, h: true }, hostLob: null,
+  gpeers: [], lobbyPeers: [], order: [], connected: false, roomErr: '', transport: 'claude', lob: { n: 4, C: 3, per: 1, stars: ALL_STARS, need: 0, h: true }, hostLob: null,
   hostSeenAt: 0, joinedAt: 0, n: 0, seen: new Set(), lastQ: -1, unsub: [],
 };
 
@@ -994,7 +1060,7 @@ function persist() {
 function newLocalGame() {
   const n = S.count;
   G = {
-    online: false, cfg: { C: Math.max(S.colors, minColours(n)), per: S.per, stars: S.stars }, hints: S.hints, starter: 0, C: Math.max(S.colors, minColours(n)),
+    online: false, cfg: { C: Math.max(S.colors, minColours(n)), per: S.per, stars: S.stars, need: S.need || 0 }, hints: S.hints, starter: 0, C: Math.max(S.colors, minColours(n)),
     players: Array.from({ length: n }, (_, i) => ({ name: (S.names[i] || '').trim().slice(0, 16) || t('defaultPlayer', i + 1), bot: !!S.bots[i], missions: [], area: [] })),
     log: [],
   };
@@ -1065,12 +1131,18 @@ function finishRound() {
   Object.assign(G, { phase: 'roll', roll: [], groups: [], taken: {}, order: [], step: 0 });
 }
 
+// Team stars needed to win: `need` 0 means every objective must be met.
+function starsInPlay() { return G.players.reduce((a, p) => a + p.missions.reduce((b, m) => b + (m.s || 1), 0), 0); }
+function teamNeed() { const n = G.cfg.need || 0; return n ? Math.min(n, starsInPlay()) : 0; }
+
 function computeResults() {
   G.results = G.players.map(p => {
     const st = stats(p.area, G.C);
-    return p.missions.map(m => ({ ok: checkMission(m, st, G.C).ok }));
+    return p.missions.map(m => ({ ok: checkMission(m, st, G.C).ok, earned: earnedStars(m, st, G.C), bonus: BONUS_TYPES.includes(m.t) && checkMission(m, st, G.C).ok && exactHit(m, st) }));
   });
-  G.win = G.results.every(r => r.every(x => x.ok));
+  G.earned = G.results.reduce((a, r) => a + r.reduce((b, x) => b + x.earned, 0), 0);
+  const need = teamNeed();
+  G.win = need ? G.earned >= need : G.results.every(r => r.every(x => x.ok));
 }
 
 function reveal() {
@@ -1280,7 +1352,7 @@ function decodeG(w) {
     const int = (x, lo, hi) => { if (!Number.isInteger(x) || x < lo || x > hi) throw 0; return x; };
     const C = int(w.C, 3, 5);
     const cf = Array.isArray(w.cf) ? w.cf : [];
-    const cfg = { C, per: int(cf[1], 1, 3), stars: int(cf[2], 1, ALL_STARS) };
+    const cfg = { C, per: int(cf[1], 1, 3), stars: int(cf[2], 1, ALL_STARS), need: cf[3] === undefined ? 0 : int(cf[3], 0, MAX_NEED) };
     if (!Array.isArray(w.p) || w.p.length < 3 || w.p.length > 5) throw 0;
     const n = w.p.length;
     const die = (x, i) => { int(x, 1, 46); const c = Math.floor(x / 10), v = x % 10; int(c, 0, C - 1); int(v, 1, 6); return i === undefined ? { c, v } : { id: i, c, v }; };
@@ -1323,7 +1395,7 @@ function decodeG(w) {
 function lobWire() {
   const seats = seatPreview();
   const total = Math.min(5, Math.max(3, ON.lob.n, seats.length));
-  return { n: ON.lob.n, cf: [Math.max(ON.lob.C, minColours(total)), ON.lob.per, ON.lob.stars], h: ON.lob.h ? 1 : 0, seats: seats.slice(0, 5).map(s => s.nm), spec: Math.max(0, seats.length - 5) };
+  return { n: ON.lob.n, cf: [Math.max(ON.lob.C, minColours(total)), ON.lob.per, ON.lob.stars, ON.lob.need || 0], h: ON.lob.h ? 1 : 0, seats: seats.slice(0, 5).map(s => s.nm), spec: Math.max(0, seats.length - 5) };
 }
 
 /* ---------- Online outside claude.ai: PeerJS ---------- */
@@ -1509,12 +1581,12 @@ function hostPeer() {
 
 // Fills in any setting a saved lobby lacks (older versions saved levels instead).
 function cleanLob(l) {
-  const d = { n: 4, C: 3, per: 1, stars: ALL_STARS, h: true };
+  const d = { n: 4, C: 3, per: 1, stars: ALL_STARS, need: 0, h: true };
   if (!l || typeof l !== 'object') return d;
   const ok = (v, lo, hi) => Number.isInteger(v) && v >= lo && v <= hi;
   const out = {
     n: ok(l.n, 3, 5) ? l.n : d.n, C: ok(l.C, 3, 5) ? l.C : d.C, per: ok(l.per, 1, 3) ? l.per : d.per,
-    stars: ok(l.stars, 1, ALL_STARS) ? l.stars : d.stars, h: l.h !== false,
+    stars: ok(l.stars, 1, ALL_STARS) ? l.stars : d.stars, need: ok(l.need, 0, MAX_NEED) ? l.need : 0, h: l.h !== false,
   };
   return out;
 }
@@ -1640,7 +1712,7 @@ function hostStart() {
   const players = seats.map(s => ({ name: s.nm, bot: false, key: s.key, missions: [], area: [] }));
   while (players.length < total) players.push({ name: botNames.shift() || `Bot ${players.length + 1}`, bot: true, key: '', missions: [], area: [] });
   ON.lob.C = Math.max(ON.lob.C, minColours(total));
-  G = { online: true, cfg: { C: ON.lob.C, per: ON.lob.per, stars: ON.lob.stars }, hints: ON.lob.h, starter: 0, C: ON.lob.C, players, log: [], seq: 0 };
+  G = { online: true, cfg: { C: ON.lob.C, per: ON.lob.per, stars: ON.lob.stars, need: ON.lob.need || 0 }, hints: ON.lob.h, starter: 0, C: ON.lob.C, players, log: [], seq: 0 };
   const err = startLevel();
   if (err) { G = null; ui.err = err; render(); return; }
   advance();
@@ -1721,10 +1793,11 @@ function missionCard(i, V) {
   const st = stats(p.area, G.C);
   const lines = p.missions.map((m, k) => {
     const r = G.results && G.results[i][k];
-    const res = r ? `<span class="res ${r.ok ? 'ok' : 'bad'}">${r.ok ? t('met') : t('failed')}</span>` : '';
+    const res = r ? `<span class="res ${r.ok ? 'ok' : 'bad'}">${r.ok ? `${t('met')} +${r.earned}★` : t('failed')}</span>` : '';
     const stars = m.s ? `<span class="stars" role="img" aria-label="${t('starsLabel', m.s)}">${starsText(m.s)}</span>` : '';
+    const bonus = BONUS_TYPES.includes(m.t) ? `<div class="bonus${r && r.bonus ? ' hit' : ''}">${bonusText(m)}</div>` : '';
     const detail = r ? `<div class="mdetail">${esc(checkMission(m, st, G.C).detail)}</div>` : '';
-    return `<div class="mline"><span class="txt">${stars}${stars ? '<br>' : ''}${missionText(m)}</span>${res}</div>${detail}`;
+    return `<div class="mline"><span class="txt">${stars}${stars ? '<br>' : ''}${missionText(m)}</span>${res}</div>${bonus}${detail}`;
   }).join('');
   return `<div class="mcard"><span class="label">${t('missionOf', name(i))}</span>${lines}</div>`;
 }
@@ -1845,6 +1918,7 @@ function stageHTML(V) {
     }
   } else if (G.phase === 'reveal') {
     const failed = G.results.reduce((n, r) => n + r.filter(x => !x.ok).length, 0);
+    const need = teamNeed();
     const controls = isGuest
       ? waitHTML(t('waitHostNext', name(0)))
       : `<div class="actions">
@@ -1853,18 +1927,19 @@ function stageHTML(V) {
         </div>${errHTML()}`;
     body = `<div class="banner ${G.win ? 'win' : 'lose'}">
         <h2>${G.win ? t('winTitle') : t('loseTitle')}</h2>
-        <p>${G.win ? t('winText') : t('loseText', failed)}</p>
+        <p>${need ? t('teamStars', G.earned, need) + ' ' : ''}${G.win ? (need ? '' : t('winText')) : need ? t('tryAgain') : t('loseText', failed)}</p>
       </div>${controls}`;
   }
 
   let talk = '';
+  const goal = G.phase !== 'reveal' ? `<p class="note">${teamNeed() ? t('goalStars', teamNeed(), starsInPlay()) : t('goalAll')}</p>` : '';
   if (G.phase !== 'reveal' && G.online) talk = `<p class="talk">${t('talkOnline')}</p>`;
   else if (G.phase !== 'reveal' && multi()) talk = `<p class="talk">${t('talkLocal')}</p>`;
   let warn = '';
   if (isGuest && !hostPeer() && Date.now() - ON.joinedAt > 4000) warn = `<p class="info">${t('hostGone', name(0))}</p>`;
   if (G.online && V === null && G.phase !== 'reveal') warn += `<p class="info">${t('spectating')}</p>`;
   const recent = G.log.slice(-6).map(l => `<li>${esc(logText(l))}</li>`).join('');
-  return `<section class="stage" aria-live="polite">${warn}${body}${talk}${G.online ? connHTML() : ''}<div class="log"><span class="label">${t('logTitle')}</span><ol>${recent}</ol></div></section>`;
+  return `<section class="stage" aria-live="polite">${warn}${body}${goal}${talk}${G.online ? connHTML() : ''}<div class="log"><span class="label">${t('logTitle')}</span><ol>${recent}</ol></div></section>`;
 }
 
 function headerHTML(status) {
@@ -1974,13 +2049,21 @@ function settingsHTML(pre, cfg, players) {
   return colours
     + seg(t('perPlayer'), 'per', [1, 2, 3], cfg.per)
     + `<div class="field"><span class="label">${t('difficulty')}</span>
-        <div class="seg" role="group" aria-label="${t('difficulty')}">${[1, 2, 3, 4, 5].map(v => `<button type="button" data-action="${pre}-star" data-n="${v}" aria-pressed="${!!(cfg.stars & (1 << (v - 1)))}">${v}★</button>`).join('')}</div>${note}</div>`;
+        <div class="seg" role="group" aria-label="${t('difficulty')}">${[1, 2, 3, 4, 5].map(v => `<button type="button" data-action="${pre}-star" data-n="${v}" aria-pressed="${!!(cfg.stars & (1 << (v - 1)))}">${v}★</button>`).join('')}</div>${note}</div>
+    <div class="field"><span class="label">${t('needLabel')}</span>
+      <div class="stepper">
+        <button type="button" class="btn" data-action="${pre}-need" data-n="-1" aria-label="${t('less')}" ${cfg.need ? '' : 'disabled'}>−</button>
+        <span class="stepper-val" aria-live="polite">${cfg.need ? `${cfg.need}★` : t('needAllShort')}</span>
+        <button type="button" class="btn" data-action="${pre}-need" data-n="1" aria-label="${t('more')}" ${cfg.need >= MAX_NEED ? 'disabled' : ''}>+</button>
+      </div>
+      <p class="note">${cfg.need ? t('needNote', cfg.need) : t('needAllNote')}</p></div>`;
 }
 
 // Applies a settings button to a config object.
 function applySetting(cfg, key, v) {
   if (key === 'colors') cfg.C = v;
   if (key === 'per') cfg.per = v;
+  if (key === 'need') cfg.need = Math.max(0, Math.min(MAX_NEED, (cfg.need || 0) + v));
   if (key === 'star') {
     const next = cfg.stars ^ (1 << (v - 1));
     if (next) cfg.stars = next; // at least one difficulty stays selected
@@ -1990,7 +2073,7 @@ function applySetting(cfg, key, v) {
 function lobCfgText(lob) {
   const cf = Array.isArray(lob.cf) ? lob.cf.map(Number) : [];
   if (!(cf[0] >= 3 && cf[0] <= 5 && cf[1] >= 1 && cf[1] <= 3 && Number.isInteger(cf[2]) && cf[2] >= 1 && cf[2] <= ALL_STARS)) return '';
-  return cfgText({ C: cf[0], per: cf[1], stars: cf[2] });
+  return cfgText({ C: cf[0], per: cf[1], stars: cf[2], need: Number.isInteger(cf[3]) && cf[3] >= 0 && cf[3] <= MAX_NEED ? cf[3] : 0 });
 }
 
 function localSetupHTML() {
@@ -2012,7 +2095,7 @@ function localSetupHTML() {
         <div class="seg" role="group" aria-label="${t('playersCount')}">${[3, 4, 5].map(k => `<button type="button" data-action="count" data-n="${k}" aria-pressed="${n === k}">${k}</button>`).join('')}</div>
       </div>
       <div class="field"><span class="label">${t('whoPlays')}</span><div class="players">${rows}</div><p class="note">${modeNote}</p></div>
-      ${settingsHTML('set', { C: S.colors, per: S.per, stars: S.stars }, n)}
+      ${settingsHTML('set', { C: S.colors, per: S.per, stars: S.stars, need: S.need || 0 }, n)}
       <label class="toggle"><input id="hints" type="checkbox" data-action="hints" ${S.hints ? 'checked' : ''}> ${t('hintsToggle')}</label>
       <div class="actions"><button type="button" class="btn primary big" data-action="start" ${pool(Math.max(S.colors, minColours(S.count)), S.stars).length ? '' : 'disabled'}>${t('start')}</button></div>
       ${errHTML()}
@@ -2133,10 +2216,10 @@ $app.addEventListener('click', e => {
     case 'count': S.count = +el.dataset.n; S.colors = Math.max(S.colors, minColours(S.count)); persist(); break;
     case 'human': S.bots[+el.dataset.i] = false; persist(); break;
     case 'bot': S.bots[+el.dataset.i] = true; persist(); break;
-    case 'set-colors': case 'set-per': case 'set-star': {
-      const cfg = { C: S.colors, per: S.per, stars: S.stars };
+    case 'set-colors': case 'set-per': case 'set-star': case 'set-need': {
+      const cfg = { C: S.colors, per: S.per, stars: S.stars, need: S.need || 0 };
       applySetting(cfg, actn.slice(4), +el.dataset.n);
-      Object.assign(S, { colors: cfg.C, per: cfg.per, stars: cfg.stars });
+      Object.assign(S, { colors: cfg.C, per: cfg.per, stars: cfg.stars, need: cfg.need });
       ui.err = ''; persist(); break;
     }
     case 'hints': S.hints = el.checked; persist(); return;
@@ -2176,7 +2259,7 @@ $app.addEventListener('click', e => {
     case 'on-join': enterRoom(ui.joinCode, 'guest'); return;
     case 'on-join-list': enterRoom(el.dataset.code, 'guest'); return;
     case 'on-count': ON.lob.n = +el.dataset.n; publish(); saveOnline(); break;
-    case 'on-colors': case 'on-per': case 'on-star':
+    case 'on-colors': case 'on-per': case 'on-star': case 'on-need':
       applySetting(ON.lob, actn.slice(3), +el.dataset.n); ui.err = ''; publish(); saveOnline(); break;
     case 'on-hints': ON.lob.h = el.checked; publish(); saveOnline(); return;
     case 'on-start': hostStart(); return;
@@ -2199,6 +2282,7 @@ function start(data) {
     if (saved.S) S = Object.assign(S, saved.S);
     // Settings saved by an older version used a star range instead of a set.
     if (!Number.isInteger(S.stars) || S.stars < 1 || S.stars > ALL_STARS) S.stars = ALL_STARS;
+    if (!Number.isInteger(S.need) || S.need < 0 || S.need > MAX_NEED) S.need = 0;
     delete S.smin; delete S.smax;
     if (saved.G && saved.G.players && !saved.G.online) G = saved.G;
   }

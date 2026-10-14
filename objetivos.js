@@ -14,15 +14,15 @@
 // Tipos:
 //   ninguno            Ningún dado de `color`.
 //   exactamente        Exactamente `n` dados de `color`.
-//   al_menos           Al menos `n` dados de `color`.
-//   como_maximo        Como máximo `n` dados de `color`.
+//   al_menos           `n` dados de `color` o más (se muestra como «2 dados azules»).*
+//   como_maximo        Como máximo `n` dados de `color`.*
 //   suma_mayor         La suma de `color` es mayor que la de `color2`.
 //   mas_dados          Más dados de `color` que de `color2`.
-//   suma_al_menos      Los dados de `color` suman `n` o más.
+//   suma_al_menos      Los dados de `color` suman `n` o más.*
 //   colores_exactos    Dados de exactamente `n` colores distintos.
 //   todos_colores      Al menos un dado de cada color en juego.
-//   total_al_menos     Al menos `n` dados en total.
-//   total_como_maximo  Como máximo `n` dados en total.
+//   total_al_menos     `n` dados en total o más.*
+//   total_como_maximo  Como máximo `n` dados en total.*
 //
 // Tipos que miran el número de los dados (sin importar el color):
 //   sin_pares          Ningún dado con número par (2, 4, 6).
@@ -32,18 +32,20 @@
 //   mas_pares          Más dados con número par que con número impar.
 //   mas_impares        Más dados con número impar que con número par.
 //   repetidos_exactos  Exactamente `n` dados con el mismo número (ninguno sale más de `n` veces).
-//   repetidos_al_menos Al menos `n` dados con el mismo número.
+//   repetidos_al_menos `n` dados con el mismo número o más.*
 //   valor_maximo       Ningún dado mayor que `n`.
 //   valor_minimo       Ningún dado menor que `n`.
 //   sin_numero         Ningún dado con el número `numero`.
-//   numero_al_menos    Al menos `n` dados con el número `numero`.
-//   suma_total_maxima  Todos tus dados suman `n` o menos.
-//   suma_total_minima  Todos tus dados suman `n` o más.
+//   numero_al_menos    `n` dados con el número `numero` o más.*
+//   suma_total_maxima  Todos tus dados suman `n` o menos.*
+//   suma_total_minima  Todos tus dados suman `n` o más.*
 //   suma_total_par     Todos tus dados suman un número par.
 //   escalera           `n` números seguidos (por ejemplo 2-3-4-5), de cualquier color.
 //   escalera_color     `n` números seguidos en dados del mismo color.
 //   dos_parejas        Dos números distintos que salgan al menos 2 veces cada uno.
 //   full               Un número que salga al menos 3 veces y otro al menos 2.
+//
+// * Estos tipos dan 1 estrella extra si se consigue la cifra exacta.
 //
 // Las estrellas de esta lista son provisionales.
 
