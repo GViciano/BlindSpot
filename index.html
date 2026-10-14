@@ -220,6 +220,8 @@ button.group:hover { border-color: var(--muted); }
 .stepper-val { min-width: 76px; text-align: center; font-weight: 700; font-size: 16px; font-variant-numeric: tabular-nums; }
 .bonus { font-size: 12px; color: var(--muted); margin-top: -4px; }
 .bonus.hit { color: var(--ok); font-weight: 700; }
+.goal { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 10px; background: var(--surface-2); border: 1px solid var(--line); font-size: 14px; }
+.goal-big { font-family: var(--font-display); font-size: 22px; color: var(--d1); white-space: nowrap; }
 .tag.off { color: var(--bad); border-color: var(--bad); background: transparent; }
 </style>
 </head>
@@ -306,6 +308,7 @@ const I18N = {
     poolNote: (avail, need, bad) => `${avail} ${plural(avail, 'objetivo encaja', 'objetivos encajan')} con estos ajustes${avail < need ? `; hacen falta ${need}, así que alguno se repetirá entre jugadores` : ''}.${bad ? ` ${bad} del archivo tienen errores y no se usan.` : ''}`,
     cfgText: (C, per, stars) => `${C} colores · ${per} ${plural(per, 'objetivo', 'objetivos')} por jugador · ${stars}`,
     allStars: 'todas las dificultades', and: 'y',
+    toWin: 'Para ganar',
     needLabel: 'Estrellas del equipo para ganar', needAllShort: 'Todas', less: 'Menos', more: 'Más',
     needAllNote: 'Hay que cumplir todos los objetivos de todos los jugadores.',
     needNote: n => `Se suman las estrellas de los objetivos que cumple cada jugador. Con ${n}★ entre todos, el equipo gana. Los objetivos con * dan 1★ extra si se clava la cifra exacta.`,
@@ -520,6 +523,7 @@ const I18N = {
     poolNote: (avail, need, bad) => `${avail} ${plural(avail, 'objective matches', 'objectives match')} these settings${avail < need ? `; ${need} are needed, so some will repeat between players` : ''}.${bad ? ` ${bad} in the file have errors and are not used.` : ''}`,
     cfgText: (C, per, stars) => `${C} colours · ${per} ${plural(per, 'objective', 'objectives')} per player · ${stars}`,
     allStars: 'all difficulties', and: 'and',
+    toWin: 'To win',
     needLabel: 'Team stars to win', needAllShort: 'All', less: 'Fewer', more: 'More',
     needAllNote: 'Every objective of every player must be completed.',
     needNote: n => `The stars of the objectives each player completes are added up. With ${n}★ between you, the team wins. Objectives marked * give 1★ extra if you hit the exact amount.`,
@@ -1960,14 +1964,15 @@ function stageHTML(V) {
   }
 
   let talk = '';
-  const goal = G.phase !== 'reveal' ? `<p class="note">${teamNeed() ? t('goalStars', teamNeed(), starsInPlay()) : t('goalAll')}</p>` : '';
+  const goal = G.phase !== 'reveal'
+    ? `<div class="goal"><span class="goal-big">${teamNeed() ? `${teamNeed()}★` : t('needAllShort')}</span><span>${teamNeed() ? t('goalStars', teamNeed(), starsInPlay()) : t('goalAll')}</span></div>` : '';
   if (G.phase !== 'reveal' && G.online) talk = `<p class="talk">${t('talkOnline')}</p>`;
   else if (G.phase !== 'reveal' && multi()) talk = `<p class="talk">${t('talkLocal')}</p>`;
   let warn = '';
   if (isGuest && !hostPeer() && Date.now() - ON.joinedAt > 4000) warn = `<p class="info">${t('hostGone', name(0))}</p>`;
   if (G.online && V === null && G.phase !== 'reveal') warn += `<p class="info">${t('spectating')}</p>`;
   const recent = G.log.slice(-6).map(l => `<li>${esc(logText(l))}</li>`).join('');
-  return `<section class="stage" aria-live="polite">${warn}${body}${goal}${talk}${G.online ? connHTML() : ''}<div class="log"><span class="label">${t('logTitle')}</span><ol>${recent}</ol></div></section>`;
+  return `<section class="stage" aria-live="polite">${goal}${warn}${body}${talk}${G.online ? connHTML() : ''}<div class="log"><span class="label">${t('logTitle')}</span><ol>${recent}</ol></div></section>`;
 }
 
 function headerHTML(status) {
@@ -1986,7 +1991,7 @@ function headerHTML(status) {
 function gameHTML() {
   const V = viewerOf();
   const where = G.online ? `${t('gameCode', ON.code.toUpperCase())} · ` : '';
-  const status = G.phase === 'reveal' ? `${where}${t('gameOver')}` : `${where}${t('round', G.round + 1, P())}`;
+  const status = G.phase === 'reveal' ? `${where}${t('gameOver')}` : `${where}${t('round', G.round + 1, P())} · ${t('toWin')}: ${teamNeed() ? `${teamNeed()}★` : t('needAllShort').toLowerCase()}`;
   return `${headerHTML(status)}
     <div class="board">${stageHTML(V)}${seatsHTML(V)}</div>
     ${!G.online && G.cover !== null && G.cover !== undefined ? coverHTML() : ''}`;
