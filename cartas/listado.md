@@ -61,7 +61,7 @@ Texto tal como aparece en el juego. El número coincide con el de la esquina de 
 | 53 | ★★☆☆☆ | Al menos un dado de cada color. |  |
 | 54 | ★★★☆☆ | Dados de exactamente 3 colores distintos. |  |
 | 55 | ★★★★☆ | Dados de exactamente 2 colores distintos. |  |
-| 56 | ★★★★★ | Dados de exactamente 1 colores distintos. |  |
+| 56 | ★★★★★ | Todos tus dados de un solo color. |  |
 | 57 | ★★★☆☆ | 6 dados en total. | Si consigues exactamente 6 dados en total: +1★ extra. |
 | 58 | ★★★★☆ | Como máximo 5 dados en total. | Si consigues exactamente 5 dados en total: +1★ extra. |
 | 59 | ★★★★★ | Exactamente 4 dados verdes. |  |
