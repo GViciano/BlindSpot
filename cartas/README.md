@@ -1,6 +1,6 @@
 # Cartas de objetivos
 
-`cartas.pdf` tiene una carta por cada objetivo de `objetivos.js`, en tamaño póquer (63,5 × 88,9 mm), 9 por hoja A4, y una última hoja de reversos. Las cartas no llevan texto: solo dados de colores, caras de dado, números y símbolos, así que sirven en cualquier idioma.
+`cartas.pdf` tiene una carta por cada objetivo de `objetivos.js`, en tamaño póquer (63,5 × 88,9 mm), 9 por hoja A4, una hoja de reversos y, al final, las 7 cartas grises del dado gris (G1–G7) con sus reversos grises. Las cartas no llevan texto: solo dados de colores, caras de dado, números y símbolos, así que sirven en cualquier idioma.
 
 Para regenerarlo después de cambiar `objetivos.js`:
 

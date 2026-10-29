@@ -291,6 +291,63 @@ def back_svg():
             f'{dots}</svg>')
 
 
+GREY_DIE = '#8b93a1'
+GREY_BG = '#dfe2e7'
+
+
+def check(cx, cy, r):
+    """Green 'yes' mark."""
+    return (f'<circle cx="{cx:.2f}" cy="{cy:.2f}" r="{r:.2f}" fill="none" stroke="#1f8a4c" stroke-width="1.4"/>'
+            f'<path d="M{cx - r * 0.45:.2f},{cy:.2f} L{cx - r * 0.1:.2f},{cy + r * 0.38:.2f} L{cx + r * 0.5:.2f},{cy - r * 0.38:.2f}" '
+            f'fill="none" stroke="#1f8a4c" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>')
+
+
+def grey_rule_content(rule):
+    """Middle of a grey card: what the player holding the grey die must do."""
+    cy = CARD_H / 2 + 8
+    if rule == 0:
+        return Row().wheel(26, '✓').svg(cy)
+    if rule == 1:
+        return Row().text('Σ', 14).any_die(15).text('≥15', 15).svg(cy)
+    if rule == 2:  # no other die with the grey die's number
+        r = Row(5)
+        out = r.die('azul', 15, face=4).faces([4], 15).svg(cy)
+        out = out.replace(COLORS['azul'], GREY_DIE, 1)
+        return out + ban(CARD_W / 2 + 10, cy, 10.5)
+    if rule == 3:
+        return Row().text('#', 14).any_die(15).text('≤6', 15).svg(cy)
+    if rule == 4:  # at least one other die with the grey die's number
+        out = Row(5).die('azul', 15, face=4).faces([4], 15).svg(cy).replace(COLORS['azul'], GREY_DIE, 1)
+        return out + check(CARD_W / 2 + 15, cy - 11, 4)
+    if rule == 5:
+        return Row().text('≤3', 15).text('×', 10).any_die(15).svg(cy)
+    if rule == 6:
+        return Row().text('Σ', 14).any_die(15).text('≤15', 15).svg(cy)
+    raise ValueError(rule)
+
+
+def grey_card_svg(rule):
+    return ''.join([
+        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {CARD_W} {CARD_H}" width="{CARD_W}mm" height="{CARD_H}mm">',
+        f'<rect x="0.6" y="0.6" width="{CARD_W - 1.2}" height="{CARD_H - 1.2}" rx="3.2" fill="{GREY_BG}" stroke="#b5bcc7" stroke-width="0.3"/>',
+        f'<rect x="3" y="3" width="{CARD_W - 6}" height="{CARD_H - 6}" rx="2.4" fill="none" stroke="#c9ced6" stroke-width="0.4"/>',
+        # who it is for: the player holding the grey die
+        die_svg(CARD_W / 2 - 9, 9, 18, GREY_DIE),
+        f'<text x="{CARD_W / 2}" y="34" font-size="9" text-anchor="middle" font-weight="700" fill="{INK}" font-family="{FONT}">▼</text>',
+        grey_rule_content(rule),
+        f'<text x="{CARD_W - 6}" y="{CARD_H - 5.2}" font-size="2.6" text-anchor="end" fill="#9aa2ae" font-family="{FONT}">G{rule + 1}</text>',
+        '</svg>'])
+
+
+def grey_back_svg():
+    return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {CARD_W} {CARD_H}" width="{CARD_W}mm" height="{CARD_H}mm">'
+            f'<rect x="0.6" y="0.6" width="{CARD_W - 1.2}" height="{CARD_H - 1.2}" rx="3.2" fill="#6f7785" stroke="#c9cfd8" stroke-width="0.3"/>'
+            '<pattern id="gst" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="2" height="4" fill="#7d8594"/></pattern>'
+            f'<rect x="3" y="3" width="{CARD_W - 6}" height="{CARD_H - 6}" rx="2.4" fill="url(#gst)"/>'
+            + die_svg(CARD_W / 2 - 11, CARD_H / 2 - 11, 22, GREY_DIE, stroke='#e7ebf1') +
+            f'<text x="{CARD_W / 2}" y="{CARD_H / 2 + 5}" font-size="14" text-anchor="middle" font-weight="700" fill="#e7ebf1" font-family="{FONT}">?</text></svg>')
+
+
 def main():
     objs = load_objectives()
     cards = [card_svg(o, i + 1) for i, o in enumerate(objs)]
@@ -306,9 +363,12 @@ def main():
     for p in pages:
         html.append('<div class="page">' + ''.join(p) + '</div>')
     html.append('<div class="page">' + back_svg() * 9 + '</div>')
+    # Optional grey die: 7 common grey cards and their backs.
+    html.append('<div class="page">' + ''.join(grey_card_svg(r) for r in range(7)) + '</div>')
+    html.append('<div class="page">' + grey_back_svg() * 7 + '</div>')
     html.append('</body></html>')
     OUT.write_text(''.join(html))
-    print(f'{len(cards)} cartas, {len(pages)} hojas + 1 de reversos -> {OUT}')
+    print(f'{len(cards)} cartas, {len(pages)} hojas + 1 de reversos + 2 de cartas grises -> {OUT}')
 
 
 if __name__ == '__main__':

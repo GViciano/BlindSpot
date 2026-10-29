@@ -26,7 +26,7 @@
   --bad: #c43b3b;
   --bad-bg: #fbe5e4;
   --focus: #2f6fdb;
-  --d0: #2f6fdb; --d1: #ee8420; --d2: #2a9a58; --d3: #8a4fd1; --d4: #f1c232;
+  --d0: #2f6fdb; --d1: #ee8420; --d2: #2a9a58; --d3: #8a4fd1; --d4: #f1c232; --d5: #8b93a1; --grey-card: #e6e8ec;
   --pip: #ffffff; --pip-dark: #3b2c00;
   --font-display: "Dela Gothic One", "Arial Black", Impact, sans-serif;
   --font-body: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -38,7 +38,7 @@
     --card: #232b38; --card-back-a: #0b0f15; --card-back-b: #151b25;
     --accent: #e7ebf1; --accent-ink: #10141b;
     --ok: #4cc27d; --ok-bg: #173325; --bad: #ef6b6b; --bad-bg: #3a1c1e; --focus: #7aa7ff;
-    --d0: #4682ec; --d1: #f39236; --d2: #36ad68; --d3: #9b63e0; --d4: #f2c94c;
+    --d0: #4682ec; --d1: #f39236; --d2: #36ad68; --d3: #9b63e0; --d4: #f2c94c; --d5: #9aa2b0; --grey-card: #2b323d;
     color-scheme: dark;
   }
 }
@@ -47,7 +47,7 @@
   --card: #232b38; --card-back-a: #0b0f15; --card-back-b: #151b25;
   --accent: #e7ebf1; --accent-ink: #10141b;
   --ok: #4cc27d; --ok-bg: #173325; --bad: #ef6b6b; --bad-bg: #3a1c1e; --focus: #7aa7ff;
-  --d0: #4682ec; --d1: #f39236; --d2: #36ad68; --d3: #9b63e0; --d4: #f2c94c;
+  --d0: #4682ec; --d1: #f39236; --d2: #36ad68; --d3: #9b63e0; --d4: #f2c94c; --d5: #9aa2b0; --grey-card: #2b323d;
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
@@ -131,13 +131,13 @@ button { font: inherit; color: inherit; }
 .mcard.back .bt { font-size: 13px; line-height: 1.3; }
 .mcard.back .bt b { display: block; font-size: 14px; }
 .cw { display: inline-block; width: .8em; height: .8em; border-radius: 3px; margin-right: 3px; vertical-align: -.05em; }
-.cw.c0 { background: var(--d0); } .cw.c1 { background: var(--d1); } .cw.c2 { background: var(--d2); } .cw.c3 { background: var(--d3); } .cw.c4 { background: var(--d4); }
+.cw.c0 { background: var(--d0); } .cw.c1 { background: var(--d1); } .cw.c2 { background: var(--d2); } .cw.c3 { background: var(--d3); } .cw.c4 { background: var(--d4); } .cw.c5 { background: var(--d5); }
 
 /* Dice */
 .die { display: inline-block; width: 34px; height: 34px; flex: none; padding: 0; border: 0; background: none; line-height: 0; }
 .die svg { width: 100%; height: 100%; display: block; }
 .die .face { stroke: rgba(0, 0, 0, .18); stroke-width: 2; }
-.die.c0 .face { fill: var(--d0); } .die.c1 .face { fill: var(--d1); } .die.c2 .face { fill: var(--d2); } .die.c3 .face { fill: var(--d3); } .die.c4 .face { fill: var(--d4); }
+.die.c0 .face { fill: var(--d0); } .die.c1 .face { fill: var(--d1); } .die.c2 .face { fill: var(--d2); } .die.c3 .face { fill: var(--d3); } .die.c4 .face { fill: var(--d4); } .die.c5 .face { fill: var(--d5); }
 .die .pip { fill: var(--pip); }
 .die.c4 .pip { fill: var(--pip-dark); }
 .die.sm { width: 24px; height: 24px; }
@@ -228,6 +228,11 @@ button.group:hover { border-color: var(--muted); }
 .order-list .done { color: var(--muted); text-decoration: line-through; }
 .order-list .sep { color: var(--muted); }
 .tag.turn { background: transparent; }
+.greycard { display: flex; gap: 12px; align-items: flex-start; padding: 10px 12px; border-radius: 10px; background: var(--grey-card); border: 1px solid var(--line); }
+.greycard .die { margin-top: 2px; }
+.grey-rule { font-weight: 700; font-size: 14px; }
+.grey-res { font-size: 13px; margin-top: 4px; font-weight: 700; }
+.grey-res.ok { color: var(--ok); } .grey-res.bad { color: var(--bad); }
 .tag.off { color: var(--bad); border-color: var(--bad); background: transparent; }
 </style>
 </head>
@@ -273,9 +278,12 @@ const LANG_KEY = 'blindspots-lang';
 let LANG = (() => { const l = lsGet(LANG_KEY); return l === 'en' || l === 'es' ? l : 'es'; })();
 
 const COLOR_NAMES = {
-  es: [{ sing: 'azul', pl: 'azules' }, { sing: 'naranja', pl: 'naranjas' }, { sing: 'verde', pl: 'verdes' }, { sing: 'morado', pl: 'morados' }, { sing: 'amarillo', pl: 'amarillos' }],
-  en: [{ sing: 'blue', pl: 'blue' }, { sing: 'orange', pl: 'orange' }, { sing: 'green', pl: 'green' }, { sing: 'purple', pl: 'purple' }, { sing: 'yellow', pl: 'yellow' }],
+  es: [{ sing: 'azul', pl: 'azules' }, { sing: 'naranja', pl: 'naranjas' }, { sing: 'verde', pl: 'verdes' }, { sing: 'morado', pl: 'morados' }, { sing: 'amarillo', pl: 'amarillos' }, { sing: 'gris', pl: 'grises' }],
+  en: [{ sing: 'blue', pl: 'blue' }, { sing: 'orange', pl: 'orange' }, { sing: 'green', pl: 'green' }, { sing: 'purple', pl: 'purple' }, { sing: 'yellow', pl: 'yellow' }, { sing: 'grey', pl: 'grey' }],
 };
+// The optional grey die: colour index 5. It counts as a die (amount, sum, numbers) but not as a colour in play.
+const GREY = 5;
+const GREY_RULES = 7;
 const cname = c => COLOR_NAMES[LANG][c];
 const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
 const plural = (n, one, many) => n === 1 ? one : many;
@@ -316,6 +324,17 @@ const I18N = {
     cfgText: (C, per, stars) => `${C} colores · ${per} ${plural(per, 'objetivo', 'objetivos')} por jugador · ${stars}`,
     allStars: 'todas las dificultades', and: 'y',
     toWin: 'Para ganar',
+    greyOn: 'dado gris', greyToggle: 'Dado gris en la primera ronda',
+    greyNote: 'Se añade un dado gris (del 1 al 6) a la primera tirada y sale una carta gris común que ven todos. Para ganar, el jugador que acabe con el dado gris tiene que cumplirla. El dado gris cuenta como dado (cantidad, suma y números) pero no como color.',
+    greyCard: 'Carta gris (para todos)', greyHolder: name => `Lo tiene ${name}:`,
+    greyRule0: 'El jugador con el dado gris debe tener al menos 1 dado de cada color en juego.',
+    greyRule1: 'El jugador con el dado gris tiene que sumar al menos 15 (incluido el gris).',
+    greyRule2: 'El jugador con el dado gris no puede tener otro dado con la misma cifra que el dado gris.',
+    greyRule3: 'El jugador con el dado gris puede tener como máximo 6 dados (incluido el gris).',
+    greyRule4: 'El jugador con el dado gris debe tener al menos otro dado con la misma cifra que el dado gris.',
+    greyRule5: 'El jugador con el dado gris no puede tener más de 3 dados de un mismo color.',
+    greyRule6: 'El jugador con el dado gris no puede sumar más de 15 (incluido el gris).',
+    greyLose: 'No se ha cumplido la carta gris.',
     needLabel: 'Estrellas del equipo para ganar', needAllShort: 'Todas', less: 'Menos', more: 'Más',
     needAllNote: 'Hay que cumplir todos los objetivos de todos los jugadores.',
     needNote: n => `Se suman las estrellas de los objetivos que cumple cada jugador. Con ${n}★ entre todos, el equipo gana. Los objetivos con * dan 1★ extra si se clava la cifra exacta.`,
@@ -460,6 +479,9 @@ const I18N = {
       belowIs: (k, n) => `Tienes ${k} ${plural(k, 'dado menor', 'dados menores')} que ${n}.`,
       numberIs: (k, v) => `Tienes ${k} ${plural(k, 'dado', 'dados')} con un ${v}.`,
       sumAllIs: s => `Tus dados suman ${s}.`,
+      gColours: (n, C) => `tiene ${n} de ${C} colores.`, gSum: s => `suma ${s}.`,
+      gSame: (k, g) => `tiene ${k} ${plural(k, 'dado más', 'dados más')} con un ${g}.`, gDice: n => `tiene ${n} dados.`,
+      gMaxColour: n => `su color con más dados tiene ${n}.`,
       bonus: what => `* Si consigues exactamente ${what}: +1★ extra.`,
       diceTotal: n => `${n} dados en total`, sameNumber: n => `${n} dados con el mismo número`,
       withNumber: (n, v) => `${n} ${plural(n, 'dado', 'dados')} con un ${v}`,
@@ -513,6 +535,7 @@ const I18N = {
         <li>Dificultad: cada objetivo tiene de 1 a 5 estrellas. Se eligen las dificultades que se quieran y los objetivos se reparten al azar entre los que las tienen.</li>
         <li>Estrellas del equipo para ganar: con «Todas» hay que cumplir todos los objetivos. Con un número, se suman las estrellas de los objetivos que cumple cada jugador y el equipo gana si llega a esa cifra entre todos.</li>
         <li>Objetivos con *: «2 dados azules» se cumple con 2 o más (y «como máximo 1» con 1 o menos). Si se consigue la cifra exacta, el objetivo da 1★ extra.</li>
+        <li>Dado gris (opcional): en la primera ronda se tira además un dado gris y sale una carta gris común. Quien acabe con el dado gris tiene que cumplirla para que el equipo gane. El dado gris cuenta como dado, para la suma y para los números, pero no como color.</li>
       </ul>
       <h3>En esta versión</h3>
       <p>En un dispositivo, la web pide pasarlo antes de cada decisión y solo entonces muestra las misiones de los demás. Online, cada jugador ve las misiones de los demás en su pantalla y puede elegir su idioma. Los bots reparten pensando en las misiones que ven y, al elegir, cogen el grupo que menos perjudica al resto.</p>`,
@@ -548,6 +571,17 @@ const I18N = {
     cfgText: (C, per, stars) => `${C} colours · ${per} ${plural(per, 'objective', 'objectives')} per player · ${stars}`,
     allStars: 'all difficulties', and: 'and',
     toWin: 'To win',
+    greyOn: 'grey die', greyToggle: 'Grey die in the first round',
+    greyNote: 'A grey die (1 to 6) is added to the first roll and a common grey card is drawn that everyone can see. To win, the player who ends up with the grey die must meet it. The grey die counts as a die (amount, sum and numbers) but not as a colour.',
+    greyCard: 'Grey card (for everyone)', greyHolder: name => `${name} has it:`,
+    greyRule0: 'The player with the grey die must have at least 1 die of each colour in play.',
+    greyRule1: 'The player with the grey die must total at least 15 (grey die included).',
+    greyRule2: 'The player with the grey die can’t have another die showing the same number as the grey die.',
+    greyRule3: 'The player with the grey die can have at most 6 dice (grey die included).',
+    greyRule4: 'The player with the grey die must have at least one other die showing the same number as the grey die.',
+    greyRule5: 'The player with the grey die can’t have more than 3 dice of a single colour.',
+    greyRule6: 'The player with the grey die can’t total more than 15 (grey die included).',
+    greyLose: 'The grey card wasn’t met.',
     needLabel: 'Team stars to win', needAllShort: 'All', less: 'Fewer', more: 'More',
     needAllNote: 'Every objective of every player must be completed.',
     needNote: n => `The stars of the objectives each player completes are added up. With ${n}★ between you, the team wins. Objectives marked * give 1★ extra if you hit the exact amount.`,
@@ -685,6 +719,9 @@ const I18N = {
       belowIs: (k, n) => `You have ${k} ${plural(k, 'die', 'dice')} lower than ${n}.`,
       numberIs: (k, v) => `You have ${k} ${plural(k, 'die', 'dice')} showing a ${v}.`,
       sumAllIs: s => `Your dice add up to ${s}.`,
+      gColours: (n, C) => `${n} of ${C} colours.`, gSum: s => `total ${s}.`,
+      gSame: (k, g) => `${k} other ${plural(k, 'die', 'dice')} showing a ${g}.`, gDice: n => `${n} dice.`,
+      gMaxColour: n => `most dice of one colour: ${n}.`,
       bonus: what => `* Get exactly ${what}: +1★ extra.`,
       diceTotal: n => `${n} dice in total`, sameNumber: n => `${n} dice showing the same number`,
       withNumber: (n, v) => `${n} ${plural(n, 'die', 'dice')} showing a ${v}`,
@@ -737,6 +774,7 @@ const I18N = {
         <li>Difficulty: each objective has 1 to 5 stars. Pick any difficulties you like and objectives are dealt at random from those.</li>
         <li>Team stars to win: with “All”, every objective must be completed. With a number, the stars of the objectives each player completes are added up, and the team wins if it reaches that number between everyone.</li>
         <li>Objectives marked *: “2 blue dice” is met with 2 or more (and “at most 1” with 1 or fewer). Hitting the exact amount gives 1★ extra.</li>
+        <li>Grey die (optional): in the first round a grey die is rolled as well and a common grey card is drawn. Whoever ends up with the grey die must meet it for the team to win. The grey die counts as a die, for sums and for numbers, but not as a colour.</li>
       </ul>
       <h3>In this version</h3>
       <p>On one device, the page asks you to pass it before each decision and only then shows the others’ missions. Online, each player sees the others’ missions on their own screen and can pick their own language. Bots deal based on the missions they can see and, when choosing, take the group that hurts the others least.</p>`,
@@ -839,6 +877,34 @@ function statsWithOthers(i, extra = []) {
   return st;
 }
 
+// Common grey card: a rule for whoever ends up with the grey die.
+function greyCheck(rule, st, C) {
+  const g = st.greyV;
+  switch (rule) {
+    case 0: return { ok: st.distinct === C, detail: tm('gColours', st.distinct, C) };
+    case 1: return { ok: st.all >= 15, detail: tm('gSum', st.all) };
+    case 2: return { ok: st.val[g] - 1 === 0, detail: tm('gSame', st.val[g] - 1, g) };
+    case 3: return { ok: st.total <= 6, detail: tm('gDice', st.total) };
+    case 4: return { ok: st.val[g] - 1 >= 1, detail: tm('gSame', st.val[g] - 1, g) };
+    case 5: return { ok: Math.max(...st.cnt) <= 3, detail: tm('gMaxColour', Math.max(...st.cnt)) };
+    case 6: return { ok: st.all <= 15, detail: tm('gSum', st.all) };
+  }
+  return { ok: true, detail: '' };
+}
+function greyDist(rule, st, C, w) {
+  const g = st.greyV;
+  switch (rule) {
+    case 0: return (C - st.distinct) * w;
+    case 1: return Math.max(0, 15 - st.all) / 3.5 * w;
+    case 2: return (st.val[g] - 1) * IRREV;
+    case 3: return Math.max(0, st.total - 6) * IRREV;
+    case 4: return st.val[g] >= 2 ? 0 : w;
+    case 5: return st.cnt.reduce((a, n) => a + Math.max(0, n - 3), 0) * IRREV;
+    case 6: return Math.max(0, st.all - 15) / 3 * IRREV;
+  }
+  return 0;
+}
+
 function missionText(m) {
   const c = m.c !== undefined ? cp(m.c) : null, c2 = m.c2 !== undefined ? cp(m.c2) : null;
   switch (m.t) {
@@ -888,7 +954,11 @@ function missionText(m) {
 function stats(dice, C) {
   const cnt = Array(C).fill(0), sum = Array(C).fill(0), val = Array(7).fill(0);
   let all = 0;
-  for (const d of dice) { cnt[d.c]++; sum[d.c] += d.v; val[d.v]++; all += d.v; }
+  let greyV = null;
+  for (const d of dice) {
+    if (d.c === GREY) greyV = d.v; else { cnt[d.c]++; sum[d.c] += d.v; }
+    val[d.v]++; all += d.v;
+  }
   const even = val[2] + val[4] + val[6];
   // Longest run of consecutive numbers among the given dice.
   const runOf = ds => { const has = Array(8).fill(false); ds.forEach(d => { has[d.v] = true; }); let best = 0, cur = 0; for (let v = 1; v <= 6; v++) { cur = has[v] ? cur + 1 : 0; best = Math.max(best, cur); } return best; };
@@ -896,7 +966,7 @@ function stats(dice, C) {
   return {
     run: runOf(dice), colourRun: Math.max(0, ...Array.from({ length: C }, (_, c) => runOf(dice.filter(d => d.c === c)))),
     pairs: val.filter(x => x >= 2).length, rep1: reps[0], rep2: reps[1],
-    cnt, sum, val, all, even, odd: dice.length - even, total: dice.length,
+    cnt, sum, val, all, even, odd: dice.length - even, total: dice.length, greyV,
     distinct: cnt.filter(x => x > 0).length, maxRep: Math.max(...val),
     above: k => val.slice(k + 1).reduce((a, b) => a + b, 0), below: k => val.slice(1, k).reduce((a, b) => a + b, 0),
   };
@@ -1135,7 +1205,7 @@ function genMissions(P, cfg) {
 
 const starsText = n => '★'.repeat(n) + '☆'.repeat(5 - n);
 const starsLabel = mask => { const l = starList(mask); return l.length === 5 ? t('allStars') : (l.length > 1 ? l.slice(0, -1).join(', ') + ` ${t('and')} ` + l[l.length - 1] : l[0]) + '★'; };
-const cfgText = cfg => t('cfgText', cfg.C, cfg.per, starsLabel(cfg.stars)) + ' · ' + (cfg.need ? t('needN', cfg.need) : t('needAll'));
+const cfgText = cfg => t('cfgText', cfg.C, cfg.per, starsLabel(cfg.stars)) + ' · ' + (cfg.need ? t('needN', cfg.need) : t('needAll')) + (cfg.grey ? ' · ' + t('greyOn') : '');
 
 /* ---------- State ---------- */
 let G = null;        // the game being shown (local, hosted, or mirrored from the host)
@@ -1155,7 +1225,7 @@ const ui = { connecting: false, rules: false, quit: false, mode: 'local', key: n
 // Online session.
 const ON = {
   status: 'pending', room: null, game: null, code: null, role: null, nm: '', tk: '', myId: null,
-  gpeers: [], lobbyPeers: [], order: [], connected: false, roomErr: '', transport: 'claude', lob: { n: 4, C: 3, per: 1, stars: ALL_STARS, need: 0, h: true }, hostLob: null,
+  gpeers: [], lobbyPeers: [], order: [], connected: false, roomErr: '', transport: 'claude', lob: { n: 4, C: 3, per: 1, stars: ALL_STARS, need: 0, grey: false, h: true }, hostLob: null,
   hostSeenAt: 0, joinedAt: 0, n: 0, seen: new Set(), lastQ: -1, unsub: [],
 };
 
@@ -1180,7 +1250,7 @@ function persist() {
 function newLocalGame() {
   const n = S.count;
   G = {
-    online: false, cfg: { C: Math.max(S.colors, minColours(n)), per: S.per, stars: S.stars, need: S.need || 0 }, hints: S.hints, starter: ri(n), C: Math.max(S.colors, minColours(n)),
+    online: false, cfg: { C: Math.max(S.colors, minColours(n)), per: S.per, stars: S.stars, need: S.need || 0, grey: !!S.grey }, hints: S.hints, starter: ri(n), C: Math.max(S.colors, minColours(n)),
     players: Array.from({ length: n }, (_, i) => ({ name: (S.names[i] || '').trim().slice(0, 16) || t('defaultPlayer', i + 1), bot: !!S.bots[i], missions: [], area: [] })),
     log: [],
   };
@@ -1194,7 +1264,7 @@ function startLevel() {
   const r = genMissions(P(), G.cfg);
   if (r.error) return r.error;
   G.players.forEach((p, i) => { p.missions = r.missions[i]; p.area = []; });
-  Object.assign(G, { bag: Array(G.C).fill(BAG_PER_COLOUR), gid: rid(6), round: 0, active: G.starter, phase: 'roll', roll: [], groups: [], order: [], step: 0, taken: {}, results: null, win: null, log: [] });
+  Object.assign(G, { greyRule: G.cfg.grey ? ri(GREY_RULES) : null, greyRes: null, bag: Array(G.C).fill(BAG_PER_COLOUR), gid: rid(6), round: 0, active: G.starter, phase: 'roll', roll: [], groups: [], order: [], step: 0, taken: {}, results: null, win: null, log: [] });
   log(['start']);
   log(['first', G.starter]);
   if (!G.online) resetViewer();
@@ -1224,6 +1294,7 @@ function doRoll() {
     G.bag[c]--;
     G.roll.push({ id: G.roll.length, c, v: 1 + ri(6) });
   }
+  if (G.cfg.grey && G.round === 0) G.roll.push({ id: G.roll.length, c: GREY, v: 1 + ri(6) });
   G.phase = 'group';
   log(['roll', G.active, G.roll.length]);
 }
@@ -1264,6 +1335,16 @@ function computeResults() {
   G.earned = G.results.reduce((a, r) => a + r.reduce((b, x) => b + x.earned, 0), 0);
   const need = teamNeed();
   G.win = need ? G.earned >= need : G.results.every(r => r.every(x => x.ok));
+  // The grey card must be met as well.
+  G.greyRes = null;
+  if (G.cfg.grey && G.greyRule !== null && G.greyRule !== undefined) {
+    const holder = G.players.findIndex(p => p.area.some(d => d.c === GREY));
+    if (holder >= 0) {
+      const r = greyCheck(G.greyRule, stats(G.players[holder].area, G.C), G.C);
+      G.greyRes = { holder, ok: r.ok };
+      if (!r.ok) G.win = false;
+    }
+  }
 }
 
 function reveal() {
@@ -1306,7 +1387,8 @@ function applyAction(seat, a) {
 function evalPlayer(i, extra) {
   const p = G.players[i];
   const st = statsWithOthers(i, extra);
-  return p.missions.reduce((a, m) => a + missionDist(m, st, G.C, roundsLeft()), 0);
+  const grey = G.cfg.grey && st.greyV && G.greyRule !== null ? greyDist(G.greyRule, st, G.C, roundsLeft() === 0 ? 3 : 1) : 0;
+  return grey + p.missions.reduce((a, m) => a + missionDist(m, st, G.C, roundsLeft()), 0);
 }
 
 function botGroups() {
@@ -1460,7 +1542,7 @@ function saveOnline() {
 
 function encodeG() {
   return {
-    v: 2, cf: [G.cfg.C, G.cfg.per, G.cfg.stars, G.cfg.need || 0], h: G.hints ? 1 : 0, st: G.starter, C: G.C, r: G.round, a: G.active, ph: G.phase, s: G.step, id: G.gid,
+    v: 2, cf: [G.cfg.C, G.cfg.per, G.cfg.stars, G.cfg.need || 0, G.cfg.grey ? 1 : 0], gy: G.greyRule ?? -1, h: G.hints ? 1 : 0, st: G.starter, C: G.C, r: G.round, a: G.active, ph: G.phase, s: G.step, id: G.gid,
     p: G.players.map(p => [p.name, p.bot ? 1 : 0, p.key || '', p.missions.map(m => [TYPES.indexOf(m.t), m.c ?? -1, m.c2 ?? -1, m.n ?? -1, m.s || 0, m.v || 0]), p.area.map(d => d.c * 10 + d.v)]),
     rl: G.roll.map(d => d.c * 10 + d.v),
     bg: G.bag || [],
@@ -1477,10 +1559,11 @@ function decodeG(w) {
     const int = (x, lo, hi) => { if (!Number.isInteger(x) || x < lo || x > hi) throw 0; return x; };
     const C = int(w.C, 3, 5);
     const cf = Array.isArray(w.cf) ? w.cf : [];
-    const cfg = { C, per: int(cf[1], 1, 3), stars: int(cf[2], 1, ALL_STARS), need: cf[3] === undefined ? 0 : int(cf[3], 0, MAX_NEED) };
+    const cfg = { C, per: int(cf[1], 1, 3), stars: int(cf[2], 1, ALL_STARS), need: cf[3] === undefined ? 0 : int(cf[3], 0, MAX_NEED), grey: cf[4] === 1 };
+    const greyRule = cfg.grey ? int(w.gy, 0, GREY_RULES - 1) : null;
     if (!Array.isArray(w.p) || w.p.length < 3 || w.p.length > 5) throw 0;
     const n = w.p.length;
-    const die = (x, i) => { int(x, 1, 46); const c = Math.floor(x / 10), v = x % 10; int(c, 0, C - 1); int(v, 1, 6); return i === undefined ? { c, v } : { id: i, c, v }; };
+    const die = (x, i) => { int(x, 1, 56); const c = Math.floor(x / 10), v = x % 10; if (c !== GREY || !cfg.grey) int(c, 0, C - 1); int(v, 1, 6); return i === undefined ? { c, v } : { id: i, c, v }; };
     const players = w.p.map(p => ({
       name: cleanName(p[0]) || t('someone'), bot: p[1] === 1, key: typeof p[2] === 'string' ? p[2].slice(0, 200) : '',
       missions: p[3].slice(0, 3).map(m => {
@@ -1498,7 +1581,7 @@ function decodeG(w) {
       }),
       area: p[4].slice(0, 60).map(x => die(x)),
     }));
-    const roll = (w.rl || []).slice(0, 9).map((x, i) => die(x, i));
+    const roll = (w.rl || []).slice(0, 10).map((x, i) => die(x, i));
     const bag = (Array.isArray(w.bg) ? w.bg : []).slice(0, C).map(x => int(x, 0, BAG_PER_COLOUR));
     const groups = (w.gr || []).slice(0, n).map(g => g.map(id => int(id, 0, roll.length - 1)));
     const taken = {};
@@ -1507,7 +1590,7 @@ function decodeG(w) {
     if (!ph) throw 0;
     const a = int(w.a, 0, n - 1);
     const g = {
-      online: true, cfg, hints: !!w.h, starter: int(w.st, 0, n - 1), C, round: int(w.r, 0, n), active: a, phase: ph,
+      online: true, cfg, greyRule, hints: !!w.h, starter: int(w.st, 0, n - 1), C, round: int(w.r, 0, n), active: a, phase: ph,
       bag, step: int(w.s, 0, n), gid: String(w.id || '').slice(0, 12), players, roll, groups, taken,
       order: Array.from({ length: n - 1 }, (_, k) => (a + 1 + k) % n),
       log: (w.lg || []).slice(-6).filter(l => Array.isArray(l) && typeof l[0] === 'string' && l.length <= 3 && l.slice(1).every(x => Number.isInteger(x) && x >= 0 && x < 100)), seq: w.q, results: null, win: null,
@@ -1520,7 +1603,7 @@ function decodeG(w) {
 function lobWire() {
   const seats = seatPreview();
   const total = Math.min(5, Math.max(3, ON.lob.n, seats.length));
-  return { n: ON.lob.n, cf: [Math.max(ON.lob.C, minColours(total)), ON.lob.per, ON.lob.stars, ON.lob.need || 0], h: ON.lob.h ? 1 : 0, seats: seats.slice(0, 5).map(s => s.nm), spec: Math.max(0, seats.length - 5) };
+  return { n: ON.lob.n, cf: [Math.max(ON.lob.C, minColours(total)), ON.lob.per, ON.lob.stars, ON.lob.need || 0, ON.lob.grey ? 1 : 0], h: ON.lob.h ? 1 : 0, seats: seats.slice(0, 5).map(s => s.nm), spec: Math.max(0, seats.length - 5) };
 }
 
 /* ---------- Online outside claude.ai: PeerJS ---------- */
@@ -1718,12 +1801,12 @@ function hostPeer() {
 
 // Fills in any setting a saved lobby lacks (older versions saved levels instead).
 function cleanLob(l) {
-  const d = { n: 4, C: 3, per: 1, stars: ALL_STARS, need: 0, h: true };
+  const d = { n: 4, C: 3, per: 1, stars: ALL_STARS, need: 0, grey: false, h: true };
   if (!l || typeof l !== 'object') return d;
   const ok = (v, lo, hi) => Number.isInteger(v) && v >= lo && v <= hi;
   const out = {
     n: ok(l.n, 3, 5) ? l.n : d.n, C: ok(l.C, 3, 5) ? l.C : d.C, per: ok(l.per, 1, 3) ? l.per : d.per,
-    stars: ok(l.stars, 1, ALL_STARS) ? l.stars : d.stars, need: ok(l.need, 0, MAX_NEED) ? l.need : 0, h: l.h !== false,
+    stars: ok(l.stars, 1, ALL_STARS) ? l.stars : d.stars, need: ok(l.need, 0, MAX_NEED) ? l.need : 0, grey: l.grey === true, h: l.h !== false,
   };
   return out;
 }
@@ -1849,7 +1932,7 @@ function hostStart() {
   const players = seats.map(s => ({ name: s.nm, bot: false, key: s.key, missions: [], area: [] }));
   while (players.length < total) players.push({ name: botNames.shift() || `Bot ${players.length + 1}`, bot: true, key: '', missions: [], area: [] });
   ON.lob.C = Math.max(ON.lob.C, minColours(total));
-  G = { online: true, cfg: { C: ON.lob.C, per: ON.lob.per, stars: ON.lob.stars, need: ON.lob.need || 0 }, hints: ON.lob.h, starter: ri(players.length), C: ON.lob.C, players, log: [], seq: 0 };
+  G = { online: true, cfg: { C: ON.lob.C, per: ON.lob.per, stars: ON.lob.stars, need: ON.lob.need || 0, grey: !!ON.lob.grey }, hints: ON.lob.h, starter: ri(players.length), C: ON.lob.C, players, log: [], seq: 0 };
   const err = startLevel();
   if (err) { G = null; ui.err = err; render(); return; }
   advance();
@@ -1913,6 +1996,7 @@ function statsHTML(dice) {
   const st = stats(dice, G.C);
   const parts = [];
   for (let c = 0; c < G.C; c++) if (st.cnt[c]) parts.push(`<span>${cw(c)}${st.cnt[c]} · Σ${st.sum[c]}</span>`);
+  if (st.greyV) parts.push(`<span>${cw(GREY)}${st.greyV}</span>`);
   parts.push(`<span class="stats-all">${t('diceCount', st.total)} · Σ${st.all}</span>`);
   return `<div class="stats">${parts.join('')}</div>`;
 }
@@ -2009,7 +2093,7 @@ function stageHTML(V) {
     body = `<h2>${t('turnOf', name(G.active))}</h2>
       <p class="sub">${t('rollSub', P())} ${t('bagLeft', (G.bag || []).reduce((a, b) => a + b, 0))}</p>
       ${mine
-        ? `<div class="actions"><button type="button" class="btn primary big" data-action="roll" ${sending ? 'disabled' : ''}>${sending ? t('sending') : t('rollBtn', rollCount(P()))}</button></div>`
+        ? `<div class="actions"><button type="button" class="btn primary big" data-action="roll" ${sending ? 'disabled' : ''}>${sending ? t('sending') : t('rollBtn', rollCount(P()) + (G.cfg.grey && G.round === 0 ? 1 : 0))}</button></div>`
         : waitHTML(t('rolling', name(G.active)))}`;
   } else if (G.phase === 'group') {
     if (mine) {
@@ -2071,11 +2155,12 @@ function stageHTML(V) {
         </div>${errHTML()}`;
     body = `<div class="banner ${G.win ? 'win' : 'lose'}">
         <h2>${G.win ? t('winTitle') : t('loseTitle')}</h2>
-        <p>${need ? t('teamStars', G.earned, need) + ' ' : ''}${G.win ? (need ? '' : t('winText')) : need ? t('tryAgain') : t('loseText', failed)}</p>
+        <p>${need ? t('teamStars', G.earned, need) + ' ' : ''}${G.greyRes && !G.greyRes.ok ? t('greyLose') + ' ' : ''}${G.win ? (need ? '' : t('winText')) : need || (G.greyRes && !G.greyRes.ok && !failed) ? t('tryAgain') : t('loseText', failed)}</p>
       </div>${controls}`;
   }
 
   let talk = '';
+  const greyCard = G.cfg.grey && G.greyRule !== null && G.greyRule !== undefined ? greyCardHTML() : '';
   const goal = G.phase !== 'reveal'
     ? `<div class="goal"><span class="goal-big">${teamNeed() ? `${teamNeed()}★` : t('needAllShort')}</span><span>${teamNeed() ? t('goalStars', teamNeed(), starsInPlay()) : t('goalAll')}</span></div>` : '';
   if (G.phase !== 'reveal' && G.online) talk = `<p class="talk">${t('talkOnline')}</p>`;
@@ -2089,7 +2174,18 @@ function stageHTML(V) {
     return `<span class="${cls}">${k + 1}. ${name(p)}</span>`;
   }).join('<span class="sep" aria-hidden="true">→</span>');
   const orderHTML = `<div class="order"><span class="label">${t('orderLabel')}</span><div class="order-list">${order}</div></div>`;
-  return `<section class="stage" aria-live="polite">${goal}${orderHTML}${warn}${body}${talk}${G.online ? connHTML() : ''}<div class="log"><span class="label">${t('logTitle')}</span><ol>${recent}</ol></div></section>`;
+  return `<section class="stage" aria-live="polite">${goal}${greyCard}${orderHTML}${warn}${body}${talk}${G.online ? connHTML() : ''}<div class="log"><span class="label">${t('logTitle')}</span><ol>${recent}</ol></div></section>`;
+}
+
+// The common grey card everyone can see, and its result at the end.
+function greyCardHTML() {
+  let res = '';
+  if (G.phase === 'reveal' && G.greyRes) {
+    const h = G.greyRes.holder, r = greyCheck(G.greyRule, stats(G.players[h].area, G.C), G.C);
+    res = `<div class="grey-res ${r.ok ? 'ok' : 'bad'}">${r.ok ? t('met') : t('failed')} · ${t('greyHolder', name(h))} ${esc(r.detail)}</div>`;
+  }
+  return `<div class="greycard"><span class="die c5 sm" aria-hidden="true"><svg viewBox="0 0 100 100"><rect class="face" x="4" y="4" width="92" height="92" rx="20"/></svg></span>
+    <div><span class="label">${t('greyCard')}</span><div class="grey-rule">${t('greyRule' + G.greyRule)}</div>${res}</div></div>`;
 }
 
 function headerHTML(status) {
@@ -2206,7 +2302,9 @@ function settingsHTML(pre, cfg, players) {
         <span class="stepper-val" aria-live="polite">${cfg.need ? `${cfg.need}★` : t('needAllShort')}</span>
         <button type="button" class="btn" data-action="${pre}-need" data-n="1" aria-label="${t('more')}" ${cfg.need >= MAX_NEED ? 'disabled' : ''}>+</button>
       </div>
-      <p class="note">${cfg.need ? t('needNote', cfg.need) : t('needAllNote')}</p></div>`;
+      <p class="note">${cfg.need ? t('needNote', cfg.need) : t('needAllNote')}</p></div>
+    <div class="field"><label class="toggle"><input id="${pre}-grey" type="checkbox" data-action="${pre}-grey" ${cfg.grey ? 'checked' : ''}> ${t('greyToggle')}</label>
+      <p class="note">${t('greyNote')}</p></div>`;
 }
 
 // Applies a settings button to a config object.
@@ -2223,7 +2321,7 @@ function applySetting(cfg, key, v) {
 function lobCfgText(lob) {
   const cf = Array.isArray(lob.cf) ? lob.cf.map(Number) : [];
   if (!(cf[0] >= 3 && cf[0] <= 5 && cf[1] >= 1 && cf[1] <= 3 && Number.isInteger(cf[2]) && cf[2] >= 1 && cf[2] <= ALL_STARS)) return '';
-  return cfgText({ C: cf[0], per: cf[1], stars: cf[2], need: Number.isInteger(cf[3]) && cf[3] >= 0 && cf[3] <= MAX_NEED ? cf[3] : 0 });
+  return cfgText({ C: cf[0], per: cf[1], stars: cf[2], need: Number.isInteger(cf[3]) && cf[3] >= 0 && cf[3] <= MAX_NEED ? cf[3] : 0, grey: cf[4] === 1 });
 }
 
 function localSetupHTML() {
@@ -2245,7 +2343,7 @@ function localSetupHTML() {
         <div class="seg" role="group" aria-label="${t('playersCount')}">${[3, 4, 5].map(k => `<button type="button" data-action="count" data-n="${k}" aria-pressed="${n === k}">${k}</button>`).join('')}</div>
       </div>
       <div class="field"><span class="label">${t('whoPlays')}</span><div class="players">${rows}</div><p class="note">${modeNote}</p></div>
-      ${settingsHTML('set', { C: S.colors, per: S.per, stars: S.stars, need: S.need || 0 }, n)}
+      ${settingsHTML('set', { C: S.colors, per: S.per, stars: S.stars, need: S.need || 0, grey: !!S.grey }, n)}
       <label class="toggle"><input id="hints" type="checkbox" data-action="hints" ${S.hints ? 'checked' : ''}> ${t('hintsToggle')}</label>
       <div class="actions"><button type="button" class="btn primary big" data-action="start" ${pool(Math.max(S.colors, minColours(S.count)), S.stars).length ? '' : 'disabled'}>${t('start')}</button></div>
       ${errHTML()}
@@ -2374,6 +2472,7 @@ $app.addEventListener('click', e => {
       ui.err = ''; persist(); break;
     }
     case 'hints': S.hints = el.checked; persist(); return;
+    case 'set-grey': S.grey = el.checked; persist(); return;
     case 'start': ui.err = ''; newLocalGame(); if (G) advance(); persist(); break;
     case 'quit': ui.quit = true; break;
     case 'quit-no': ui.quit = false; break;
@@ -2422,6 +2521,7 @@ $app.addEventListener('click', e => {
     case 'on-colors': case 'on-per': case 'on-star': case 'on-need':
       applySetting(ON.lob, actn.slice(3), +el.dataset.n); ui.err = ''; publish(); saveOnline(); break;
     case 'on-hints': ON.lob.h = el.checked; publish(); saveOnline(); return;
+    case 'on-grey': ON.lob.grey = el.checked; ON.lastLob = null; publish(); saveOnline(); return;
     case 'on-start': hostStart(); return;
     default: return;
   }
@@ -2443,6 +2543,7 @@ function start(data) {
     // Settings saved by an older version used a star range instead of a set.
     if (!Number.isInteger(S.stars) || S.stars < 1 || S.stars > ALL_STARS) S.stars = ALL_STARS;
     if (!Number.isInteger(S.need) || S.need < 0 || S.need > MAX_NEED) S.need = 0;
+    S.grey = S.grey === true;
     delete S.smin; delete S.smax;
     if (saved.G && saved.G.players && !saved.G.online) G = saved.G;
   }
