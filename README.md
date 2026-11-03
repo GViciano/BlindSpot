@@ -26,6 +26,10 @@ La web está en español y en inglés. Cada jugador elige su idioma con el selec
 
 - **Dado gris (opcional):** en la primera ronda se tira además un dado gris (del 1 al 6) y sale una de las 7 cartas grises, común para todos. Quien acabe con el dado gris tiene que cumplirla para que el equipo gane.
 
+## Campaña
+
+Además de la partida libre, hay un modo **Campaña**: una serie de niveles con los ajustes ya fijados. Al superar un nivel se pasa al siguiente (y queda desbloqueado en ese navegador); si se pierde, se reintenta. Los niveles están en [`campana.js`](campana.js): para cada uno se indica nombre, texto, colores, objetivos por jugador, dificultades, estrellas para ganar (`ganar` o `ganar_por_jugador`) y si lleva dado gris.
+
 ## Objetivos
 
 Los objetivos están en [`objetivos.js`](objetivos.js), uno por línea, con sus estrellas (1–5), su tipo y sus datos. Al principio del archivo están todos los tipos disponibles: de colores (ningún azul, exactamente 2 verdes…) y de números (sin pares, exactamente 2 dados con el mismo número, ningún dado mayor que 4, suma total, escaleras, dos parejas, full…) y de comparación con los demás (más dados que nadie, menos puntos que nadie…). Los objetivos de tipo «al menos» se muestran sin esas palabras («2 dados azules» = 2 o más) y, como los de «como máximo» y los de suma, llevan un *: si se consigue la cifra exacta dan 1★ extra. Para cambiar los objetivos basta con editar ese archivo; el juego no necesita cambios.
