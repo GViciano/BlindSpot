@@ -28,7 +28,15 @@ La web está en español y en inglés. Cada jugador elige su idioma con el selec
 
 ## Campaña
 
-Además de la partida libre, hay un modo **Campaña**: una serie de niveles con los ajustes ya fijados. Al superar un nivel se pasa al siguiente (y queda desbloqueado en ese navegador); si se pierde, se reintenta. Los niveles están en [`campana.js`](campana.js): para cada uno se indica nombre, texto, colores, objetivos por jugador, dificultades, estrellas para ganar (`ganar` o `ganar_por_jugador`) y si lleva dado gris.
+Además de la partida libre, hay un modo **Campaña**: una serie de niveles con los ajustes ya fijados. Al superar un nivel se pasa al siguiente (y queda desbloqueado en ese navegador); si se pierde, se reintenta. Los niveles están en [`campana.js`](campana.js); para cada uno se indica:
+
+- `cartas`: estrellas de cada carta objetivo por jugador, por ejemplo `[3, 1]`.
+- `dados`: dados de cada color en la bolsa según el número de jugadores, por ejemplo `{ 3: 6, 4: 10 }`.
+- `ganar`: estrellas necesarias según el número de jugadores, por ejemplo `{ 3: 10, 4: 13 }`.
+- `modificadores: true`: el equipo tiene una ficha de cada modificador para el nivel (relanzar, +1/−1 y dar la vuelta), que gasta quien reparte.
+- `dado_gris: true`: dado gris y carta gris común.
+
+La campaña actual tiene 15 niveles y es para 3 o 4 jugadores.
 
 ## Objetivos
 
