@@ -64,7 +64,7 @@
 window.BLINDSPOTS_OBJETIVOS = [
   { estrellas: 1, tipo: 'ninguno', color: 'azul' },
   { estrellas: 1, tipo: 'al_menos', color: 'azul', n: 2, decir_al_menos: true },
-  { estrellas: 2, tipo: 'al_menos', color: 'azul', n: 3 },
+  { estrellas: 2, tipo: 'al_menos', color: 'azul', n: 3, decir_al_menos: true },
   { estrellas: 2, tipo: 'como_maximo', color: 'azul', n: 1 },
   { estrellas: 3, tipo: 'exactamente', color: 'azul', n: 2 },
   { estrellas: 4, tipo: 'exactamente', color: 'azul', n: 3 },
@@ -72,7 +72,7 @@ window.BLINDSPOTS_OBJETIVOS = [
   { estrellas: 4, tipo: 'suma_al_menos', color: 'azul', n: 15 },
   { estrellas: 1, tipo: 'ninguno', color: 'naranja' },
   { estrellas: 1, tipo: 'al_menos', color: 'naranja', n: 2, decir_al_menos: true },
-  { estrellas: 2, tipo: 'al_menos', color: 'naranja', n: 3 },
+  { estrellas: 2, tipo: 'al_menos', color: 'naranja', n: 3, decir_al_menos: true },
   { estrellas: 2, tipo: 'como_maximo', color: 'naranja', n: 1 },
   { estrellas: 3, tipo: 'exactamente', color: 'naranja', n: 2 },
   { estrellas: 4, tipo: 'exactamente', color: 'naranja', n: 3 },
