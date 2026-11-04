@@ -396,8 +396,8 @@ const I18N = {
     greyRule6: 'El jugador con el dado gris no puede sumar más de 15 (incluido el gris).',
     greyLose: 'No se ha cumplido la carta gris.',
     perRoundN: n => `${n} dados por ronda`, blackOn: 'dado negro',
-    blackCard0: v => `Elimina un dado de valor menor que ${v}.`,
-    blackCard1: v => `Elimina un dado de valor mayor que ${v}.`,
+    blackCard0: () => 'Elimina un dado de valor menor (de los que tengas, el que menos puntos tenga).',
+    blackCard1: () => 'Elimina un dado de valor mayor (de los que tengas, el que más puntos tenga).',
     blackCard2: v => `Elimina un dado de valor ${v}.`,
     blackCard3: () => 'Elimina un dado del color que más tengas.',
     blackCard4: () => 'Elimina un dado del color que menos tengas.',
@@ -687,8 +687,8 @@ const I18N = {
     greyRule6: 'The player with the grey die can’t total more than 15 (grey die included).',
     greyLose: 'The grey card wasn’t met.',
     perRoundN: n => `${n} dice per round`, blackOn: 'black die',
-    blackCard0: v => `Remove a die with a value lower than ${v}.`,
-    blackCard1: v => `Remove a die with a value higher than ${v}.`,
+    blackCard0: () => 'Remove your lowest die (the one with the fewest pips you have).',
+    blackCard1: () => 'Remove your highest die (the one with the most pips you have).',
     blackCard2: v => `Remove a die showing ${v}.`,
     blackCard3: () => 'Remove a die of the colour you have most of.',
     blackCard4: () => 'Remove a die of the colour you have fewest of.',
@@ -1589,8 +1589,10 @@ function bombInfo(p) {
   idx.forEach(i => { const c = area[i].c; if (c !== GREY) cnt[c] = (cnt[c] || 0) + 1; });
   const counts = Object.values(cnt);
   let options = [];
-  if (k === 0) options = idx.filter(i => area[i].v < bv);
-  else if (k === 1) options = idx.filter(i => area[i].v > bv);
+  // Lowest / highest: among the holder's own dice (the black die itself doesn't count).
+  const vals = idx.map(i => area[i].v);
+  if (k === 0 && vals.length) options = idx.filter(i => area[i].v === Math.min(...vals));
+  else if (k === 1 && vals.length) options = idx.filter(i => area[i].v === Math.max(...vals));
   else if (k === 2) options = idx.filter(i => area[i].v === bv);
   else if (k === 3 && counts.length) { const mx = Math.max(...counts); options = idx.filter(i => cnt[area[i].c] === mx); }
   else if (k === 4 && counts.length) { const mn = Math.min(...counts); options = idx.filter(i => cnt[area[i].c] === mn); }
