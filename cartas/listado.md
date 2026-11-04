@@ -125,6 +125,10 @@ Texto tal como aparece en el juego. El número coincide con el de la esquina de 
 | 117 | ★★★☆☆ | Ten dados de más colores distintos que cualquier otro jugador. |  |
 | 118 | ★★★☆☆ | Ten más dados con un 6 que cualquier otro jugador. |  |
 | 119 | ★★★☆☆ | Ten más dados con un 1 que cualquier otro jugador. |  |
+| 120 | ★★★☆☆ | Ten más dados con un 3 que cualquier otro jugador. |  |
+| 121 | ★★★☆☆ | Ten más dados con un 5 que cualquier otro jugador. |  |
+| 122 | ★★★☆☆ | Ten menos dados con un 2 que cualquier otro jugador. |  |
+| 123 | ★★★☆☆ | Ten menos dados con un 4 que cualquier otro jugador. |  |
 
 ## Cartas grises (opción «Dado gris»)
 

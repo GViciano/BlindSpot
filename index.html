@@ -296,7 +296,7 @@ button.die.target { outline: 2px dashed var(--d1); outline-offset: 2px; cursor: 
 
 const TYPES = ['noColor', 'exact', 'atLeast', 'atMost', 'sumGreater', 'countMore', 'exactColours', 'allColours', 'sumAtLeast', 'atMostTotal', 'atLeastTotal',
   'noEven', 'noOdd', 'exactEven', 'exactOdd', 'moreEven', 'moreOdd', 'repeatExact', 'repeatAtLeast', 'maxValue', 'minValue', 'noNumber', 'atLeastNumber', 'sumAllMax', 'sumAllMin', 'sumAllEven', 'straight', 'colourStraight', 'twoPairs', 'fullHouse',
-  'mostDice', 'fewestDice', 'mostPoints', 'fewestPoints', 'mostColourPoints', 'fewestColourPoints', 'mostColourDice', 'mostColours', 'mostNumber'];
+  'mostDice', 'fewestDice', 'mostPoints', 'fewestPoints', 'mostColourPoints', 'fewestColourPoints', 'mostColourDice', 'mostColours', 'mostNumber', 'fewestNumber'];
 const BAG_PER_COLOUR = 15;                       // dice of each colour in the bag
 const rollCount = P => P * 2 - 1;                  // dice drawn from the bag each round
 const totalDrawn = P => P * rollCount(P);          // one round per player
@@ -622,12 +622,14 @@ const I18N = {
       mostColourDice: c => `Ten más dados ${c.pl} que cualquier otro jugador.`,
       mostColours: 'Ten dados de más colores distintos que cualquier otro jugador.',
       mostNumber: v => `Ten más dados con un ${v} que cualquier otro jugador.`,
+      fewestNumber: v => `Ten menos dados con un ${v} que cualquier otro jugador.`,
       rankDice: (a, b, most) => `Tienes ${a} dados; de los demás, el que ${most ? 'más' : 'menos'} tiene ${b}.`,
       rankPoints: (a, b, most) => `Sumas ${a}; de los demás, el que ${most ? 'más' : 'menos'} suma ${b}.`,
       rankColourPoints: (c, a, b, most) => `Tus ${c.pl} suman ${a}; de los demás, el que ${most ? 'más' : 'menos'} suma ${b}.`,
       rankColourDice: (c, a, b) => `Tienes ${a} ${a === 1 ? c.sing : c.pl}; de los demás, el que más tiene ${b}.`,
       rankColours: (a, b) => `Tienes ${a} ${plural(a, 'color', 'colores')}; de los demás, el que más tiene ${b}.`,
       rankNumber: (v, a, b) => `Tienes ${a} ${plural(a, 'dado', 'dados')} con un ${v}; de los demás, el que más tiene ${b}.`,
+      rankNumberFew: (v, a, b) => `Tienes ${a} ${plural(a, 'dado', 'dados')} con un ${v}; de los demás, el que menos tiene ${b}.`,
     },
     // Rules
     rulesTitle: 'Reglas de BlindSpots', close: 'Cerrar',
@@ -916,12 +918,14 @@ const I18N = {
       mostColourDice: c => `Have more ${c.pl} dice than any other player.`,
       mostColours: 'Have dice of more different colours than any other player.',
       mostNumber: v => `Have more dice showing a ${v} than any other player.`,
+      fewestNumber: v => `Have fewer dice showing a ${v} than any other player.`,
       rankDice: (a, b, most) => `You have ${a} dice; among the others, the ${most ? 'most' : 'fewest'} is ${b}.`,
       rankPoints: (a, b, most) => `Your total is ${a}; among the others, the ${most ? 'highest' : 'lowest'} is ${b}.`,
       rankColourPoints: (c, a, b, most) => `Your ${c.pl} dice add up to ${a}; among the others, the ${most ? 'highest' : 'lowest'} is ${b}.`,
       rankColourDice: (c, a, b) => `You have ${a} ${c.pl}; among the others, the most is ${b}.`,
       rankColours: (a, b) => `You have ${a} ${plural(a, 'colour', 'colours')}; among the others, the most is ${b}.`,
       rankNumber: (v, a, b) => `You have ${a} ${plural(a, 'die', 'dice')} showing a ${v}; among the others, the most is ${b}.`,
+      rankNumberFew: (v, a, b) => `You have ${a} ${plural(a, 'die', 'dice')} showing a ${v}; among the others, the fewest is ${b}.`,
     },
     rulesTitle: 'BlindSpots rules', close: 'Close',
     rulesBody: () => `
@@ -1012,7 +1016,7 @@ function earnedStars(m, st, C) {
 // Objectives that compare a player with everyone else. `st.others` holds the other
 // players' stats; the player must be strictly first (a tie does not count).
 const MOST = { mostDice: 1, mostPoints: 1, mostColourPoints: 1, mostColourDice: 1, mostColours: 1, mostNumber: 1 };
-const FEWEST = { fewestDice: 1, fewestPoints: 1, fewestColourPoints: 1 };
+const FEWEST = { fewestDice: 1, fewestPoints: 1, fewestColourPoints: 1, fewestNumber: 1 };
 const isRank = m => !!(MOST[m.t] || FEWEST[m.t]);
 function rankValue(m, s) {
   switch (m.t) {
@@ -1021,7 +1025,7 @@ function rankValue(m, s) {
     case 'mostColourPoints': case 'fewestColourPoints': return s.sum[m.c];
     case 'mostColourDice': return s.cnt[m.c];
     case 'mostColours': return s.distinct;
-    case 'mostNumber': return s.val[m.v];
+    case 'mostNumber': case 'fewestNumber': return s.val[m.v];
   }
   return 0;
 }
@@ -1041,6 +1045,7 @@ function rankDetail(m, st) {
     case 'mostColourDice': return tm('rankColourDice', cname(m.c), r.mine, r.best);
     case 'mostColours': return tm('rankColours', r.mine, r.best);
     case 'mostNumber': return tm('rankNumber', m.v, r.mine, r.best);
+    case 'fewestNumber': return tm('rankNumberFew', m.v, r.mine, r.best);
   }
   return '';
 }
@@ -1122,6 +1127,7 @@ function missionText(m) {
     case 'mostColourDice': return tm('mostColourDice', cp(m.c));
     case 'mostColours': return tm('mostColours');
     case 'mostNumber': return tm('mostNumber', m.v);
+    case 'fewestNumber': return tm('fewestNumber', m.v);
   }
   return '';
 }
@@ -1248,7 +1254,7 @@ const TIPO = {
   mas_puntos_que_nadie: { t: 'mostPoints' }, menos_puntos_que_nadie: { t: 'fewestPoints' },
   mas_puntos_color_que_nadie: { t: 'mostColourPoints', c: 1 }, menos_puntos_color_que_nadie: { t: 'fewestColourPoints', c: 1 },
   mas_dados_color_que_nadie: { t: 'mostColourDice', c: 1 }, mas_colores_que_nadie: { t: 'mostColours' },
-  mas_numero_que_nadie: { t: 'mostNumber', v: 1 },
+  mas_numero_que_nadie: { t: 'mostNumber', v: 1 }, menos_numero_que_nadie: { t: 'fewestNumber', v: 1 },
 };
 
 // Reads window.BLINDSPOTS_OBJETIVOS into missions; entries it cannot understand are skipped.
@@ -1376,6 +1382,7 @@ function bounds(ms, C, P) {
   if (has('moreEven') && has('moreOdd')) return null;
   if ((has('mostDice') && has('fewestDice')) || (has('mostPoints') && has('fewestPoints'))) return null;
   if (ms.some(a => a.t === 'mostColourPoints' && ms.some(b => b.t === 'fewestColourPoints' && b.c === a.c))) return null;
+  if (ms.some(a => a.t === 'mostNumber' && ms.some(b => b.t === 'fewestNumber' && b.v === a.v))) return null;
   const run = Math.max(0, ...ms.filter(m => m.t === 'straight' || m.t === 'colourStraight').map(m => m.n));
   if (run > 6 || (run >= 2 && (has('noEven') || has('noOdd')))) return null;
   if (run && mx && mx.n < run) return null;
@@ -2044,7 +2051,7 @@ const PEERJS_URL = 'https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js';
 // Online relay through Supabase Realtime: works on networks that block direct browser-to-browser links.
 // The publishable key is meant to be public (it only allows what the project's settings allow).
 // Shown next to the connection line, to tell whether everyone has the same version loaded.
-const APP_VERSION = '2026.11.06';
+const APP_VERSION = '2026.11.06b';
 const SUPABASE_URL = 'https://vjphqqtoigpjncmsdudq.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_hUInzKity39UFsFwsFqmSw_HR3HMLE4';
 const SUPABASE_JS = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js';

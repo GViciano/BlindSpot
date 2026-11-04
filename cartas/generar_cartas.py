@@ -246,7 +246,8 @@ def card_content(o):
             'menos_puntos_color_que_nadie': ('▼', lambda r: r.text('Σ', 14).die(c, 16)),
             'mas_dados_color_que_nadie': ('▲', lambda r: r.text('#', 14).die(c, 16)),
             'mas_colores_que_nadie': ('▲', lambda r: r.wheel(20)),
-            'mas_numero_que_nadie': ('▲', lambda r: r.text('#', 14).faces([v], 16))}
+            'mas_numero_que_nadie': ('▲', lambda r: r.text('#', 14).faces([v], 16)),
+            'menos_numero_que_nadie': ('▼', lambda r: r.text('#', 14).faces([v], 16))}
     if t in rank:
         arrow, subject = rank[t]
         top = Row(1.5).text('♛', 16, GOLD).text(arrow, 14, INK)

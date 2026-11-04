@@ -57,6 +57,7 @@
 //   mas_dados_color_que_nadie      Más dados de `color` que cualquier otro jugador.
 //   mas_colores_que_nadie          Dados de más colores distintos que cualquier otro.
 //   mas_numero_que_nadie           Más dados con el número `numero` que cualquier otro.
+//   menos_numero_que_nadie         Menos dados con el número `numero` que cualquier otro.
 //
 // * Estos tipos dan 1 estrella extra si se consigue la cifra exacta.
 //
@@ -188,4 +189,8 @@ window.BLINDSPOTS_OBJETIVOS = [
   { estrellas: 3, tipo: 'mas_colores_que_nadie' },
   { estrellas: 3, tipo: 'mas_numero_que_nadie', numero: 6 },
   { estrellas: 3, tipo: 'mas_numero_que_nadie', numero: 1 },
+  { estrellas: 3, tipo: 'mas_numero_que_nadie', numero: 3 },
+  { estrellas: 3, tipo: 'mas_numero_que_nadie', numero: 5 },
+  { estrellas: 3, tipo: 'menos_numero_que_nadie', numero: 2 },
+  { estrellas: 3, tipo: 'menos_numero_que_nadie', numero: 4 },
 ];
