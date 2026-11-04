@@ -249,6 +249,15 @@ button.group:hover { border-color: var(--muted); }
 .camp-done { font-family: var(--font-display); font-size: 20px; color: var(--d1); margin: 0; }
 .mods { display: grid; gap: 6px; padding: 10px 12px; border-radius: 10px; border: 1px dashed var(--line); }
 .mods .note { margin: 0; }
+.acts { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.acts li { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.acts li.used .act-name { color: var(--muted); text-decoration: line-through; }
+.act-name { font-weight: 700; font-size: 14px; }
+.act-ctl { display: flex; gap: 6px; flex-wrap: wrap; }
+.act-ctl .btn { padding: 5px 12px; font-size: 13px; }
+.act-used { font-size: 13px; color: var(--muted); }
+.linkbtn { border: 0; background: none; padding: 0; color: var(--ink); text-decoration: underline; cursor: pointer; font: inherit; }
+button.die.target { outline: 2px dashed var(--d1); outline-offset: 2px; cursor: crosshair; }
 .mods-left > div { display: flex; flex-wrap: wrap; gap: 6px 12px; font-size: 14px; font-weight: 700; }
 .mods-left .used { color: var(--muted); text-decoration: line-through; font-weight: 400; }
 .tag.off { color: var(--bad); border-color: var(--bad); background: transparent; }
@@ -343,13 +352,16 @@ const I18N = {
     cfgText: (C, per, stars) => `${C} colores · ${per} ${plural(per, 'objetivo', 'objetivos')} por jugador · ${stars}`,
     allStars: 'todas las dificultades', and: 'y',
     toWin: 'Para ganar',
-    modsOn: 'modificadores', bagN: n => `${n} dados por color en la bolsa`,
+    modsOn: 'acciones especiales', bagN: n => `${n} dados por color en la bolsa`,
     cardsText: (C, list, k) => `${C} colores · ${k} ${plural(k, 'objetivo', 'objetivos')} por jugador (${list})`,
     campPlayers: list => `La campaña es para ${list} jugadores.`,
-    modsTitle: 'Modificadores del equipo (uno de cada por nivel)',
-    mod_reroll: 'Relanzar', mod_plus: '+1', mod_minus: '−1', mod_flip: 'Dar la vuelta',
-    modNote: 'Elige un modificador y luego toca el dado al que se lo aplicas. «Dar la vuelta» pone la cara opuesta (7 − valor).',
-    modHint: 'Ahora toca el dado al que se lo aplicas.',
+    modsTitle: 'Acciones especiales (cada jugador puede usar una en todo el nivel)',
+    act_reroll: 'Relanzar', act_pm: '+/− 1', act_flip: 'Invertir dado', act_remove: 'Eliminar dado',
+    mod_reroll: 'Relanzar', mod_plus: '+1', mod_minus: '−1', mod_flip: 'Invertir', mod_remove: 'Eliminar',
+    modNote: 'En cualquier momento puedes usar una acción sobre cualquier dado: de la tirada o de la zona de cualquier jugador. Invertir pone la cara opuesta (un 5 pasa a 2) y eliminar devuelve el dado a la bolsa. Cuando la uses, ya no estará disponible para nadie más.',
+    modHint: 'Ahora toca el dado: de la tirada o de la zona de cualquier jugador.',
+    modCancel: 'Cancelar', modUsedBy: name => `Usada por ${name}`, modYouUsed: 'Ya has usado tu acción en este nivel.',
+    logModRemove: (name, colour, v) => `${name} elimina un dado ${colour} (${v}) y vuelve a la bolsa.`,
     logMod: (name, mod, colour, a, b) => `${name} usa «${mod}» en un dado ${colour}: ${a} → ${b}.`,
     gameType: 'Tipo de partida', freeGame: 'Partida libre', campaign: 'Campaña',
     levelN: n => `Nivel ${n}`, campLevelOf: (n, N) => `Nivel ${n} de ${N}`,
@@ -571,7 +583,7 @@ const I18N = {
         <li>Dificultad: cada objetivo tiene de 1 a 5 estrellas. Se eligen las dificultades que se quieran y los objetivos se reparten al azar entre los que las tienen.</li>
         <li>Estrellas del equipo para ganar: con «Todas» hay que cumplir todos los objetivos. Con un número, se suman las estrellas de los objetivos que cumple cada jugador y el equipo gana si llega a esa cifra entre todos.</li>
         <li>Objetivos con *: «2 dados azules» se cumple con 2 o más (y «como máximo 1» con 1 o menos). Si se consigue la cifra exacta, el objetivo da 1★ extra.</li>
-        <li>Campaña: una serie de niveles con los ajustes ya fijados (colores, objetivos, dificultad, estrellas para ganar y dado gris). Al superar un nivel se pasa al siguiente; si se pierde, se reintenta.</li>
+        <li>Campaña: una serie de niveles con los ajustes ya fijados (colores, objetivos, dificultad, estrellas para ganar y dado gris). Al superar un nivel se pasa al siguiente; si se pierde, se reintenta. En los niveles con acciones especiales salen 3 de las 4 acciones (relanzar, +/− 1, invertir dado y eliminar dado) con 3 jugadores, o las 4 con 4 jugadores. Cada jugador puede usar una en todo el nivel, en cualquier momento y sobre cualquier dado a la vista, y la acción usada ya no está disponible para nadie más.</li>
         <li>Dado gris (opcional): en la primera ronda se tira además un dado gris y sale una carta gris común. Quien acabe con el dado gris tiene que cumplirla para que el equipo gane. El dado gris cuenta como dado, para la suma y para los números, pero no como color.</li>
       </ul>
       <h3>En esta versión</h3>
@@ -608,13 +620,16 @@ const I18N = {
     cfgText: (C, per, stars) => `${C} colours · ${per} ${plural(per, 'objective', 'objectives')} per player · ${stars}`,
     allStars: 'all difficulties', and: 'and',
     toWin: 'To win',
-    modsOn: 'modifiers', bagN: n => `${n} dice per colour in the bag`,
+    modsOn: 'special actions', bagN: n => `${n} dice per colour in the bag`,
     cardsText: (C, list, k) => `${C} colours · ${k} ${plural(k, 'objective', 'objectives')} per player (${list})`,
     campPlayers: list => `The campaign is for ${list} players.`,
-    modsTitle: 'Team modifiers (one of each per level)',
-    mod_reroll: 'Reroll', mod_plus: '+1', mod_minus: '−1', mod_flip: 'Flip',
-    modNote: 'Pick a modifier, then tap the die to apply it to. “Flip” turns it to the opposite face (7 − value).',
-    modHint: 'Now tap the die to apply it to.',
+    modsTitle: 'Special actions (each player can use one during the level)',
+    act_reroll: 'Reroll', act_pm: '+/− 1', act_flip: 'Flip die', act_remove: 'Remove die',
+    mod_reroll: 'Reroll', mod_plus: '+1', mod_minus: '−1', mod_flip: 'Flip', mod_remove: 'Remove',
+    modNote: 'At any time you can use one action on any die: in the roll or in any player’s area. Flip turns it to the opposite face (a 5 becomes a 2) and remove puts the die back in the bag. Once you use it, nobody else can.',
+    modHint: 'Now tap the die: in the roll or in any player’s area.',
+    modCancel: 'Cancel', modUsedBy: name => `Used by ${name}`, modYouUsed: 'You have already used your action this level.',
+    logModRemove: (name, colour, v) => `${name} removes a ${colour} die (${v}) and puts it back in the bag.`,
     logMod: (name, mod, colour, a, b) => `${name} uses “${mod}” on a ${colour} die: ${a} → ${b}.`,
     gameType: 'Game type', freeGame: 'Free game', campaign: 'Campaign',
     levelN: n => `Level ${n}`, campLevelOf: (n, N) => `Level ${n} of ${N}`,
@@ -828,7 +843,7 @@ const I18N = {
         <li>Difficulty: each objective has 1 to 5 stars. Pick any difficulties you like and objectives are dealt at random from those.</li>
         <li>Team stars to win: with “All”, every objective must be completed. With a number, the stars of the objectives each player completes are added up, and the team wins if it reaches that number between everyone.</li>
         <li>Objectives marked *: “2 blue dice” is met with 2 or more (and “at most 1” with 1 or fewer). Hitting the exact amount gives 1★ extra.</li>
-        <li>Campaign: a series of levels with fixed settings (colours, objectives, difficulty, stars to win and grey die). Beat a level to move on to the next; if you lose, try again.</li>
+        <li>Campaign: a series of levels with fixed settings (colours, objectives, difficulty, stars to win and grey die). Beat a level to move on to the next; if you lose, try again. In levels with special actions, 3 of the 4 actions (reroll, +/− 1, flip die and remove die) come up with 3 players, or all 4 with 4 players. Each player can use one during the level, at any time and on any visible die, and a used action is no longer available to anyone.</li>
         <li>Grey die (optional): in the first round a grey die is rolled as well and a common grey card is drawn. Whoever ends up with the grey die must meet it for the team to win. The grey die counts as a die, for sums and for numbers, but not as a colour.</li>
       </ul>
       <h3>In this version</h3>
@@ -1363,7 +1378,7 @@ const bots = () => G.players.map((p, i) => i).filter(i => G.players[i].bot);
 const multi = () => humans().length > 1;
 const roundsLeft = () => P() - 1 - G.round;
 const dieById = id => G.roll[id];
-const groupDice = g => G.groups[g].map(dieById);
+const groupDice = g => G.groups[g].map(dieById).filter(d => d && !d.gone);
 const availGroups = () => G.groups.map((_, i) => i).filter(i => G.taken[i] === undefined);
 const pn = i => G.players[i].name;
 const name = i => esc(G.players[i].name);
@@ -1394,7 +1409,7 @@ function startLevel() {
   const r = genMissions(P(), G.cfg);
   if (r.error) return r.error;
   G.players.forEach((p, i) => { p.missions = r.missions[i]; p.area = []; });
-  Object.assign(G, { greyRule: G.cfg.grey ? ri(GREY_RULES) : null, greyRes: null, bag: Array(G.C).fill(G.cfg.bag || BAG_PER_COLOUR), mods: G.cfg.mods ? { reroll: 1, pm: 1, flip: 1 } : null, gid: rid(6), round: 0, active: G.starter, phase: 'roll', roll: [], groups: [], order: [], step: 0, taken: {}, results: null, win: null, log: [] });
+  Object.assign(G, { greyRule: G.cfg.grey ? ri(GREY_RULES) : null, greyRes: null, bag: Array(G.C).fill(G.cfg.bag || BAG_PER_COLOUR), mods: G.cfg.mods ? dealActions(P()) : null, gid: rid(6), round: 0, active: G.starter, phase: 'roll', roll: [], groups: [], order: [], step: 0, taken: {}, results: null, win: null, log: [] });
   log(['start']);
   if (G.camp !== null && G.camp !== undefined) log(['level', G.camp]);
   log(['first', G.starter]);
@@ -1447,7 +1462,7 @@ function finishRound() {
   const last = availGroups()[0];
   G.taken[last] = G.active;
   log(['keep', G.active, last]);
-  G.groups.forEach((ids, g) => { G.players[G.taken[g]].area.push(...ids.map(id => ({ c: G.roll[id].c, v: G.roll[id].v }))); });
+  G.groups.forEach((ids, g) => { G.players[G.taken[g]].area.push(...ids.filter(id => !G.roll[id].gone).map(id => ({ c: G.roll[id].c, v: G.roll[id].v }))); });
   G.round++;
   if (G.round >= P()) { reveal(); return; }
   G.active = (G.starter + G.round) % P();
@@ -1492,15 +1507,16 @@ function validGroups(gs) {
   for (const g of gs) {
     if (!Array.isArray(g) || g.length === 0) return null;
     for (const id of g) {
-      if (!Number.isInteger(id) || id < 0 || id >= G.roll.length || seen.has(id)) return null;
+      if (!Number.isInteger(id) || id < 0 || id >= G.roll.length || seen.has(id) || G.roll[id].gone) return null;
       seen.add(id);
     }
   }
-  return seen.size === G.roll.length ? gs.map(g => g.slice()) : null;
+  return seen.size === G.roll.filter(d => !d.gone).length ? gs.map(g => g.slice()) : null;
 }
 
 // Applies one player's move if it is legal right now.
 function applyAction(seat, a) {
+  if (a && a.k === 'mod') return Number.isInteger(seat) && G.players[seat] && !G.players[seat].bot && applyMod(seat, a.kind, a.t);
   if (!a || seat !== currentActor() || G.players[seat].bot) return false;
   if (a.k === 'roll' && G.phase === 'roll') { doRoll(); return true; }
   if (a.k === 'groups' && G.phase === 'group') {
@@ -1512,24 +1528,50 @@ function applyAction(seat, a) {
     if (!Number.isInteger(a.g) || !availGroups().includes(a.g)) return false;
     take(a.g, seat); return true;
   }
-  if (a.k === 'mod' && G.phase === 'group') return applyMod(seat, a.kind, a.id);
   return false;
 }
 
-// Campaign modifiers: the team has one of each per level; the dealer spends them on the rolled dice.
-const MOD_TOKEN = { reroll: 'reroll', plus: 'pm', minus: 'pm', flip: 'flip' };
-const MOD_KINDS = ['reroll', 'plus', 'minus', 'flip'];
-function applyMod(seat, kind, id) {
-  const token = MOD_TOKEN[kind];
-  if (!token || !G.mods || !(G.mods[token] > 0) || !Number.isInteger(id) || !G.roll[id]) return false;
-  const d = G.roll[id], old = d.v;
+// Campaign actions (levels with modifiers). With 3 players 3 of the 4 actions come up at random,
+// with 4 players all of them. Each action can be used once per level, and each player uses at most one.
+// They work at any time on any visible die: the current roll (loose or in groups) or anyone's area.
+const ACTIONS = ['reroll', 'pm', 'flip', 'remove'];
+const MOD_KINDS = ['reroll', 'plus', 'minus', 'flip', 'remove'];
+const KIND_ACTION = { reroll: 'reroll', plus: 'pm', minus: 'pm', flip: 'flip', remove: 'remove' };
+function dealActions(P) {
+  const avail = P >= 4 ? ACTIONS.slice() : shuffle(ACTIONS.slice()).slice(0, 3);
+  return { avail: ACTIONS.filter(x => avail.includes(x)), used: {} };
+}
+// t: { w: 'roll', id } or { w: 'area', p, i }
+function modTarget(t) {
+  if (!t || typeof t !== 'object') return null;
+  if (t.w === 'roll' && Number.isInteger(t.id) && G.roll[t.id] && !G.roll[t.id].gone) return G.roll[t.id];
+  if (t.w === 'area' && Number.isInteger(t.p) && G.players[t.p] && Number.isInteger(t.i) && G.players[t.p].area[t.i]) return G.players[t.p].area[t.i];
+  return null;
+}
+function applyMod(seat, kind, target) {
+  const action = KIND_ACTION[kind];
+  if (!action || !G.mods || G.phase === 'reveal' || !G.mods.avail.includes(action)) return false;
+  if (G.mods.used[action] !== undefined || Object.values(G.mods.used).includes(seat)) return false;
+  const d = modTarget(target);
+  if (!d) return false;
+  const old = d.v;
   if (kind === 'reroll') d.v = 1 + ri(6);
   else if (kind === 'plus') { if (d.v >= 6) return false; d.v += 1; }
   else if (kind === 'minus') { if (d.v <= 1) return false; d.v -= 1; }
   else if (kind === 'flip') d.v = 7 - d.v;
-  G.mods[token] = 0;
-  log(['mod', seat, MOD_KINDS.indexOf(kind), d.c, old, d.v]);
+  else if (kind === 'remove') {
+    if (d.c !== GREY && Array.isArray(G.bag) && G.bag[d.c] !== undefined) G.bag[d.c]++;
+    if (target.w === 'roll') d.gone = true; else G.players[target.p].area.splice(target.i, 1);
+  }
+  G.mods.used[action] = seat;
+  G.mods.ver = (G.mods.ver || 0) + 1;
+  log(['mod', seat, MOD_KINDS.indexOf(kind), d.c, old, kind === 'remove' ? 0 : d.v]);
   return true;
+}
+// The seat that uses an action from this screen.
+function modActor() {
+  const V = viewerOf();
+  return Number.isInteger(V) && G.players[V] && !G.players[V].bot ? V : null;
 }
 
 /* ---------- Bots ---------- */
@@ -1665,7 +1707,7 @@ function changed() {
 function act(k, extra = {}) {
   const a = { k, key: stateKey(), ...extra };
   if (G.online && ON.role === 'guest') { sendAct(a, k === 'mod'); render(); return; }
-  if (!applyAction(currentActor(), a)) return;
+  if (!applyAction(k === 'mod' ? modActor() : currentActor(), a)) return;
   if (!G.online && multi() && k !== 'mod') G.viewer = null;
   advance();
   changed();
@@ -1691,9 +1733,9 @@ function saveOnline() {
 
 function encodeG() {
   return {
-    v: 2, cf: cfgWire(G.cfg), md: G.mods ? [G.mods.reroll, G.mods.pm, G.mods.flip] : null, gy: G.greyRule ?? -1, cp: G.camp ?? -1, h: G.hints ? 1 : 0, st: G.starter, C: G.C, r: G.round, a: G.active, ph: G.phase, s: G.step, id: G.gid,
+    v: 2, cf: cfgWire(G.cfg), md: G.mods ? { av: G.mods.avail.map(x => ACTIONS.indexOf(x)), us: ACTIONS.map(x => G.mods.used[x] ?? -1), v: G.mods.ver || 0 } : null, gy: G.greyRule ?? -1, cp: G.camp ?? -1, h: G.hints ? 1 : 0, st: G.starter, C: G.C, r: G.round, a: G.active, ph: G.phase, s: G.step, id: G.gid,
     p: G.players.map(p => [p.name, p.bot ? 1 : 0, p.key || '', p.missions.map(m => [TYPES.indexOf(m.t), m.c ?? -1, m.c2 ?? -1, m.n ?? -1, m.s || 0, m.v || 0]), p.area.map(d => d.c * 10 + d.v)]),
-    rl: G.roll.map(d => d.c * 10 + d.v),
+    rl: G.roll.map(d => d.c * 10 + d.v + (d.gone ? 100 : 0)),
     bg: G.bag || [],
     gr: G.groups,
     tk: G.groups.map((_, i) => G.taken[i] ?? -1),
@@ -1710,7 +1752,11 @@ function decodeG(w) {
     const cf = Array.isArray(w.cf) ? w.cf : [];
     const cfg = cfgFromWire([C, ...cf.slice(1)]);
     if (!cfg) throw 0;
-    const mods = cfg.mods && Array.isArray(w.md) ? { reroll: int(w.md[0], 0, 1), pm: int(w.md[1], 0, 1), flip: int(w.md[2], 0, 1) } : null;
+    let mods = null;
+    if (cfg.mods && w.md && Array.isArray(w.md.av) && Array.isArray(w.md.us)) {
+      mods = { avail: w.md.av.map(x => ACTIONS[int(x, 0, 3)]), used: {}, ver: Number(w.md.v) || 0 };
+      w.md.us.slice(0, 4).forEach((p, i) => { if (Number.isInteger(p) && p >= 0) mods.used[ACTIONS[i]] = int(p, 0, 4); });
+    }
     const greyRule = cfg.grey ? int(w.gy, 0, GREY_RULES - 1) : null;
     if (!Array.isArray(w.p) || w.p.length < 3 || w.p.length > 5) throw 0;
     const n = w.p.length;
@@ -1732,7 +1778,7 @@ function decodeG(w) {
       }),
       area: p[4].slice(0, 60).map(x => die(x)),
     }));
-    const roll = (w.rl || []).slice(0, 10).map((x, i) => die(x, i));
+    const roll = (w.rl || []).slice(0, 10).map((x, i) => { const gone = Number.isInteger(x) && x >= 100; const d = die(gone ? x - 100 : x, i); if (gone) d.gone = true; return d; });
     const bag = (Array.isArray(w.bg) ? w.bg : []).slice(0, C).map(x => int(x, 0, 30));
     const groups = (w.gr || []).slice(0, n).map(g => g.map(id => int(id, 0, roll.length - 1)));
     const taken = {};
@@ -2163,10 +2209,10 @@ function processAct(peer) {
   const id = key + ':' + pr.n + ':' + a.key;
   if (ON.seen.has(id)) return false;
   ON.seen.add(id);
-  if (a.key !== stateKey()) return false;
+  if (a.key !== stateKey() && a.k !== 'mod') return false;
   const seat = G.players.findIndex(p => !p.bot && p.key === key);
   if (seat < 0) return false;
-  return applyAction(seat, { k: a.k, groups: a.groups, g: a.g, kind: a.kind, id: a.id });
+  return applyAction(seat, { k: a.k, groups: a.groups, g: a.g, kind: a.kind, t: a.t });
 }
 
 function sendAct(a, noWait) {
@@ -2240,13 +2286,13 @@ const PIPS = {
   4: [[29, 29], [71, 29], [29, 71], [71, 71]], 5: [[27, 27], [73, 27], [50, 50], [27, 73], [73, 73]],
   6: [[29, 25], [71, 25], [29, 50], [71, 50], [29, 75], [71, 75]],
 };
-function dieHTML(d, { size = '', button = false, action = '', idx = 0, roll = false, disabled = false } = {}) {
+function dieHTML(d, { size = '', button = false, action = '', idx = 0, roll = false, disabled = false, data = '' } = {}) {
   const pips = PIPS[d.v].map(([x, y]) => `<circle class="pip" cx="${x}" cy="${y}" r="9.5"/>`).join('');
   const svg = `<svg viewBox="0 0 100 100" aria-hidden="true"><rect class="face" x="4" y="4" width="92" height="92" rx="20"/>${pips}</svg>`;
   const cls = `die c${d.c} ${size}${roll ? ' rolling' : ''}`;
   const label = t('die', cname(d.c).sing, d.v);
   return button
-    ? `<button type="button" class="${cls}" style="--i:${idx}" data-action="${action}" data-id="${d.id}" aria-label="${label}" ${disabled ? 'disabled' : ''}>${svg}</button>`
+    ? `<button type="button" class="${cls}${ui.modSel ? ' target' : ''}" style="--i:${idx}" data-action="${action}" data-id="${d.id}" ${data} aria-label="${label}" ${disabled ? 'disabled' : ''}>${svg}</button>`
     : `<span class="${cls}" style="--i:${idx}" role="img" aria-label="${label}">${svg}</span>`;
 }
 
@@ -2301,7 +2347,7 @@ function seatsHTML(V) {
       <div class="seat-head"><span class="seat-name">${name(i)}</span>${tags.join('')}</div>
       <div class="rack">${missionCard(i, V)}</div>
       <div class="area">
-        <div class="dice">${p.area.length ? p.area.map(d => dieHTML(d, { size: 'sm' })).join('') : `<span class="empty">${t('noDice')}</span>`}</div>
+        <div class="dice">${p.area.length ? p.area.map((d, k) => areaDie(d, i, k)).join('') : `<span class="empty">${t('noDice')}</span>`}</div>
       </div>
       ${p.area.length ? statsHTML(p.area) : ''}
     </section>`;
@@ -2310,12 +2356,17 @@ function seatsHTML(V) {
 
 function waitHTML(text) { return `<div class="wait"><span class="spinner" aria-hidden="true"></span><span>${text}</span></div>`; }
 
+// A die shown on the table; while an action is selected it can be tapped to apply it.
+const rollDie = (d, opts = {}) => ui.modSel ? dieHTML(d, { ...opts, button: true, action: 'mod-die', data: `data-w="roll"` }) : dieHTML(d, opts);
+const areaDie = (d, p, i) => ui.modSel ? dieHTML(d, { size: 'sm', button: true, action: 'mod-die', data: `data-w="area" data-p="${p}" data-i="${i}"` }) : dieHTML(d, { size: 'sm' });
+
 function groupsHTML(interactive) {
+  interactive = interactive && !ui.modSel;
   return `<div class="groups">${G.groups.map((ids, g) => {
     const taken = G.taken[g];
     const who = taken !== undefined ? t('forPlayer', name(taken)) : (interactive ? t('available') : '');
     const inner = `<div class="ghead"><span class="gl">${LETTERS[g]}</span><span class="gwho">${who}</span></div>
-      <div class="dice">${groupDice(g).map(d => dieHTML(d)).join('')}</div>${statsHTML(groupDice(g))}`;
+      <div class="dice">${groupDice(g).map(d => rollDie(d)).join('')}</div>${statsHTML(groupDice(g))}`;
     const cls = `group${taken !== undefined ? ' taken' : ''}${ui.chosen === g ? ' sel' : ''}`;
     return interactive && taken === undefined
       ? `<button type="button" class="${cls}" data-action="pick" data-g="${g}" aria-pressed="${ui.chosen === g}">${inner}</button>`
@@ -2331,7 +2382,8 @@ function logText(e) {
     case 'start': return t('logStart', cfgText(G.cfg));
     case 'first': return t('logFirst', who(e[1]));
     case 'level': return campHasName(e[1]) ? t('logLevel', e[1] + 1, campName(e[1])) : t('logLevelN', e[1] + 1);
-    case 'mod': return t('logMod', who(e[1]), t('mod_' + (MOD_KINDS[e[2]] || 'reroll')), cname(e[3]) ? cname(e[3]).sing : '', e[4], e[5]);
+    case 'mod': return MOD_KINDS[e[2]] === 'remove' ? t('logModRemove', who(e[1]), cname(e[3]) ? cname(e[3]).sing : '', e[4])
+      : t('logMod', who(e[1]), t('mod_' + (MOD_KINDS[e[2]] || 'reroll')), cname(e[3]) ? cname(e[3]).sing : '', e[4], e[5]);
     case 'roll': return t('logRoll', who(e[1]), e[2]);
     case 'split': return t('logSplit', who(e[1]), e[2]);
     case 'take': return t('logTake', who(e[1]), LETTERS[e[2]] || '?');
@@ -2357,18 +2409,17 @@ function stageHTML(V) {
         : waitHTML(t('rolling', name(G.active)))}`;
   } else if (G.phase === 'group') {
     if (mine) {
-      const free = G.roll.filter(d => ui.assign[d.id] === -1);
+      const free = G.roll.filter(d => !d.gone && ui.assign[d.id] === -1);
       const sizes = Array(P()).fill(0);
-      G.roll.forEach(d => { if (ui.assign[d.id] >= 0) sizes[ui.assign[d.id]]++; });
+      G.roll.forEach(d => { if (!d.gone && ui.assign[d.id] >= 0) sizes[ui.assign[d.id]]++; });
       const ready = free.length === 0 && sizes.every(s => s > 0) && !sending;
       body = `<h2>${t('formGroups', P())}</h2>
         <p class="sub">${t('groupHelp')}</p>
-        ${G.mods ? modsBarHTML() : ''}
         <div class="tray"><span class="label">${t('unassigned', free.length)}</span>
           <div class="dice">${free.length ? free.map((d, k) => dieHTML(d, { button: true, action: 'place', idx: k, roll: animate, size: 'lg' })).join('') : `<span class="empty">${t('allPlaced')}</span>`}</div>
         </div>
         <div class="groups">${Array.from({ length: P() }, (_, g) => {
-          const ds = G.roll.filter(d => ui.assign[d.id] === g);
+          const ds = G.roll.filter(d => !d.gone && ui.assign[d.id] === g);
           return `<div class="group${ui.sel === g ? ' sel' : ''}" data-action="sel" data-g="${g}" style="cursor:pointer">
             <button type="button" class="ghead gpick" data-action="sel" data-g="${g}" aria-pressed="${ui.sel === g}"><span class="gl">${LETTERS[g]}</span><span class="gwho">${ui.sel === g ? t('selected') : t('select')}</span></button>
             <div class="dice">${ds.length ? ds.map(d => dieHTML(d, { button: true, action: 'unplace' })).join('') : `<span class="empty">${t('empty')}</span>`}</div>
@@ -2380,12 +2431,12 @@ function stageHTML(V) {
         </div>`;
     } else {
       body = `<h2>${t('turnOf', name(G.active))}</h2>
-        <div class="dice">${G.roll.map((d, k) => dieHTML(d, { idx: k, roll: animate })).join('')}</div>
+        <div class="dice">${G.roll.filter(d => !d.gone).map((d, k) => rollDie(d, { idx: k, roll: animate })).join('')}</div>
         ${waitHTML(t('grouping', name(G.active)))}`;
     }
   } else if (G.phase === 'choose') {
     if (mine) {
-      if (!ui.hint) ui.hint = computeHint(a);
+      if (!ui.hint || ui.hintV !== (G.mods ? G.mods.ver || 0 : 0)) { ui.hint = computeHint(a); ui.hintV = G.mods ? G.mods.ver || 0 : 0; }
       const h = ui.hint;
       let hint = '';
       if (h && !h.none) {
@@ -2455,21 +2506,26 @@ function stageHTML(V) {
     return `<span class="${cls}">${k + 1}. ${name(p)}</span>`;
   }).join('<span class="sep" aria-hidden="true">→</span>');
   const orderHTML = `<div class="order"><span class="label">${t('orderLabel')}</span><div class="order-list">${order}</div></div>`;
-  const modsLeft = G.mods && G.phase !== 'reveal' ? modsLeftHTML() : '';
+  const modsLeft = G.mods && G.phase !== 'reveal' ? actionsHTML() : '';
   return `<section class="stage" aria-live="polite">${levelBox}${goal}${greyCard}${modsLeft}${orderHTML}${warn}${body}${talk}${G.online ? connHTML() : ''}<div class="log"><span class="label">${t('logTitle')}</span><ol>${recent}</ol></div></section>`;
 }
 
-// Modifier buttons for the dealer while making groups.
-function modsBarHTML() {
-  const m = G.mods, btn = (kind, token) => `<button type="button" class="btn${ui.modSel === kind ? ' primary' : ''}" data-action="mod-sel" data-m="${kind}" ${m[token] > 0 && !ui.pending ? '' : 'disabled'} aria-pressed="${ui.modSel === kind}">${t('mod_' + kind)}</button>`;
-  return `<div class="mods"><span class="label">${t('modsTitle')}</span>
-    <div class="actions">${btn('reroll', 'reroll')}${btn('plus', 'pm')}${btn('minus', 'pm')}${btn('flip', 'flip')}</div>
-    <p class="note">${ui.modSel ? t('modHint') : t('modNote')}</p></div>`;
-}
-// Which modifiers the team still has (shown to everyone).
-function modsLeftHTML() {
-  const m = G.mods, item = (label, ok) => `<span class="${ok ? '' : 'used'}">${label}</span>`;
-  return `<div class="mods-left"><span class="label">${t('modsTitle')}</span><div>${item(t('mod_reroll'), m.reroll > 0)}${item('±1', m.pm > 0)}${item(t('mod_flip'), m.flip > 0)}</div></div>`;
+// Campaign actions: shown to everyone; the viewer can use one if they haven't used any yet.
+function actionsHTML() {
+  const m = G.mods, me = modActor();
+  const mineUsed = me !== null && Object.values(m.used).includes(me);
+  const canUse = me !== null && !mineUsed && !ui.pending;
+  const btn = kind => `<button type="button" class="btn${ui.modSel === kind ? ' primary' : ''}" data-action="mod-sel" data-m="${kind}" aria-pressed="${ui.modSel === kind}">${t('mod_' + kind)}</button>`;
+  const rows = m.avail.map(action => {
+    const by = m.used[action];
+    const used = by !== undefined;
+    const controls = used ? `<span class="act-used">${t('modUsedBy', name(by))}</span>`
+      : canUse ? (action === 'pm' ? btn('plus') + btn('minus') : btn(action)) : '';
+    return `<li class="${used ? 'used' : ''}"><span class="act-name">${t('act_' + action)}</span><span class="act-ctl">${controls}</span></li>`;
+  }).join('');
+  const note = ui.modSel ? `${t('modHint')} <button type="button" class="linkbtn" data-action="mod-sel" data-m="${ui.modSel}">${t('modCancel')}</button>`
+    : mineUsed ? t('modYouUsed') : me === null ? '' : t('modNote');
+  return `<div class="mods"><span class="label">${t('modsTitle')}</span><ul class="acts">${rows}</ul>${note ? `<p class="note">${note}</p>` : ''}</div>`;
 }
 
 // The common grey card everyone can see, and its result at the end.
@@ -2809,9 +2865,17 @@ $app.addEventListener('click', e => {
     case 'roll': act('roll'); return;
     case 'sel': ui.sel = g; break;
     case 'place': case 'unplace':
-      if (ui.modSel) { const kind = ui.modSel; ui.modSel = null; act('mod', { kind, id: +el.dataset.id }); return; }
+      if (ui.modSel) { const kind = ui.modSel; ui.modSel = null; act('mod', { kind, t: { w: 'roll', id: +el.dataset.id } }); return; }
       ui.assign[+el.dataset.id] = actn === 'place' ? ui.sel : -1; break;
     case 'mod-sel': ui.modSel = ui.modSel === el.dataset.m ? null : el.dataset.m; break;
+    case 'mod-die': {
+      if (!ui.modSel) break;
+      const kind = ui.modSel, w = el.dataset.w;
+      const target = w === 'area' ? { w: 'area', p: +el.dataset.p, i: +el.dataset.i } : { w: 'roll', id: +el.dataset.id };
+      ui.modSel = null;
+      act('mod', { kind, t: target });
+      return;
+    }
     case 'clear-groups': G.roll.forEach(d => { ui.assign[d.id] = -1; }); break;
     case 'confirm-groups':
       act('groups', { groups: Array.from({ length: P() }, (_, k) => G.roll.filter(d => ui.assign[d.id] === k).map(d => d.id)) });

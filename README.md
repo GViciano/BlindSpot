@@ -33,7 +33,7 @@ Además de la partida libre, hay un modo **Campaña**: una serie de niveles con 
 - `cartas`: estrellas de cada carta objetivo por jugador, por ejemplo `[3, 1]`.
 - `dados`: dados de cada color en la bolsa según el número de jugadores, por ejemplo `{ 3: 6, 4: 10 }`.
 - `ganar`: estrellas necesarias según el número de jugadores, por ejemplo `{ 3: 10, 4: 13 }`.
-- `modificadores: true`: el equipo tiene una ficha de cada modificador para el nivel (relanzar, +1/−1 y dar la vuelta), que gasta quien reparte.
+- `modificadores: true`: acciones especiales (relanzar, +/− 1, invertir dado y eliminar dado). Con 3 jugadores salen 3 de las 4 al azar; con 4, las 4. Cada jugador puede usar una en todo el nivel, en cualquier momento y sobre cualquier dado a la vista, y la acción usada ya no está disponible para nadie más.
 - `dado_gris: true`: dado gris y carta gris común.
 
 La campaña actual tiene 15 niveles y es para 3 o 4 jugadores.

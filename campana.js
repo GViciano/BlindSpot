@@ -9,8 +9,11 @@
 //   dados:           dados de cada color en la bolsa, según el número de jugadores: { 3: 6, 4: 10 }.
 //   ganar:           estrellas que tiene que sumar el equipo para pasar el nivel, según el número
 //                    de jugadores: { 3: 10, 4: 13 }. Si no se pone, hay que cumplir todos los objetivos.
-//   modificadores:   true = el equipo tiene una ficha de cada modificador para todo el nivel:
-//                    relanzar un dado, sumarle o restarle 1, y darle la vuelta (cara opuesta).
+//   modificadores:   true = acciones especiales: relanzar un dado, sumarle o restarle 1, invertirlo
+//                    (cara opuesta) y eliminarlo (vuelve a la bolsa). Con 3 jugadores salen 3 de las 4
+//                    al azar; con 4 jugadores, las 4. Cada jugador puede usar una en todo el nivel, en
+//                    cualquier momento y sobre cualquier dado a la vista; la acción usada ya no está
+//                    disponible para nadie más.
 //   dado_gris:       true = se juega con dado gris y carta gris común.
 //
 // También se pueden usar las claves de la versión anterior: objetivos + estrellas (dificultades
