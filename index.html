@@ -555,7 +555,7 @@ const I18N = {
     m: {
       dice: (n, c) => n === 1 ? `1 dado ${c.sing}` : `${n} dados ${c.pl}`,
       noColor: c => `Ningún dado ${c.sing}.`,
-      exact: d => `Exactamente ${d}.`, atLeast: d => `${cap(d)}.`, atMost: d => `Como máximo ${d}.`,
+      exact: d => `Exactamente ${d}.`, atLeast: d => `${cap(d)}.`, atLeastSay: d => `Al menos ${d}.`, atMost: d => `Como máximo ${d}.`,
       sumGreater: (a, b) => `Suma ${a.sing} &gt; suma ${b.sing}.`,
       countMore: (a, b) => `Más dados ${a.pl} que ${b.pl}.`,
       exactColours: n => n === 1 ? 'Todos tus dados de un solo color.' : `Dados de exactamente ${n} colores distintos.`,
@@ -843,7 +843,7 @@ const I18N = {
     m: {
       dice: (n, c) => n === 1 ? `1 ${c.sing} die` : `${n} ${c.pl} dice`,
       noColor: c => `No ${c.sing} dice.`,
-      exact: d => `Exactly ${d}.`, atLeast: d => `${cap(d)}.`, atMost: d => `At most ${d}.`,
+      exact: d => `Exactly ${d}.`, atLeast: d => `${cap(d)}.`, atLeastSay: d => `At least ${d}.`, atMost: d => `At most ${d}.`,
       sumGreater: (a, b) => `${a.capSing} total &gt; ${b.sing} total.`,
       countMore: (a, b) => `More ${a.pl} dice than ${b.pl} dice.`,
       exactColours: n => n === 1 ? 'All your dice of a single colour.' : `Dice of exactly ${n} different colours.`,
@@ -1072,7 +1072,7 @@ function missionText(m) {
   switch (m.t) {
     case 'noColor': return tm('noColor', c);
     case 'exact': return tm('exact', tm('dice', m.n, c));
-    case 'atLeast': return tm('atLeast', tm('dice', m.n, c));
+    case 'atLeast': return tm(m.al ? 'atLeastSay' : 'atLeast', tm('dice', m.n, c));
     case 'atMost': return tm('atMost', tm('dice', m.n, c));
     case 'sumGreater': return tm('sumGreater', c, c2);
     case 'countMore': return tm('countMore', c, c2);
@@ -1251,6 +1251,7 @@ function loadCatalogue() {
     if (spec.c) { m.c = col(e.color); if (m.c < 0) { bad.push(i + 1); return; } }
     if (spec.c2) { m.c2 = col(e.color2); if (m.c2 < 0 || m.c2 === m.c) { bad.push(i + 1); return; } }
     if (spec.n) { m.n = Number(e.n); if (!Number.isInteger(m.n) || m.n < 0 || m.n > 99) { bad.push(i + 1); return; } }
+    if (e.decir_al_menos === true && m.t === 'atLeast') m.al = 1;
     if (spec.v) { m.v = Number(e.numero); if (!Number.isInteger(m.v) || m.v < 1 || m.v > 6) { bad.push(i + 1); return; } }
     list.push(m);
   });
@@ -1929,7 +1930,7 @@ const encDie = d => d.c === BLACK ? 200 + (d.k || 0) * 10 + d.v : d.c * 10 + d.v
 function encodeG() {
   return {
     v: 2, cf: cfgWire(G.cfg), md: G.mods ? { av: G.mods.avail.map(x => ACTIONS.indexOf(x)), us: ACTIONS.map(x => G.mods.used[x] ?? -1), v: G.mods.ver || 0 } : null, gy: G.greyRule ?? -1, cp: G.camp ?? -1, h: G.hints ? 1 : 0, st: G.starter, C: G.C, r: G.round, a: G.active, ph: G.phase, s: G.step, id: G.gid,
-    p: G.players.map(p => [p.name, p.bot ? 1 : 0, p.key || '', p.missions.map(m => [TYPES.indexOf(m.t), m.c ?? -1, m.c2 ?? -1, m.n ?? -1, m.s || 0, m.v || 0, m.id || 0]), p.area.map(encDie)]),
+    p: G.players.map(p => [p.name, p.bot ? 1 : 0, p.key || '', p.missions.map(m => [TYPES.indexOf(m.t), m.c ?? -1, m.c2 ?? -1, m.n ?? -1, m.s || 0, m.v || 0, m.id || 0, m.al ? 1 : 0]), p.area.map(encDie)]),
     rl: G.roll.map(d => encDie(d) + (d.gone ? 1000 : 0)),
     bm: G.bomb ? [G.bomb.queue, G.bomb.step] : null, lb: G.lostBy ?? -1,
     bg: G.bag || [],
@@ -1975,6 +1976,7 @@ function decodeG(w) {
         if (m[4] > 0) o.s = int(m[4], 1, 5);
         if (m[5] > 0) o.v = int(m[5], 1, 6);
         if (Number.isInteger(m[6]) && m[6] > 0 && m[6] < 1000) o.id = m[6];
+        if (m[7] === 1 && t === 'atLeast') o.al = 1;
         if (/^(noNumber|atLeastNumber)$/.test(t) && o.v === undefined) throw new Error('check');
         if (/^(noColor|exact|atLeast|atMost|sumGreater|countMore|sumAtLeast)$/.test(t) && o.c === undefined) throw new Error('check');
         if (/^(sumGreater|countMore)$/.test(t) && o.c2 === undefined) throw new Error('check');

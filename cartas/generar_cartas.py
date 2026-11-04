@@ -175,7 +175,7 @@ def card_content(o):
     if t == 'ninguno':
         return Row().die(c, 20).svg(cy) + ban(CARD_W / 2, cy, 15), None
     if t == 'al_menos':
-        return Row().text(str(n), 16).text('×', 10).die(c, 16).svg(cy), n
+        return Row().text(f'≥{n}' if o.get('decir_al_menos') else str(n), 16).text('×', 10).die(c, 16).svg(cy), n
     if t == 'exactamente':
         return Row().text(f'={n}', 16).text('×', 10).die(c, 16).svg(cy), None
     if t == 'como_maximo':

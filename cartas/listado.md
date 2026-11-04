@@ -7,7 +7,7 @@ Texto tal como aparece en el juego. El número coincide con el de la esquina de 
 | Nº | Estrellas | Objetivo | Estrella extra (*) |
 |---|---|---|---|
 | 1 | ★☆☆☆☆ | Ningún dado azul. |  |
-| 2 | ★☆☆☆☆ | Como máximo 2 dados azules. | Si consigues exactamente 2 dados azules: +1★ extra. |
+| 2 | ★☆☆☆☆ | Al menos 2 dados azules. | Si consigues exactamente 2 dados azules: +1★ extra. |
 | 3 | ★★☆☆☆ | 3 dados azules. | Si consigues exactamente 3 dados azules: +1★ extra. |
 | 4 | ★★☆☆☆ | Como máximo 1 dado azul. | Si consigues exactamente 1 dado azul: +1★ extra. |
 | 5 | ★★★☆☆ | Exactamente 2 dados azules. |  |
@@ -15,7 +15,7 @@ Texto tal como aparece en el juego. El número coincide con el de la esquina de 
 | 7 | ★★★☆☆ | Tus dados azules suman 12 o más. | Si consigues exactamente una suma de 12 en tus dados azules: +1★ extra. |
 | 8 | ★★★★☆ | Tus dados azules suman 15 o más. | Si consigues exactamente una suma de 15 en tus dados azules: +1★ extra. |
 | 9 | ★☆☆☆☆ | Ningún dado naranja. |  |
-| 10 | ★☆☆☆☆ | 2 dados naranjas. | Si consigues exactamente 2 dados naranjas: +1★ extra. |
+| 10 | ★☆☆☆☆ | Al menos 2 dados naranjas. | Si consigues exactamente 2 dados naranjas: +1★ extra. |
 | 11 | ★★☆☆☆ | 3 dados naranjas. | Si consigues exactamente 3 dados naranjas: +1★ extra. |
 | 12 | ★★☆☆☆ | Como máximo 1 dado naranja. | Si consigues exactamente 1 dado naranja: +1★ extra. |
 | 13 | ★★★☆☆ | Exactamente 2 dados naranjas. |  |
