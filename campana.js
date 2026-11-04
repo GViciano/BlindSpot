@@ -94,4 +94,9 @@ window.BLINDSPOTS_CAMPANA = [
   { nombre: 'Bomba 3', colores: 3, cartas: [1, 2, 3], dados: DADOS_BOMBA, dados_por_ronda: POR_RONDA_BOMBA, ganar: { 3: 15, 4: 20 }, dado_negro: true },
   { nombre: 'Bomba 4', colores: 3, cartas: [3, 4],    dados: DADOS_BOMBA, dados_por_ronda: POR_RONDA_BOMBA, ganar: { 3: 18, 4: 24 }, dado_negro: true },
   { nombre: 'Bomba 5', colores: 3, cartas: [2, 2, 3], dados: DADOS_BOMBA, dados_por_ronda: POR_RONDA_BOMBA, ganar: { 3: 20, 4: 26 }, dado_negro: true },
+  { nombre: '4 colores 1', colores: 4, cartas: [2, 3],    dados: DADOS, ganar: { 3: 13, 4: 17 } },
+  { nombre: '4 colores 2', colores: 4, cartas: [3, 3],    dados: DADOS, ganar: { 3: 15, 4: 20 } },
+  { nombre: '4 colores 3', colores: 4, cartas: [3, 4],    dados: DADOS, ganar: { 3: 21, 4: 24 } },
+  { nombre: '4 colores 4', colores: 4, cartas: [2, 2, 3], dados: DADOS, ganar: { 3: 19, 4: 23 } },
+  { nombre: '4 colores 5', colores: 4, cartas: [3, 3, 3], dados: DADOS, ganar: { 3: 24, 4: 33 } },
 ];

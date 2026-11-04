@@ -39,7 +39,7 @@ Además de la partida libre, hay un modo **Campaña**: una serie de niveles con 
 - `dados_por_ronda`: dados de colores por ronda según el número de jugadores, por ejemplo `{ 3: 6, 4: 8 }`.
 - `intro`: explicación que se muestra antes de empezar el nivel (ahora, antes de los niveles 6, 11 y 16).
 
-La campaña actual tiene 20 niveles y es para 3 o 4 jugadores: 1–5 de iniciación, 6–10 con acciones especiales, 11–15 con dado gris y 16–20 con dado negro.
+La campaña actual tiene 25 niveles y es para 3 o 4 jugadores: 1–5 de iniciación, 6–10 con acciones especiales, 11–15 con dado gris, 16–20 con dado negro y 21–25 con 4 colores.
 
 ## Objetivos
 
