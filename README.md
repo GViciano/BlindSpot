@@ -35,8 +35,11 @@ Además de la partida libre, hay un modo **Campaña**: una serie de niveles con 
 - `ganar`: estrellas necesarias según el número de jugadores, por ejemplo `{ 3: 10, 4: 13 }`.
 - `modificadores: true`: acciones especiales (relanzar, +/− 1, invertir dado y eliminar dado). Con 3 jugadores salen 3 de las 4 al azar; con 4, las 4. Cada jugador puede usar una en todo el nivel, en cualquier momento y sobre cualquier dado a la vista, y la acción usada ya no está disponible para nadie más.
 - `dado_gris: true`: dado gris y carta gris común.
+- `dado_negro: true`: Bomba. Cada ronda se tira además un dado negro con una de las 7 cartas negras. Cada jugador solo puede acabar con un dado negro (si a quien reparte le toca un segundo, el nivel se pierde) y, al final, quien lo tiene aplica la carta a sus propios dados.
+- `dados_por_ronda`: dados de colores por ronda según el número de jugadores, por ejemplo `{ 3: 6, 4: 8 }`.
+- `intro`: explicación que se muestra antes de empezar el nivel (ahora, antes de los niveles 6, 11 y 16).
 
-La campaña actual tiene 15 niveles y es para 3 o 4 jugadores.
+La campaña actual tiene 20 niveles y es para 3 o 4 jugadores: 1–5 de iniciación, 6–10 con acciones especiales, 11–15 con dado gris y 16–20 con dado negro.
 
 ## Objetivos
 

@@ -26,7 +26,7 @@
   --bad: #c43b3b;
   --bad-bg: #fbe5e4;
   --focus: #2f6fdb;
-  --d0: #2f6fdb; --d1: #ee8420; --d2: #2a9a58; --d3: #8a4fd1; --d4: #f1c232; --d5: #8b93a1; --grey-card: #e6e8ec;
+  --d0: #2f6fdb; --d1: #ee8420; --d2: #2a9a58; --d3: #8a4fd1; --d4: #f1c232; --d5: #8b93a1; --d6: #1c1e23; --grey-card: #e6e8ec;
   --pip: #ffffff; --pip-dark: #3b2c00;
   --font-display: "Dela Gothic One", "Arial Black", Impact, sans-serif;
   --font-body: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -38,7 +38,7 @@
     --card: #232b38; --card-back-a: #0b0f15; --card-back-b: #151b25;
     --accent: #e7ebf1; --accent-ink: #10141b;
     --ok: #4cc27d; --ok-bg: #173325; --bad: #ef6b6b; --bad-bg: #3a1c1e; --focus: #7aa7ff;
-    --d0: #4682ec; --d1: #f39236; --d2: #36ad68; --d3: #9b63e0; --d4: #f2c94c; --d5: #9aa2b0; --grey-card: #2b323d;
+    --d0: #4682ec; --d1: #f39236; --d2: #36ad68; --d3: #9b63e0; --d4: #f2c94c; --d5: #9aa2b0; --d6: #050607; --grey-card: #2b323d;
     color-scheme: dark;
   }
 }
@@ -47,7 +47,7 @@
   --card: #232b38; --card-back-a: #0b0f15; --card-back-b: #151b25;
   --accent: #e7ebf1; --accent-ink: #10141b;
   --ok: #4cc27d; --ok-bg: #173325; --bad: #ef6b6b; --bad-bg: #3a1c1e; --focus: #7aa7ff;
-  --d0: #4682ec; --d1: #f39236; --d2: #36ad68; --d3: #9b63e0; --d4: #f2c94c; --d5: #9aa2b0; --grey-card: #2b323d;
+  --d0: #4682ec; --d1: #f39236; --d2: #36ad68; --d3: #9b63e0; --d4: #f2c94c; --d5: #9aa2b0; --d6: #050607; --grey-card: #2b323d;
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
@@ -131,13 +131,13 @@ button { font: inherit; color: inherit; }
 .mcard.back .bt { font-size: 13px; line-height: 1.3; }
 .mcard.back .bt b { display: block; font-size: 14px; }
 .cw { display: inline-block; width: .8em; height: .8em; border-radius: 3px; margin-right: 3px; vertical-align: -.05em; }
-.cw.c0 { background: var(--d0); } .cw.c1 { background: var(--d1); } .cw.c2 { background: var(--d2); } .cw.c3 { background: var(--d3); } .cw.c4 { background: var(--d4); } .cw.c5 { background: var(--d5); }
+.cw.c0 { background: var(--d0); } .cw.c1 { background: var(--d1); } .cw.c2 { background: var(--d2); } .cw.c3 { background: var(--d3); } .cw.c4 { background: var(--d4); } .cw.c5 { background: var(--d5); } .cw.c6 { background: var(--d6); }
 
 /* Dice */
 .die { display: inline-block; width: 34px; height: 34px; flex: none; padding: 0; border: 0; background: none; line-height: 0; }
 .die svg { width: 100%; height: 100%; display: block; }
 .die .face { stroke: rgba(0, 0, 0, .18); stroke-width: 2; }
-.die.c0 .face { fill: var(--d0); } .die.c1 .face { fill: var(--d1); } .die.c2 .face { fill: var(--d2); } .die.c3 .face { fill: var(--d3); } .die.c4 .face { fill: var(--d4); } .die.c5 .face { fill: var(--d5); }
+.die.c0 .face { fill: var(--d0); } .die.c1 .face { fill: var(--d1); } .die.c2 .face { fill: var(--d2); } .die.c3 .face { fill: var(--d3); } .die.c4 .face { fill: var(--d4); } .die.c5 .face { fill: var(--d5); } .die.c6 .face { fill: var(--d6); stroke: #7d8594; }
 .die .pip { fill: var(--pip); }
 .die.c4 .pip { fill: var(--pip-dark); }
 .die.sm { width: 24px; height: 24px; }
@@ -232,6 +232,14 @@ button.group:hover { border-color: var(--muted); }
 .greycard .die { margin-top: 2px; }
 .grey-rule { font-weight: 700; font-size: 14px; }
 .grey-res { font-size: 13px; margin-top: 4px; font-weight: 700; }
+.blackcards { border: 1px solid var(--line, #ccc); border-radius: 12px; padding: 10px 12px; margin-bottom: 12px; }
+.blackcards ul { list-style: none; margin: 6px 0 0; padding: 0; display: grid; gap: 6px; }
+.blackcards li { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+.group.blocked { opacity: .45; }
+.bomb-pick button[aria-pressed="true"] { outline: 3px solid var(--bad, #c0392b); outline-offset: 2px; }
+.bomb-pick button:disabled { opacity: .35; }
+.cover.intro { text-align: left; max-width: 560px; }
+.cover.intro p { line-height: 1.5; }
 .grey-res.ok { color: var(--ok); } .grey-res.bad { color: var(--bad); }
 .levels { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
 .lvl { width: 100%; display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 10px; align-items: start; text-align: left; padding: 10px 12px; border-radius: 10px;
@@ -306,11 +314,14 @@ const LANG_KEY = 'blindspots-lang';
 let LANG = (() => { const l = lsGet(LANG_KEY); return l === 'en' || l === 'es' ? l : 'es'; })();
 
 const COLOR_NAMES = {
-  es: [{ sing: 'azul', pl: 'azules' }, { sing: 'naranja', pl: 'naranjas' }, { sing: 'verde', pl: 'verdes' }, { sing: 'morado', pl: 'morados' }, { sing: 'amarillo', pl: 'amarillos' }, { sing: 'gris', pl: 'grises' }],
-  en: [{ sing: 'blue', pl: 'blue' }, { sing: 'orange', pl: 'orange' }, { sing: 'green', pl: 'green' }, { sing: 'purple', pl: 'purple' }, { sing: 'yellow', pl: 'yellow' }, { sing: 'grey', pl: 'grey' }],
+  es: [{ sing: 'azul', pl: 'azules' }, { sing: 'naranja', pl: 'naranjas' }, { sing: 'verde', pl: 'verdes' }, { sing: 'morado', pl: 'morados' }, { sing: 'amarillo', pl: 'amarillos' }, { sing: 'gris', pl: 'grises' }, { sing: 'negro', pl: 'negros' }],
+  en: [{ sing: 'blue', pl: 'blue' }, { sing: 'orange', pl: 'orange' }, { sing: 'green', pl: 'green' }, { sing: 'purple', pl: 'purple' }, { sing: 'yellow', pl: 'yellow' }, { sing: 'grey', pl: 'grey' }, { sing: 'black', pl: 'black' }],
 };
 // The optional grey die: colour index 5. It counts as a die (amount, sum, numbers) but not as a colour in play.
 const GREY = 5;
+// The black (bomb) die: colour index 6. It counts as a die but not as a colour; each carries a black card.
+const BLACK = 6;
+const BLACK_CARDS = 7;
 const GREY_RULES = 7;
 const cname = c => COLOR_NAMES[LANG][c];
 const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
@@ -383,6 +394,27 @@ const I18N = {
     greyRule5: 'El jugador con el dado gris no puede tener más de 3 dados de un mismo color.',
     greyRule6: 'El jugador con el dado gris no puede sumar más de 15 (incluido el gris).',
     greyLose: 'No se ha cumplido la carta gris.',
+    perRoundN: n => `${n} dados por ronda`, blackOn: 'dado negro',
+    blackCard0: v => `Elimina un dado de valor menor que ${v}.`,
+    blackCard1: v => `Elimina un dado de valor mayor que ${v}.`,
+    blackCard2: v => `Elimina un dado de valor ${v}.`,
+    blackCard3: () => 'Elimina un dado del color que más tengas.',
+    blackCard4: () => 'Elimina un dado del color que menos tengas.',
+    blackCard5: () => 'Elimina 2 dados al azar.',
+    blackCard6: () => 'Elimina dos dados del mismo valor.',
+    blackTitle: 'Cartas negras (se aplican al final)', blackNone: 'Aún no hay dados negros.',
+    blackThisRound: 'Dado negro de esta ronda:',
+    blackBlocked: 'Ya tienes un dado negro', blackYouHave: 'Ya tienes un dado negro: no puedes coger el grupo que lleva otro.',
+    blackDealerHas: name => `Ojo: ${name} reparte y ya tiene un dado negro. Si le dejáis el grupo con el dado negro, perdéis el nivel.`,
+    bombTitle: '¡Bomba!', bombYou: 'Tu carta negra:', bombOf: name => `Carta negra de ${name}:`,
+    bombPick1: 'Elige qué dado tuyo se elimina.', bombPick2: 'Elige dos dados tuyos del mismo valor.',
+    bombConfirm: n => n ? 'Eliminar' : 'Elige un dado', bombWait: name => `${name} elige qué dado elimina…`,
+    blackLostText: name => `${name} ha recibido un segundo dado negro: el nivel se pierde automáticamente.`,
+    coverBomb: 'Te toca aplicar tu carta negra.',
+    logBlackLost: name => `${name} recibe un segundo dado negro. ¡Nivel perdido!`,
+    logBomb: (name, c, v) => `La bomba de ${name} elimina un ${v} ${c}.`,
+    logBombNone: name => `La bomba de ${name} no elimina nada.`,
+    introOk: 'Entendido', introAgain: '¿Cómo funciona?',
     needLabel: 'Estrellas del equipo para ganar', needAllShort: 'Todas', less: 'Menos', more: 'Más',
     needAllNote: 'Hay que cumplir todos los objetivos de todos los jugadores.',
     needNote: n => `Se suman las estrellas de los objetivos que cumple cada jugador. Con ${n}★ entre todos, el equipo gana. Los objetivos con * dan 1★ extra si se clava la cifra exacta.`,
@@ -585,6 +617,7 @@ const I18N = {
         <li>Objetivos con *: «2 dados azules» se cumple con 2 o más (y «como máximo 1» con 1 o menos). Si se consigue la cifra exacta, el objetivo da 1★ extra.</li>
         <li>Campaña: una serie de niveles con los ajustes ya fijados (colores, objetivos, dificultad, estrellas para ganar y dado gris). Al superar un nivel se pasa al siguiente; si se pierde, se reintenta. En los niveles con acciones especiales salen 3 de las 4 acciones (relanzar, +/− 1, invertir dado y eliminar dado) con 3 jugadores, o las 4 con 4 jugadores. Cada jugador puede usar una en todo el nivel, en cualquier momento y sobre cualquier dado a la vista, y la acción usada ya no está disponible para nadie más.</li>
         <li>Dado gris (opcional): en la primera ronda se tira además un dado gris y sale una carta gris común. Quien acabe con el dado gris tiene que cumplirla para que el equipo gane. El dado gris cuenta como dado, para la suma y para los números, pero no como color.</li>
+        <li>Dado negro (Bomba, niveles 16–20 de la campaña): cada ronda se tira además un dado negro, que trae una carta negra. Cada jugador solo puede acabar con un dado negro: quien ya tiene uno no puede coger un grupo con otro, y si a quien reparte le toca un segundo dado negro, el nivel se pierde. Al final, quien tiene un dado negro aplica su carta a sus propios dados (elimina uno o dos). El dado negro cuenta como dado, para la suma y para los números, pero no como color.</li>
       </ul>
       <h3>En esta versión</h3>
       <p>En un dispositivo, la web pide pasarlo antes de cada decisión y solo entonces muestra las misiones de los demás. Online, cada jugador ve las misiones de los demás en su pantalla y puede elegir su idioma. Los bots reparten pensando en las misiones que ven y, al elegir, cogen el grupo que menos perjudica al resto.</p>`,
@@ -651,6 +684,27 @@ const I18N = {
     greyRule5: 'The player with the grey die can’t have more than 3 dice of a single colour.',
     greyRule6: 'The player with the grey die can’t total more than 15 (grey die included).',
     greyLose: 'The grey card wasn’t met.',
+    perRoundN: n => `${n} dice per round`, blackOn: 'black die',
+    blackCard0: v => `Remove a die with a value lower than ${v}.`,
+    blackCard1: v => `Remove a die with a value higher than ${v}.`,
+    blackCard2: v => `Remove a die showing ${v}.`,
+    blackCard3: () => 'Remove a die of the colour you have most of.',
+    blackCard4: () => 'Remove a die of the colour you have fewest of.',
+    blackCard5: () => 'Remove 2 dice at random.',
+    blackCard6: () => 'Remove two dice with the same value.',
+    blackTitle: 'Black cards (applied at the end)', blackNone: 'No black dice yet.',
+    blackThisRound: 'This round’s black die:',
+    blackBlocked: 'You already have a black die', blackYouHave: 'You already have a black die: you can’t take the group with another one.',
+    blackDealerHas: name => `Careful: ${name} is dealing and already has a black die. If you leave them the group with the black die, you lose the level.`,
+    bombTitle: 'Bomb!', bombYou: 'Your black card:', bombOf: name => `${name}’s black card:`,
+    bombPick1: 'Choose which of your dice is removed.', bombPick2: 'Choose two of your dice with the same value.',
+    bombConfirm: n => n ? 'Remove' : 'Choose a die', bombWait: name => `${name} is choosing which die to remove…`,
+    blackLostText: name => `${name} got a second black die: the level is lost automatically.`,
+    coverBomb: 'It’s your turn to apply your black card.',
+    logBlackLost: name => `${name} gets a second black die. Level lost!`,
+    logBomb: (name, c, v) => `${name}’s bomb removes a ${c} ${v}.`,
+    logBombNone: name => `${name}’s bomb removes nothing.`,
+    introOk: 'Got it', introAgain: 'How does it work?',
     needLabel: 'Team stars to win', needAllShort: 'All', less: 'Fewer', more: 'More',
     needAllNote: 'Every objective of every player must be completed.',
     needNote: n => `The stars of the objectives each player completes are added up. With ${n}★ between you, the team wins. Objectives marked * give 1★ extra if you hit the exact amount.`,
@@ -845,6 +899,7 @@ const I18N = {
         <li>Objectives marked *: “2 blue dice” is met with 2 or more (and “at most 1” with 1 or fewer). Hitting the exact amount gives 1★ extra.</li>
         <li>Campaign: a series of levels with fixed settings (colours, objectives, difficulty, stars to win and grey die). Beat a level to move on to the next; if you lose, try again. In levels with special actions, 3 of the 4 actions (reroll, +/− 1, flip die and remove die) come up with 3 players, or all 4 with 4 players. Each player can use one during the level, at any time and on any visible die, and a used action is no longer available to anyone.</li>
         <li>Grey die (optional): in the first round a grey die is rolled as well and a common grey card is drawn. Whoever ends up with the grey die must meet it for the team to win. The grey die counts as a die, for sums and for numbers, but not as a colour.</li>
+        <li>Black die (Bomb, campaign levels 16–20): every round a black die is rolled as well, with a black card. Each player can end up with only one black die: if you already have one you can’t take a group with another, and if the dealer gets a second black die the level is lost. At the end, whoever has a black die applies its card to their own dice (removing one or two). The black die counts as a die, for sums and for numbers, but not as a colour.</li>
       </ul>
       <h3>In this version</h3>
       <p>On one device, the page asks you to pass it before each decision and only then shows the others’ missions. Online, each player sees the others’ missions on their own screen and can pick their own language. Bots deal based on the missions they can see and, when choosing, take the group that hurts the others least.</p>`,
@@ -1026,7 +1081,7 @@ function stats(dice, C) {
   let all = 0;
   let greyV = null;
   for (const d of dice) {
-    if (d.c === GREY) greyV = d.v; else { cnt[d.c]++; sum[d.c] += d.v; }
+    if (d.c === GREY) greyV = d.v; else if (d.c !== BLACK) { cnt[d.c]++; sum[d.c] += d.v; }
     val[d.v]++; all += d.v;
   }
   const even = val[2] + val[4] + val[6];
@@ -1205,6 +1260,9 @@ function loadCampaign() {
       need: !perPlayer && Number.isInteger(l.ganar) && l.ganar > 0 ? Math.min(MAX_NEED, l.ganar) : 0,
       bagBy: byPlayers(l.dados), bag: Number.isInteger(l.dados) && l.dados > 0 ? Math.min(30, l.dados) : 0,
       mods: l.modificadores === true,
+      perRoundBy: byPlayers(l.dados_por_ronda),
+      black: l.dado_negro === true,
+      intro: l.intro && typeof l.intro === 'object' ? { title: txt(l.intro.titulo), text: txt(l.intro.texto) } : null,
       grey: l.dado_gris === true,
     };
   });
@@ -1214,16 +1272,17 @@ const CAMP_KEY = 'blindspots-campaign';
 const campHasName = i => !!(CAMPAIGN[i] && CAMPAIGN[i].name[LANG]);
 const campName = i => (CAMPAIGN[i] && CAMPAIGN[i].name[LANG]) || t('levelN', i + 1);
 const campText = i => (CAMPAIGN[i] && CAMPAIGN[i].text[LANG]) || '';
+const campIntro = i => (Number.isInteger(i) && CAMPAIGN[i] && CAMPAIGN[i].intro) || null;
 // Settings of level i for P players.
 function campCfg(i, P) {
   const l = CAMPAIGN[i];
   const need = l.needBy[P] || (l.needPer ? l.needPer * P : l.need);
-  return { C: l.C, per: l.per, cards: l.cards, stars: l.stars, need: Math.min(MAX_NEED, need || 0), bag: l.bagBy[P] || l.bag || 0, mods: l.mods, grey: l.grey };
+  return { C: l.C, per: l.per, cards: l.cards, stars: l.stars, need: Math.min(MAX_NEED, need || 0), bag: l.bagBy[P] || l.bag || 0, mods: l.mods, grey: l.grey, perRound: l.perRoundBy[P] || 0, black: l.black };
 }
 // Player counts every level supports (a level that gives values per player count only supports those).
 const CAMP_PLAYERS = [3, 4, 5].filter(P => CAMPAIGN.every(l => {
-  const keyed = [l.needBy, l.bagBy].filter(o => Object.keys(o).length);
-  return keyed.every(o => o[P]) && (!(l.bagBy[P] || l.bag) || (l.bagBy[P] || l.bag) * l.C >= totalDrawn(P));
+  const keyed = [l.needBy, l.bagBy, l.perRoundBy].filter(o => Object.keys(o).length);
+  return keyed.every(o => o[P]) && (!(l.bagBy[P] || l.bag) || (l.bagBy[P] || l.bag) * l.C >= P * (l.perRoundBy[P] || rollCount(P)));
 }));
 // Highest level this browser has unlocked (0-based).
 function campMax() {
@@ -1280,7 +1339,7 @@ function bounds(ms, C, P) {
   return { lo, hi, tlo, thi };
 }
 
-function feasible(all, C, P, bagSize) {
+function feasible(all, C, P, bagSize, perRound) {
   const BAG = bagSize || BAG_PER_COLOUR;
   const bs = all.map(ms => bounds(ms, C, P));
   if (bs.some(b => !b)) return false;
@@ -1289,7 +1348,7 @@ function feasible(all, C, P, bagSize) {
   if (new Set(ranks).size < ranks.length) return false;
   // Colours come out of the bag at random, so only rule out the impossible:
   // needing more of a colour than the bag holds, or refusing a colour that must come out.
-  const total = totalDrawn(P), mustDraw = Math.max(0, total - BAG * (C - 1));
+  const total = P * (perRound || rollCount(P)), mustDraw = Math.max(0, total - BAG * (C - 1));
   for (let c = 0; c < C; c++) {
     const lo = bs.reduce((a, b) => a + b.lo[c], 0), hi = bs.reduce((a, b) => a + b.hi[c], 0);
     if (lo > BAG || hi < mustDraw) return false;
@@ -1327,28 +1386,30 @@ function genMissions(P, cfg) {
       }
       all.push(ms);
     }
-    if (ok && feasible(all, cfg.C, P, cfg.bag)) return { missions: all };
+    if (ok && feasible(all, cfg.C, P, cfg.bag, cfg.perRound)) return { missions: all };
   }
   return { error: { k: 'errNoCombo', a: [per, P] } };
 }
 
 const starsText = n => '★'.repeat(n) + '☆'.repeat(5 - n);
 const starsLabel = mask => { const l = starList(mask); return l.length === 5 ? t('allStars') : (l.length > 1 ? l.slice(0, -1).join(', ') + ` ${t('and')} ` + l[l.length - 1] : l[0]) + '★'; };
-// Game settings as sent to other players: [C, per, stars, need, grey, mods, bag, cards].
-const cfgWire = c => [c.C, c.per, c.stars, c.need || 0, c.grey ? 1 : 0, c.mods ? 1 : 0, c.bag || 0, Array.isArray(c.cards) ? c.cards : []];
+// Game settings as sent to other players: [C, per, stars, need, grey, mods, bag, cards, perRound, black].
+const cfgWire = c => [c.C, c.per, c.stars, c.need || 0, c.grey ? 1 : 0, c.mods ? 1 : 0, c.bag || 0, Array.isArray(c.cards) ? c.cards : [], c.perRound || 0, c.black ? 1 : 0];
 function cfgFromWire(cf) {
   if (!Array.isArray(cf)) return null;
   const ok = (v, lo, hi) => Number.isInteger(v) && v >= lo && v <= hi;
   if (!(ok(cf[0], 3, 5) && ok(cf[1], 1, 3) && ok(cf[2], 1, ALL_STARS))) return null;
   const cards = Array.isArray(cf[7]) ? cf[7].filter(k => ok(k, 1, 5)).slice(0, 3) : [];
   return { C: cf[0], per: cf[1], stars: cf[2], need: ok(cf[3], 0, MAX_NEED) ? cf[3] : 0, grey: cf[4] === 1,
-    mods: cf[5] === 1, bag: ok(cf[6], 1, 30) ? cf[6] : 0, cards: cards.length ? cards : null };
+    mods: cf[5] === 1, bag: ok(cf[6], 1, 30) ? cf[6] : 0, cards: cards.length ? cards : null,
+    perRound: ok(cf[8], 1, 12) ? cf[8] : 0, black: cf[9] === 1 };
 }
 const cfgText = cfg => (Array.isArray(cfg.cards) && cfg.cards.length
     ? t('cardsText', cfg.C, cfg.cards.map(k => `${k}★`).join(' + '), cfg.cards.length)
     : t('cfgText', cfg.C, cfg.per, starsLabel(cfg.stars)))
   + ' · ' + (cfg.need ? t('needN', cfg.need) : t('needAll'))
-  + (cfg.bag ? ' · ' + t('bagN', cfg.bag) : '') + (cfg.mods ? ' · ' + t('modsOn') : '') + (cfg.grey ? ' · ' + t('greyOn') : '');
+  + (cfg.bag ? ' · ' + t('bagN', cfg.bag) : '') + (cfg.perRound ? ' · ' + t('perRoundN', cfg.perRound) : '')
+  + (cfg.mods ? ' · ' + t('modsOn') : '') + (cfg.grey ? ' · ' + t('greyOn') : '') + (cfg.black ? ' · ' + t('blackOn') : '');
 
 /* ---------- State ---------- */
 let G = null;        // the game being shown (local, hosted, or mirrored from the host)
@@ -1380,9 +1441,13 @@ const roundsLeft = () => P() - 1 - G.round;
 const dieById = id => G.roll[id];
 const groupDice = g => G.groups[g].map(dieById).filter(d => d && !d.gone);
 const availGroups = () => G.groups.map((_, i) => i).filter(i => G.taken[i] === undefined);
+const hasBlack = p => G.players[p].area.some(d => d.c === BLACK);
+const groupHasBlack = g => groupDice(g).some(d => d.c === BLACK);
+// A player who already has a black die can't take a group with another one.
+const allowedGroups = p => availGroups().filter(g => !(hasBlack(p) && groupHasBlack(g)));
 const pn = i => G.players[i].name;
 const name = i => esc(G.players[i].name);
-const stateKey = () => G.phase === 'reveal' ? `${G.gid}|reveal` : `${G.gid}|${G.round}|${G.phase}|${G.step}`;
+const stateKey = () => G.phase === 'reveal' ? `${G.gid}|reveal` : G.phase === 'bomb' ? `${G.gid}|bomb|${G.bomb ? G.bomb.step : 0}` : `${G.gid}|${G.round}|${G.phase}|${G.step}`;
 
 function log(msg) { G.log.push(msg); if (G.log.length > 30) G.log.shift(); }
 
@@ -1409,7 +1474,7 @@ function startLevel() {
   const r = genMissions(P(), G.cfg);
   if (r.error) return r.error;
   G.players.forEach((p, i) => { p.missions = r.missions[i]; p.area = []; });
-  Object.assign(G, { greyRule: G.cfg.grey ? ri(GREY_RULES) : null, greyRes: null, bag: Array(G.C).fill(G.cfg.bag || BAG_PER_COLOUR), mods: G.cfg.mods ? dealActions(P()) : null, gid: rid(6), round: 0, active: G.starter, phase: 'roll', roll: [], groups: [], order: [], step: 0, taken: {}, results: null, win: null, log: [] });
+  Object.assign(G, { greyRule: G.cfg.grey ? ri(GREY_RULES) : null, greyRes: null, bag: Array(G.C).fill(G.cfg.bag || BAG_PER_COLOUR), mods: G.cfg.mods ? dealActions(P()) : null, blackDeck: G.cfg.black ? shuffle([...Array(BLACK_CARDS).keys()]) : null, bomb: null, lostBy: null, gid: rid(6), round: 0, active: G.starter, phase: 'roll', roll: [], groups: [], order: [], step: 0, taken: {}, results: null, win: null, log: [] });
   log(['start']);
   if (G.camp !== null && G.camp !== undefined) log(['level', G.camp]);
   log(['first', G.starter]);
@@ -1426,13 +1491,14 @@ function resetViewer() {
 function currentActor() {
   if (G.phase === 'roll' || G.phase === 'group') return G.active;
   if (G.phase === 'choose') return G.order[G.step];
+  if (G.phase === 'bomb') return G.bomb.queue[G.bomb.step] ?? null;
   return null;
 }
 
 function doRoll() {
   G.roll = [];
   if (!Array.isArray(G.bag)) G.bag = Array(G.C).fill(G.cfg.bag || BAG_PER_COLOUR);
-  for (let k = 0; k < rollCount(P()); k++) {
+  for (let k = 0; k < (G.cfg.perRound || rollCount(P())); k++) {
     const left = G.bag.reduce((a, b) => a + b, 0);
     if (!left) break;
     let r = ri(left), c = 0;
@@ -1441,6 +1507,8 @@ function doRoll() {
     G.roll.push({ id: G.roll.length, c, v: 1 + ri(6) });
   }
   if (G.cfg.grey && G.round === 0) G.roll.push({ id: G.roll.length, c: GREY, v: 1 + ri(6) });
+  // Black die: one per round, with the black card drawn for this round.
+  if (G.cfg.black) G.roll.push({ id: G.roll.length, c: BLACK, v: 1 + ri(6), k: G.blackDeck[G.round % G.blackDeck.length] });
   G.phase = 'group';
   log(['roll', G.active, G.roll.length]);
 }
@@ -1462,9 +1530,15 @@ function finishRound() {
   const last = availGroups()[0];
   G.taken[last] = G.active;
   log(['keep', G.active, last]);
-  G.groups.forEach((ids, g) => { G.players[G.taken[g]].area.push(...ids.filter(id => !G.roll[id].gone).map(id => ({ c: G.roll[id].c, v: G.roll[id].v }))); });
+  // The dealer gets the last group; with a second black die the level is lost on the spot.
+  const conflict = G.cfg.black && hasBlack(G.active) && groupHasBlack(last);
+  G.groups.forEach((ids, g) => { G.players[G.taken[g]].area.push(...ids.filter(id => !G.roll[id].gone).map(id => {
+    const d = G.roll[id];
+    return d.c === BLACK ? { c: d.c, v: d.v, k: d.k } : { c: d.c, v: d.v };
+  })); });
+  if (conflict) { G.lostBy = G.active; log(['blackLost', G.active]); reveal(); return; }
   G.round++;
-  if (G.round >= P()) { reveal(); return; }
+  if (G.round >= P()) { if (G.cfg.black) startBomb(); else reveal(); return; }
   G.active = (G.starter + G.round) % P();
   Object.assign(G, { phase: 'roll', roll: [], groups: [], taken: {}, order: [], step: 0 });
 }
@@ -1493,8 +1567,72 @@ function computeResults() {
   }
 }
 
+// End of a black-die level: each player with a black die applies its card, in seat order.
+function startBomb() {
+  const queue = G.players.map((_, i) => i).filter(i => hasBlack(i));
+  G.bomb = { queue, step: 0 };
+  G.phase = 'bomb';
+}
+// What the card of player p allows: the dice (area indexes) it can remove.
+function bombInfo(p) {
+  const area = G.players[p].area, black = area.find(d => d.c === BLACK);
+  if (!black) return null;
+  const k = black.k, bv = black.v;
+  const idx = area.map((d, i) => i).filter(i => area[i].c !== BLACK);
+  const cnt = {};
+  idx.forEach(i => { const c = area[i].c; if (c !== GREY) cnt[c] = (cnt[c] || 0) + 1; });
+  const counts = Object.values(cnt);
+  let options = [];
+  if (k === 0) options = idx.filter(i => area[i].v < bv);
+  else if (k === 1) options = idx.filter(i => area[i].v > bv);
+  else if (k === 2) options = idx.filter(i => area[i].v === bv);
+  else if (k === 3 && counts.length) { const mx = Math.max(...counts); options = idx.filter(i => cnt[area[i].c] === mx); }
+  else if (k === 4 && counts.length) { const mn = Math.min(...counts); options = idx.filter(i => cnt[area[i].c] === mn); }
+  else if (k === 5) options = idx;
+  else if (k === 6) options = idx.filter(i => idx.filter(j => area[j].v === area[i].v).length >= 2);
+  const auto = k === 5 || options.length === 0 || (k === 6 && options.length < 2);
+  return { k, bv, options, need: k === 6 ? 2 : 1, auto };
+}
+// Removes the chosen dice; checks they are allowed by the card.
+function applyBomb(p, picks) {
+  const info = bombInfo(p);
+  if (!info) { G.bomb.step++; return true; }
+  const area = G.players[p].area;
+  let chosen;
+  if (info.auto) {
+    chosen = info.k === 5 ? shuffle(info.options.slice()).slice(0, 2) : [];
+  } else {
+    if (!Array.isArray(picks) || picks.length !== info.need || new Set(picks).size !== picks.length) return false;
+    if (!picks.every(i => info.options.includes(i))) return false;
+    if (info.k === 6 && area[picks[0]].v !== area[picks[1]].v) return false;
+    chosen = picks.slice();
+  }
+  if (!chosen.length) log(['bombNone', p, info.k]);
+  chosen.sort((a, b) => b - a).forEach(i => { const d = area[i]; log(['bomb', p, info.k, d.c, d.v]); area.splice(i, 1); });
+  G.bomb.step++;
+  return true;
+}
+// Bot: the removal that hurts its own objectives least.
+function botBomb(p) {
+  const info = bombInfo(p);
+  if (!info || info.auto) return applyBomb(p, null);
+  const area = G.players[p].area, sets = [];
+  if (info.need === 1) info.options.forEach(i => sets.push([i]));
+  else info.options.forEach(i => info.options.forEach(j => { if (j > i && area[i].v === area[j].v) sets.push([i, j]); }));
+  let best = sets[0], bestC = Infinity;
+  for (const set of sets) {
+    const saved = G.players[p].area;
+    G.players[p].area = area.filter((_, i) => !set.includes(i));
+    const c = evalPlayer(p, []);
+    G.players[p].area = saved;
+    if (c < bestC) { bestC = c; best = set; }
+  }
+  return applyBomb(p, best);
+}
+
 function reveal() {
   computeResults();
+  if (G.lostBy !== null && G.lostBy !== undefined) G.win = false;
   if (G.win && G.camp !== null && G.camp !== undefined) campUnlock(G.camp + 1);
   G.phase = 'reveal';
   G.cover = null;
@@ -1524,8 +1662,9 @@ function applyAction(seat, a) {
     if (!gs) return false;
     G.groups = gs; startChoose(); return true;
   }
+  if (a.k === 'bomb' && G.phase === 'bomb') return applyBomb(seat, a.i);
   if (a.k === 'take' && G.phase === 'choose') {
-    if (!Number.isInteger(a.g) || !availGroups().includes(a.g)) return false;
+    if (!Number.isInteger(a.g) || !allowedGroups(seat).includes(a.g)) return false;
     take(a.g, seat); return true;
   }
   return false;
@@ -1550,7 +1689,7 @@ function modTarget(t) {
 }
 function applyMod(seat, kind, target) {
   const action = KIND_ACTION[kind];
-  if (!action || !G.mods || G.phase === 'reveal' || !G.mods.avail.includes(action)) return false;
+  if (!action || !G.mods || G.phase === 'reveal' || G.phase === 'bomb' || !G.mods.avail.includes(action)) return false;
   if (G.mods.used[action] !== undefined || Object.values(G.mods.used).includes(seat)) return false;
   const d = modTarget(target);
   if (!d) return false;
@@ -1560,7 +1699,7 @@ function applyMod(seat, kind, target) {
   else if (kind === 'minus') { if (d.v <= 1) return false; d.v -= 1; }
   else if (kind === 'flip') d.v = 7 - d.v;
   else if (kind === 'remove') {
-    if (d.c !== GREY && Array.isArray(G.bag) && G.bag[d.c] !== undefined) G.bag[d.c]++;
+    if (d.c !== GREY && d.c !== BLACK && Array.isArray(G.bag) && G.bag[d.c] !== undefined) G.bag[d.c]++;
     if (target.w === 'roll') d.gone = true; else G.players[target.p].area.splice(target.i, 1);
   }
   G.mods.used[action] = seat;
@@ -1579,7 +1718,8 @@ function evalPlayer(i, extra) {
   const p = G.players[i];
   const st = statsWithOthers(i, extra);
   const grey = G.cfg.grey && st.greyV && G.greyRule !== null ? greyDist(G.greyRule, st, G.C, roundsLeft() === 0 ? 3 : 1) : 0;
-  return grey + p.missions.reduce((a, m) => a + missionDist(m, st, G.C, roundsLeft()), 0);
+  const bomb = G.cfg.black && extra.some(d => d.c === BLACK) && hasBlack(i) ? 1000 : 0;
+  return bomb + grey + p.missions.reduce((a, m) => a + missionDist(m, st, G.C, roundsLeft()), 0);
 }
 
 function botGroups() {
@@ -1588,7 +1728,7 @@ function botGroups() {
     const per = Array.from({ length: n }, () => []);
     asg.forEach((p, i) => per[p].push(dice[i]));
     let s = 0;
-    for (let p = 0; p < n; p++) s += p === me ? per[p].length * 0.35 : evalPlayer(p, per[p]);
+    for (let p = 0; p < n; p++) s += p === me ? per[p].length * 0.35 + (G.cfg.black && hasBlack(p) && per[p].some(d => d.c === BLACK) ? 1000 : 0) : evalPlayer(p, per[p]);
     return s;
   };
   let best = null, bestS = Infinity;
@@ -1642,10 +1782,10 @@ function bestAssign(groups, players, blind) {
 }
 
 function botChoose(me) {
-  const avail = availGroups();
+  const avail = availGroups(), allowed = allowedGroups(me);
   const rest = [...G.order.slice(G.step + 1), G.active];
-  let best = avail[0], bestC = Infinity;
-  for (const g of shuffle(avail.slice())) {
+  let best = allowed[0], bestC = Infinity;
+  for (const g of shuffle(allowed.slice())) {
     const others = avail.filter(x => x !== g);
     const c = others.length ? bestAssign(others, rest, me).cost : 0;
     if (c < bestC - 1e-9) { bestC = c; best = g; }
@@ -1657,12 +1797,12 @@ function computeHint(h) {
   const bs = bots();
   if (!G.hints || !bs.length) return { none: true };
   const b = pick(bs);
-  const avail = availGroups();
+  const avail = availGroups(), allowed = allowedGroups(h);
   const players = [h, ...G.order.slice(G.step + 1), G.active];
   const best = bestAssign(avail, players, b);
-  const rec = best.perm[0];
+  const rec = allowed.includes(best.perm[0]) ? best.perm[0] : allowed[0];
   const base = evalPlayer(h, []);
-  const danger = avail.filter(g => g !== rec && evalPlayer(h, groupDice(g)) - base >= IRREV);
+  const danger = allowed.filter(g => g !== rec && evalPlayer(h, groupDice(g)) - base >= IRREV);
   const recGain = base - evalPlayer(h, groupDice(rec));
   return { bot: b, rec, danger, mild: recGain <= 0 };
 }
@@ -1672,6 +1812,7 @@ function botAct() {
   if (G.phase === 'roll') doRoll();
   else if (G.phase === 'group') { G.groups = botGroups(); startChoose(); }
   else if (G.phase === 'choose') take(botChoose(a), a);
+  else if (G.phase === 'bomb') botBomb(a);
 }
 
 // Runs whatever happens next on its own (finishing a round, bot moves).
@@ -1680,10 +1821,17 @@ function advance() {
   if (!G || G.phase === 'reveal') return;
   if (G.online && ON.role !== 'host') return;
   if (G.phase === 'choose' && G.step >= G.order.length) { finishRound(); advance(); return; }
+  if (G.phase === 'reveal') return;
+  if (!G.online && introOpen()) return;
+  if (G.phase === 'bomb') {
+    if (G.bomb.step >= G.bomb.queue.length) { reveal(); return; }
+    const who = currentActor(), info = bombInfo(who);
+    if (!info || info.auto) { applyBomb(who, null); advance(); return; }
+  }
   const a = currentActor();
   if (G.players[a].bot) {
     if (!timer) {
-      const delay = G.phase === 'roll' ? 700 : G.phase === 'group' ? 1100 : 900;
+      const delay = G.phase === 'roll' ? 700 : G.phase === 'group' ? 1100 : G.phase === 'bomb' ? 1300 : 900;
       timer = setTimeout(() => {
         timer = null;
         if (!G || (G.online && ON.role !== 'host')) return;
@@ -1731,11 +1879,14 @@ function saveOnline() {
   lsSet(ONLINE_KEY, sess);
 }
 
+// Dice on the wire: colour*10 + value; a black die is 200 + card*10 + value.
+const encDie = d => d.c === BLACK ? 200 + (d.k || 0) * 10 + d.v : d.c * 10 + d.v;
 function encodeG() {
   return {
     v: 2, cf: cfgWire(G.cfg), md: G.mods ? { av: G.mods.avail.map(x => ACTIONS.indexOf(x)), us: ACTIONS.map(x => G.mods.used[x] ?? -1), v: G.mods.ver || 0 } : null, gy: G.greyRule ?? -1, cp: G.camp ?? -1, h: G.hints ? 1 : 0, st: G.starter, C: G.C, r: G.round, a: G.active, ph: G.phase, s: G.step, id: G.gid,
-    p: G.players.map(p => [p.name, p.bot ? 1 : 0, p.key || '', p.missions.map(m => [TYPES.indexOf(m.t), m.c ?? -1, m.c2 ?? -1, m.n ?? -1, m.s || 0, m.v || 0]), p.area.map(d => d.c * 10 + d.v)]),
-    rl: G.roll.map(d => d.c * 10 + d.v + (d.gone ? 100 : 0)),
+    p: G.players.map(p => [p.name, p.bot ? 1 : 0, p.key || '', p.missions.map(m => [TYPES.indexOf(m.t), m.c ?? -1, m.c2 ?? -1, m.n ?? -1, m.s || 0, m.v || 0]), p.area.map(encDie)]),
+    rl: G.roll.map(d => encDie(d) + (d.gone ? 1000 : 0)),
+    bm: G.bomb ? [G.bomb.queue, G.bomb.step] : null, lb: G.lostBy ?? -1,
     bg: G.bag || [],
     gr: G.groups,
     tk: G.groups.map((_, i) => G.taken[i] ?? -1),
@@ -1760,7 +1911,14 @@ function decodeG(w) {
     const greyRule = cfg.grey ? int(w.gy, 0, GREY_RULES - 1) : null;
     if (!Array.isArray(w.p) || w.p.length < 3 || w.p.length > 5) throw 0;
     const n = w.p.length;
-    const die = (x, i) => { int(x, 1, 56); const c = Math.floor(x / 10), v = x % 10; if (c !== GREY || !cfg.grey) int(c, 0, C - 1); int(v, 1, 6); return i === undefined ? { c, v } : { id: i, c, v }; };
+    const die = (x, i) => {
+      int(x, 1, 266);
+      let d;
+      if (x >= 200) { if (!cfg.black) throw 0; d = { c: BLACK, v: int(x % 10, 1, 6), k: int(Math.floor((x - 200) / 10), 0, BLACK_CARDS - 1) }; }
+      else { const c = Math.floor(x / 10), v = x % 10; if (c !== GREY || !cfg.grey) int(c, 0, C - 1); int(v, 1, 6); d = { c, v }; }
+      if (i !== undefined) d.id = i;
+      return d;
+    };
     const players = w.p.map(p => ({
       name: cleanName(p[0]) || t('someone'), bot: p[1] === 1, key: typeof p[2] === 'string' ? p[2].slice(0, 200) : '',
       missions: p[3].slice(0, 3).map(m => {
@@ -1778,19 +1936,23 @@ function decodeG(w) {
       }),
       area: p[4].slice(0, 60).map(x => die(x)),
     }));
-    const roll = (w.rl || []).slice(0, 10).map((x, i) => { const gone = Number.isInteger(x) && x >= 100; const d = die(gone ? x - 100 : x, i); if (gone) d.gone = true; return d; });
+    const roll = (w.rl || []).slice(0, 14).map((x, i) => { const gone = Number.isInteger(x) && x >= 1000; const d = die(gone ? x - 1000 : x, i); if (gone) d.gone = true; return d; });
     const bag = (Array.isArray(w.bg) ? w.bg : []).slice(0, C).map(x => int(x, 0, 30));
     const groups = (w.gr || []).slice(0, n).map(g => g.map(id => int(id, 0, roll.length - 1)));
     const taken = {};
     (w.tk || []).forEach((t, i) => { if (t >= 0) taken[i] = int(t, 0, n - 1); });
-    const ph = ['roll', 'group', 'choose', 'reveal'].includes(w.ph) ? w.ph : null;
+    const ph = ['roll', 'group', 'choose', 'bomb', 'reveal'].includes(w.ph) ? w.ph : null;
     if (!ph) throw 0;
+    let bomb = null;
+    if (Array.isArray(w.bm) && Array.isArray(w.bm[0])) bomb = { queue: w.bm[0].slice(0, n).map(x => int(x, 0, n - 1)), step: int(w.bm[1], 0, n) };
+    if (ph === 'bomb' && !bomb) throw 0;
+    const lostBy = Number.isInteger(w.lb) && w.lb >= 0 ? int(w.lb, 0, n - 1) : null;
     const a = int(w.a, 0, n - 1);
     const g = {
       online: true, cfg, mods, greyRule, camp: Number.isInteger(w.cp) && w.cp >= 0 && w.cp < 100 ? w.cp : null, hints: !!w.h, starter: int(w.st, 0, n - 1), C, round: int(w.r, 0, n), active: a, phase: ph,
-      bag, step: int(w.s, 0, n), gid: String(w.id || '').slice(0, 12), players, roll, groups, taken,
+      bag, bomb, lostBy, step: int(w.s, 0, n), gid: String(w.id || '').slice(0, 12), players, roll, groups, taken,
       order: Array.from({ length: n - 1 }, (_, k) => (a + 1 + k) % n),
-      log: (w.lg || []).slice(-6).filter(l => Array.isArray(l) && typeof l[0] === 'string' && l.length <= 3 && l.slice(1).every(x => Number.isInteger(x) && x >= 0 && x < 100)), seq: w.q, results: null, win: null,
+      log: (w.lg || []).slice(-6).filter(l => Array.isArray(l) && typeof l[0] === 'string' && l.length <= 6 && l.slice(1).every(x => Number.isInteger(x) && x >= 0 && x < 100)), seq: w.q, results: null, win: null,
     };
     if (ph === 'choose' && groups.length !== n) throw 0;
     return g;
@@ -2212,7 +2374,7 @@ function processAct(peer) {
   if (a.key !== stateKey() && a.k !== 'mod') return false;
   const seat = G.players.findIndex(p => !p.bot && p.key === key);
   if (seat < 0) return false;
-  return applyAction(seat, { k: a.k, groups: a.groups, g: a.g, kind: a.kind, t: a.t });
+  return applyAction(seat, { k: a.k, groups: a.groups, g: a.g, kind: a.kind, t: a.t, i: a.i });
 }
 
 function sendAct(a, noWait) {
@@ -2301,6 +2463,7 @@ function statsHTML(dice) {
   const parts = [];
   for (let c = 0; c < G.C; c++) if (st.cnt[c]) parts.push(`<span>${cw(c)}${st.cnt[c]} · Σ${st.sum[c]}</span>`);
   if (st.greyV) parts.push(`<span>${cw(GREY)}${st.greyV}</span>`);
+  dice.filter(d => d.c === BLACK).forEach(d => parts.push(`<span>${cw(BLACK)}${d.v}</span>`));
   parts.push(`<span class="stats-all">${t('diceCount', st.total)} · Σ${st.all}</span>`);
   return `<div class="stats">${parts.join('')}</div>`;
 }
@@ -2360,15 +2523,17 @@ function waitHTML(text) { return `<div class="wait"><span class="spinner" aria-h
 const rollDie = (d, opts = {}) => ui.modSel ? dieHTML(d, { ...opts, button: true, action: 'mod-die', data: `data-w="roll"` }) : dieHTML(d, opts);
 const areaDie = (d, p, i) => ui.modSel ? dieHTML(d, { size: 'sm', button: true, action: 'mod-die', data: `data-w="area" data-p="${p}" data-i="${i}"` }) : dieHTML(d, { size: 'sm' });
 
-function groupsHTML(interactive) {
+function groupsHTML(interactive, me) {
   interactive = interactive && !ui.modSel;
+  const allowed = interactive && Number.isInteger(me) ? allowedGroups(me) : null;
   return `<div class="groups">${G.groups.map((ids, g) => {
     const taken = G.taken[g];
-    const who = taken !== undefined ? t('forPlayer', name(taken)) : (interactive ? t('available') : '');
+    const blocked = allowed && taken === undefined && !allowed.includes(g);
+    const who = taken !== undefined ? t('forPlayer', name(taken)) : blocked ? t('blackBlocked') : (interactive ? t('available') : '');
     const inner = `<div class="ghead"><span class="gl">${LETTERS[g]}</span><span class="gwho">${who}</span></div>
       <div class="dice">${groupDice(g).map(d => rollDie(d)).join('')}</div>${statsHTML(groupDice(g))}`;
-    const cls = `group${taken !== undefined ? ' taken' : ''}${ui.chosen === g ? ' sel' : ''}`;
-    return interactive && taken === undefined
+    const cls = `group${taken !== undefined ? ' taken' : ''}${blocked ? ' blocked' : ''}${ui.chosen === g ? ' sel' : ''}`;
+    return interactive && taken === undefined && !blocked
       ? `<button type="button" class="${cls}" data-action="pick" data-g="${g}" aria-pressed="${ui.chosen === g}">${inner}</button>`
       : `<div class="${cls}">${inner}</div>`;
   }).join('')}</div>`;
@@ -2388,6 +2553,9 @@ function logText(e) {
     case 'split': return t('logSplit', who(e[1]), e[2]);
     case 'take': return t('logTake', who(e[1]), LETTERS[e[2]] || '?');
     case 'keep': return t('logKeep', who(e[1]), LETTERS[e[2]] || '?');
+    case 'blackLost': return t('logBlackLost', who(e[1]));
+    case 'bomb': return t('logBomb', who(e[1]), cname(e[3]) ? cname(e[3]).sing : '', e[4]);
+    case 'bombNone': return t('logBombNone', who(e[1]));
     case 'win': return t('logWin');
     case 'lose': return t('logLose');
   }
@@ -2405,7 +2573,7 @@ function stageHTML(V) {
     body = `<h2>${t('turnOf', name(G.active))}</h2>
       <p class="sub">${t('rollSub', P())} ${t('bagLeft', (G.bag || []).reduce((a, b) => a + b, 0))}</p>
       ${mine
-        ? `<div class="actions"><button type="button" class="btn primary big" data-action="roll" ${sending ? 'disabled' : ''}>${sending ? t('sending') : t('rollBtn', rollCount(P()) + (G.cfg.grey && G.round === 0 ? 1 : 0))}</button></div>`
+        ? `<div class="actions"><button type="button" class="btn primary big" data-action="roll" ${sending ? 'disabled' : ''}>${sending ? t('sending') : t('rollBtn', (G.cfg.perRound || rollCount(P())) + (G.cfg.grey && G.round === 0 ? 1 : 0) + (G.cfg.black ? 1 : 0))}</button></div>`
         : waitHTML(t('rolling', name(G.active)))}`;
   } else if (G.phase === 'group') {
     if (mine) {
@@ -2445,9 +2613,14 @@ function stageHTML(V) {
         hint = `<div class="hint"><span class="who">${t('botSays', name(h.bot))}</span>${lines.map(l => `<span>${l}</span>`).join('')}</div>`;
       }
       const label = sending ? t('sending') : ui.chosen === null ? t('pickGroup') : t('takeGroup', LETTERS[ui.chosen]);
+      const blackGroup = G.cfg.black ? availGroups().find(groupHasBlack) : undefined;
+      const blackNote = blackGroup === undefined ? ''
+        : hasBlack(a) ? `<p class="info">${t('blackYouHave')}</p>`
+        : hasBlack(G.active) ? `<p class="info">${t('blackDealerHas', name(G.active))}</p>` : '';
       body = `<h2>${t('choosePrompt', name(a))}</h2>
         <p class="sub">${t('chooseSub', name(G.active))}</p>
-        ${groupsHTML(!sending)}
+        ${blackNote}
+        ${groupsHTML(!sending, a)}
         ${hint}
         <div class="actions"><button type="button" class="btn primary" data-action="take" ${ui.chosen === null || sending ? 'disabled' : ''}>${label}</button></div>`;
     } else {
@@ -2455,6 +2628,24 @@ function stageHTML(V) {
         <p class="sub">${t('chooseWatch', name(G.active), name(a))}</p>
         ${groupsHTML(false)}
         ${waitHTML(G.players[a].bot ? t('thinking', name(a)) : t('picking', name(a)))}`;
+    }
+  } else if (G.phase === 'bomb') {
+    const info = a !== null ? bombInfo(a) : null;
+    if (mine && info) {
+      const sel = Array.isArray(ui.bombSel) ? ui.bombSel : [];
+      const area = G.players[a].area;
+      const okPair = info.need === 1 || (sel.length === 2 && area[sel[0]].v === area[sel[1]].v);
+      const ready = sel.length === info.need && okPair && !sending;
+      body = `<h2>${t('bombTitle')}</h2>
+        <p class="sub">${t('bombYou')} <b>${t('blackCard' + info.k, info.bv)}</b></p>
+        <p class="sub">${t(info.need === 2 ? 'bombPick2' : 'bombPick1')}</p>
+        <div class="dice bomb-pick">${area.map((d, i) => d.c === BLACK ? dieHTML(d, { size: 'lg' })
+          : dieHTML(d, { size: 'lg', button: true, action: 'bomb-die', data: `data-i="${i}" aria-pressed="${sel.includes(i)}"`, disabled: !info.options.includes(i) || sending })).join('')}</div>
+        <div class="actions"><button type="button" class="btn primary" data-action="bomb-ok" ${ready ? '' : 'disabled'}>${sending ? t('sending') : t('bombConfirm', sel.length)}</button></div>`;
+    } else {
+      body = `<h2>${t('bombTitle')}</h2>
+        <p class="sub">${a !== null && info ? `${t('bombOf', name(a))} <b>${t('blackCard' + info.k, info.bv)}</b>` : ''}</p>
+        ${a !== null ? waitHTML(G.players[a].bot ? t('thinking', name(a)) : t('bombWait', name(a))) : ''}`;
     }
   } else if (G.phase === 'reveal') {
     const failed = G.results.reduce((n, r) => n + r.filter(x => !x.ok).length, 0);
@@ -2484,15 +2675,16 @@ function stageHTML(V) {
       : `${campBanner}<div class="actions">${buttons}</div>${nextInfo}${errHTML()}`;
     body = `<div class="banner ${G.win ? 'win' : 'lose'}">
         <h2>${G.win ? t('winTitle') : t('loseTitle')}</h2>
+        ${G.lostBy !== null && G.lostBy !== undefined ? `<p>${t('blackLostText', name(G.lostBy))}</p>` : ''}
         <p>${need ? t('teamStars', G.earned, need) + ' ' : ''}${G.greyRes && !G.greyRes.ok ? t('greyLose') + ' ' : ''}${G.win ? (need ? '' : t('winText')) : need || (G.greyRes && !G.greyRes.ok && !failed) ? t('tryAgain') : t('loseText', failed)}</p>
       </div>${controls}`;
   }
 
   let talk = '';
-  const greyCard = G.cfg.grey && G.greyRule !== null && G.greyRule !== undefined ? greyCardHTML() : '';
+  const greyCard = (G.cfg.grey && G.greyRule !== null && G.greyRule !== undefined ? greyCardHTML() : '') + (G.cfg.black ? blackCardsHTML() : '');
   const inCamp = G.camp !== null && G.camp !== undefined;
   const levelBox = inCamp ? `<div class="levelbox"><span class="label">${t('campaign')} · ${t('campLevelOf', G.camp + 1, CAMPAIGN.length || G.camp + 1)}</span>
-    <b>${esc(campHasName(G.camp) ? campName(G.camp) : cfgText(G.cfg))}</b>${campText(G.camp) ? `<span>${esc(campText(G.camp))}</span>` : campHasName(G.camp) ? `<span>${esc(cfgText(G.cfg))}</span>` : ''}</div>` : '';
+    <b>${esc(campHasName(G.camp) ? campName(G.camp) : cfgText(G.cfg))}</b>${campText(G.camp) ? `<span>${esc(campText(G.camp))}</span>` : campHasName(G.camp) ? `<span>${esc(cfgText(G.cfg))}</span>` : ''}${campIntro(G.camp) ? `<button type="button" class="linkbtn" data-action="intro-open">${t('introAgain')}</button>` : ''}</div>` : '';
   const goal = G.phase !== 'reveal'
     ? `<div class="goal"><span class="goal-big">${teamNeed() ? `${teamNeed()}★` : t('needAllShort')}</span><span>${teamNeed() ? t('goalStars', teamNeed(), starsInPlay()) : t('goalAll')}</span></div>` : '';
   if (G.phase !== 'reveal' && G.online) talk = `<p class="talk">${t('talkOnline')}</p>`;
@@ -2506,7 +2698,7 @@ function stageHTML(V) {
     return `<span class="${cls}">${k + 1}. ${name(p)}</span>`;
   }).join('<span class="sep" aria-hidden="true">→</span>');
   const orderHTML = `<div class="order"><span class="label">${t('orderLabel')}</span><div class="order-list">${order}</div></div>`;
-  const modsLeft = G.mods && G.phase !== 'reveal' ? actionsHTML() : '';
+  const modsLeft = G.mods && G.phase !== 'reveal' && G.phase !== 'bomb' ? actionsHTML() : '';
   return `<section class="stage" aria-live="polite">${levelBox}${goal}${greyCard}${modsLeft}${orderHTML}${warn}${body}${talk}${G.online ? connHTML() : ''}<div class="log"><span class="label">${t('logTitle')}</span><ol>${recent}</ol></div></section>`;
 }
 
@@ -2526,6 +2718,14 @@ function actionsHTML() {
   const note = ui.modSel ? `${t('modHint')} <button type="button" class="linkbtn" data-action="mod-sel" data-m="${ui.modSel}">${t('modCancel')}</button>`
     : mineUsed ? t('modYouUsed') : me === null ? '' : t('modNote');
   return `<div class="mods"><span class="label">${t('modsTitle')}</span><ul class="acts">${rows}</ul>${note ? `<p class="note">${note}</p>` : ''}</div>`;
+}
+
+// Black cards in play: the one rolled this round and the ones players already hold.
+function blackCardsHTML() {
+  const rows = [];
+  if (G.phase !== 'reveal' && G.phase !== 'bomb') G.roll.filter(d => d.c === BLACK && !d.gone).forEach(d => rows.push(`<li>${dieHTML(d, { size: 'sm' })}<span><b>${t('blackThisRound')}</b> ${t('blackCard' + d.k, d.v)}</span></li>`));
+  G.players.forEach((p, i) => p.area.filter(d => d.c === BLACK).forEach(d => rows.push(`<li>${dieHTML(d, { size: 'sm' })}<span><b>${name(i)}:</b> ${t('blackCard' + d.k, d.v)}</span></li>`)));
+  return `<div class="blackcards"><span class="label">${t('blackTitle')}</span>${rows.length ? `<ul>${rows.join('')}</ul>` : `<p class="note">${t('blackNone')}</p>`}</div>`;
 }
 
 // The common grey card everyone can see, and its result at the end.
@@ -2555,15 +2755,32 @@ function headerHTML(status) {
 function gameHTML() {
   const V = viewerOf();
   const where = (G.online ? `${t('gameCode', ON.code.toUpperCase())} · ` : '') + (G.camp !== null && G.camp !== undefined ? `${t('levelN', G.camp + 1)} · ` : '');
-  const status = G.phase === 'reveal' ? `${where}${t('gameOver')}` : `${where}${t('round', G.round + 1, P())} · ${t('toWin')}: ${teamNeed() ? `${teamNeed()}★` : t('needAllShort').toLowerCase()}`;
+  const status = G.phase === 'reveal' ? `${where}${t('gameOver')}` : `${where}${G.phase === 'bomb' ? t('bombTitle') : t('round', G.round + 1, P())} · ${t('toWin')}: ${teamNeed() ? `${teamNeed()}★` : t('needAllShort').toLowerCase()}`;
   return `${headerHTML(status)}
     <div class="board">${stageHTML(V)}${seatsHTML(V)}</div>
-    ${!G.online && G.cover !== null && G.cover !== undefined ? coverHTML() : ''}`;
+    ${introOpen() ? introHTML() : !G.online && G.cover !== null && G.cover !== undefined ? coverHTML() : ''}`;
+}
+
+// Explanation shown before some campaign levels (once per browser, can be reopened).
+const INTRO_KEY = 'blindspots-intros';
+function introSeen() { try { const v = JSON.parse(localStorage.getItem(INTRO_KEY) || '[]'); return Array.isArray(v) ? v : []; } catch (e) { return []; } }
+function introOpen() {
+  if (!G || G.phase === 'reveal' || !campIntro(G.camp)) return false;
+  if (ui.intro === G.camp) return true;
+  return ui.introDone !== G.camp && !introSeen().includes(G.camp);
+}
+function introHTML() {
+  const it = campIntro(G.camp);
+  const paras = String(it.text[LANG] || it.text.es || '').split(/\n+/).filter(Boolean).map(x => `<p>${esc(x)}</p>`).join('');
+  return `<div class="overlay" role="dialog" aria-modal="true" aria-label="${esc(it.title[LANG] || it.title.es || '')}"><div class="cover intro">
+    <h2>${esc(it.title[LANG] || it.title.es || '')}</h2>${paras}
+    <div class="actions"><button type="button" class="btn primary big" data-action="intro-ok">${t('introOk')}</button></div>
+  </div></div>`;
 }
 
 function coverHTML() {
   const i = G.cover;
-  const what = G.phase === 'choose' ? t('coverChoose') : t('coverDeal');
+  const what = G.phase === 'choose' ? t('coverChoose') : G.phase === 'bomb' ? t('coverBomb') : t('coverDeal');
   return `<div class="overlay" role="dialog" aria-modal="true" aria-label="${t('coverLabel')}"><div class="cover">
     <div class="eye" aria-hidden="true">?</div>
     <h2>${t('coverTitle', name(i))}</h2>
@@ -2793,7 +3010,7 @@ function syncUiKey() {
   ui.key = k;
   ui.assign = {};
   G.roll.forEach(d => { ui.assign[d.id] = -1; });
-  ui.sel = 0; ui.chosen = null; ui.hint = null; ui.pending = null; ui.modSel = null;
+  ui.sel = 0; ui.chosen = null; ui.hint = null; ui.pending = null; ui.modSel = null; ui.bombSel = [];
   animate = G.phase === 'group' && !wasGroup;
 }
 
@@ -2881,6 +3098,22 @@ $app.addEventListener('click', e => {
       act('groups', { groups: Array.from({ length: P() }, (_, k) => G.roll.filter(d => ui.assign[d.id] === k).map(d => d.id)) });
       return;
     case 'pick': ui.chosen = g; break;
+    case 'bomb-die': {
+      const i = +el.dataset.i, sel = Array.isArray(ui.bombSel) ? ui.bombSel : [];
+      const info = bombInfo(currentActor());
+      if (!info) break;
+      ui.bombSel = sel.includes(i) ? sel.filter(x => x !== i) : [...sel, i].slice(-info.need);
+      break;
+    }
+    case 'bomb-ok': if (Array.isArray(ui.bombSel)) act('bomb', { i: ui.bombSel.slice() }); return;
+    case 'intro-open': ui.intro = G.camp; break;
+    case 'intro-ok': {
+      const seen = introSeen();
+      if (!seen.includes(G.camp)) { seen.push(G.camp); try { localStorage.setItem(INTRO_KEY, JSON.stringify(seen)); } catch (e) {} }
+      ui.intro = null; ui.introDone = G.camp;
+      if (!G.online) { advance(); changed(); return; }
+      break;
+    }
     case 'take': if (ui.chosen !== null) act('take', { g: ui.chosen }); return;
     case 'camp-next': case 'camp-restart': {
       G.camp = actn === 'camp-next' ? Math.min(G.camp + 1, CAMPAIGN.length - 1) : 0;
