@@ -127,6 +127,10 @@ button { font: inherit; color: inherit; }
 .rack::after { content: ""; position: absolute; left: 6%; right: 6%; bottom: 0; height: 9px; border-radius: 0 0 8px 8px; background: var(--line); }
 .mcard { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; min-height: 74px; display: grid; gap: 8px; align-content: center; }
 .mcard .label { font-size: 11px; }
+.cardno { float: right; margin-left: 8px; font-size: 10px; font-weight: 600; color: var(--muted); letter-spacing: .02em; font-variant-numeric: tabular-nums; }
+.blackcards li .cardno, .sub .cardno { float: none; margin-left: auto; }
+.sub .cardno { margin-left: 6px; }
+.greycard > div { flex: 1; min-width: 0; }
 .mline { display: flex; gap: 8px; align-items: baseline; font-weight: 700; font-size: 15px; }
 .mline .txt { flex: 1; min-width: 0; }
 .mline .res { font-size: 12px; font-weight: 700; padding: 2px 7px; border-radius: 6px; white-space: nowrap; }
@@ -439,7 +443,7 @@ const I18N = {
     logBlackLost: name => `${name} recibe un segundo dado negro. ¡Nivel perdido!`,
     logBomb: (name, c, v) => `La bomba de ${name} elimina un ${v} ${c}.`,
     logBombNone: name => `La bomba de ${name} no elimina nada.`,
-    introOk: 'Entendido', introAgain: '¿Cómo funciona?',
+    cardNo: 'Número de carta', introOk: 'Entendido', introAgain: '¿Cómo funciona?',
     needLabel: 'Estrellas del equipo para ganar', needAllShort: 'Todas', less: 'Menos', more: 'Más',
     needAllNote: 'Hay que cumplir todos los objetivos de todos los jugadores.',
     needNote: n => `Se suman las estrellas de los objetivos que cumple cada jugador. Con ${n}★ entre todos, el equipo gana. Los objetivos con * dan 1★ extra si se clava la cifra exacta.`,
@@ -732,7 +736,7 @@ const I18N = {
     logBlackLost: name => `${name} gets a second black die. Level lost!`,
     logBomb: (name, c, v) => `${name}’s bomb removes a ${c} ${v}.`,
     logBombNone: name => `${name}’s bomb removes nothing.`,
-    introOk: 'Got it', introAgain: 'How does it work?',
+    cardNo: 'Card number', introOk: 'Got it', introAgain: 'How does it work?',
     needLabel: 'Team stars to win', needAllShort: 'All', less: 'Fewer', more: 'More',
     needAllNote: 'Every objective of every player must be completed.',
     needNote: n => `The stars of the objectives each player completes are added up. With ${n}★ between you, the team wins. Objectives marked * give 1★ extra if you hit the exact amount.`,
@@ -1238,7 +1242,7 @@ function loadCatalogue() {
     const spec = e && TIPO[String(e.tipo || '').toLowerCase().trim()];
     const st = e && Number(e.estrellas);
     if (!spec || !Number.isInteger(st) || st < 1 || st > 5) { bad.push(i + 1); return; }
-    const m = { t: spec.t, s: st };
+    const m = { t: spec.t, s: st, id: i + 1 }; // id: position in objetivos.js, the number printed on the card
     if (spec.c) { m.c = col(e.color); if (m.c < 0) { bad.push(i + 1); return; } }
     if (spec.c2) { m.c2 = col(e.color2); if (m.c2 < 0 || m.c2 === m.c) { bad.push(i + 1); return; } }
     if (spec.n) { m.n = Number(e.n); if (!Number.isInteger(m.n) || m.n < 0 || m.n > 99) { bad.push(i + 1); return; } }
@@ -1920,7 +1924,7 @@ const encDie = d => d.c === BLACK ? 200 + (d.k || 0) * 10 + d.v : d.c * 10 + d.v
 function encodeG() {
   return {
     v: 2, cf: cfgWire(G.cfg), md: G.mods ? { av: G.mods.avail.map(x => ACTIONS.indexOf(x)), us: ACTIONS.map(x => G.mods.used[x] ?? -1), v: G.mods.ver || 0 } : null, gy: G.greyRule ?? -1, cp: G.camp ?? -1, h: G.hints ? 1 : 0, st: G.starter, C: G.C, r: G.round, a: G.active, ph: G.phase, s: G.step, id: G.gid,
-    p: G.players.map(p => [p.name, p.bot ? 1 : 0, p.key || '', p.missions.map(m => [TYPES.indexOf(m.t), m.c ?? -1, m.c2 ?? -1, m.n ?? -1, m.s || 0, m.v || 0]), p.area.map(encDie)]),
+    p: G.players.map(p => [p.name, p.bot ? 1 : 0, p.key || '', p.missions.map(m => [TYPES.indexOf(m.t), m.c ?? -1, m.c2 ?? -1, m.n ?? -1, m.s || 0, m.v || 0, m.id || 0]), p.area.map(encDie)]),
     rl: G.roll.map(d => encDie(d) + (d.gone ? 1000 : 0)),
     bm: G.bomb ? [G.bomb.queue, G.bomb.step] : null, lb: G.lostBy ?? -1,
     bg: G.bag || [],
@@ -1965,6 +1969,7 @@ function decodeG(w) {
         if (m[3] >= 0) o.n = int(m[3], 0, 99);
         if (m[4] > 0) o.s = int(m[4], 1, 5);
         if (m[5] > 0) o.v = int(m[5], 1, 6);
+        if (Number.isInteger(m[6]) && m[6] > 0 && m[6] < 1000) o.id = m[6];
         if (/^(noNumber|atLeastNumber)$/.test(t) && o.v === undefined) throw 0;
         if (/^(noColor|exact|atLeast|atMost|sumGreater|countMore|sumAtLeast)$/.test(t) && o.c === undefined) throw 0;
         if (/^(sumGreater|countMore)$/.test(t) && o.c2 === undefined) throw 0;
@@ -2523,7 +2528,8 @@ function missionCard(i, V) {
   const lines = p.missions.map((m, k) => {
     const r = G.results && G.results[i][k];
     const res = r ? `<span class="res ${r.ok ? 'ok' : 'bad'}">${r.ok ? `${t('met')} +${r.earned}★` : t('failed')}</span>` : '';
-    const stars = m.s ? `<span class="stars" role="img" aria-label="${t('starsLabel', m.s)}">${starsText(m.s)}</span>` : '';
+    const no = m.id ? `<span class="cardno" title="${t('cardNo')}">${m.id}</span>` : '';
+    const stars = m.s ? `<span class="stars" role="img" aria-label="${t('starsLabel', m.s)}">${starsText(m.s)}</span>${no}` : no;
     const bonus = BONUS_TYPES.includes(m.t) ? `<div class="bonus${r && r.bonus ? ' hit' : ''}">${bonusText(m)}</div>` : '';
     const detail = r ? `<div class="mdetail">${esc(checkMission(m, st, G.C).detail)}</div>` : '';
     return `<div class="mline"><span class="txt">${stars}${stars ? '<br>' : ''}${missionText(m)}</span>${res}</div>${bonus}${detail}`;
@@ -2673,7 +2679,7 @@ function stageHTML(V) {
       const okPair = info.need === 1 || (sel.length === 2 && area[sel[0]].v === area[sel[1]].v);
       const ready = sel.length === info.need && okPair && !sending;
       body = `<h2>${t('bombTitle')}</h2>
-        <p class="sub">${t('bombYou')} <b>${t('blackCard' + info.k, info.bv)}</b></p>
+        <p class="sub">${t('bombYou')} <b>${t('blackCard' + info.k, info.bv)}</b> ${blackNo(info.k)}</p>
         <p class="sub">${t(info.need === 2 ? 'bombPick2' : 'bombPick1')}</p>
         <div class="dice bomb-pick">${area.map((d, i) => d.c === BLACK ? dieHTML(d, { size: 'lg' })
           : dieHTML(d, { size: 'lg', button: true, action: 'bomb-die', data: `data-i="${i}" aria-pressed="${sel.includes(i)}"`, disabled: !info.options.includes(i) || sending })).join('')}</div>
@@ -2756,11 +2762,12 @@ function actionsHTML() {
   return `<div class="mods"><span class="label">${t('modsTitle')}</span><ul class="acts">${rows}</ul>${note ? `<p class="note">${note}</p>` : ''}</div>`;
 }
 
+const blackNo = k => `<span class="cardno" title="${t('cardNo')}">N${k + 1}</span>`;
 // Black cards in play: the one rolled this round and the ones players already hold.
 function blackCardsHTML() {
   const rows = [];
-  if (G.phase !== 'reveal' && G.phase !== 'bomb') G.roll.filter(d => d.c === BLACK && !d.gone).forEach(d => rows.push(`<li>${dieHTML(d, { size: 'sm' })}<span><b>${t('blackThisRound')}</b> ${t('blackCard' + d.k, d.v)}</span></li>`));
-  G.players.forEach((p, i) => p.area.filter(d => d.c === BLACK).forEach(d => rows.push(`<li>${dieHTML(d, { size: 'sm' })}<span><b>${name(i)}:</b> ${t('blackCard' + d.k, d.v)}</span></li>`)));
+  if (G.phase !== 'reveal' && G.phase !== 'bomb') G.roll.filter(d => d.c === BLACK && !d.gone).forEach(d => rows.push(`<li>${dieHTML(d, { size: 'sm' })}<span><b>${t('blackThisRound')}</b> ${t('blackCard' + d.k, d.v)}</span>${blackNo(d.k)}</li>`));
+  G.players.forEach((p, i) => p.area.filter(d => d.c === BLACK).forEach(d => rows.push(`<li>${dieHTML(d, { size: 'sm' })}<span><b>${name(i)}:</b> ${t('blackCard' + d.k, d.v)}</span>${blackNo(d.k)}</li>`)));
   return `<div class="blackcards"><span class="label">${t('blackTitle')}</span>${rows.length ? `<ul>${rows.join('')}</ul>` : `<p class="note">${t('blackNone')}</p>`}</div>`;
 }
 
@@ -2772,7 +2779,7 @@ function greyCardHTML() {
     res = `<div class="grey-res ${r.ok ? 'ok' : 'bad'}">${r.ok ? t('met') : t('failed')} · ${t('greyHolder', name(h))} ${esc(r.detail)}</div>`;
   }
   return `<div class="greycard"><span class="die c5 sm" aria-hidden="true"><svg viewBox="0 0 100 100"><rect class="face" x="4" y="4" width="92" height="92" rx="20"/></svg></span>
-    <div><span class="label">${t('greyCard')}</span><div class="grey-rule">${t('greyRule' + G.greyRule)}</div>${res}</div></div>`;
+    <div><span class="label">${t('greyCard')}</span><span class="cardno" title="${t('cardNo')}">G${G.greyRule + 1}</span><div class="grey-rule">${t('greyRule' + G.greyRule)}</div>${res}</div></div>`;
 }
 
 function headerHTML(status) {

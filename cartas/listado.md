@@ -139,3 +139,19 @@ Se saca una por partida, es común y la ven todos.
 | G5 | El jugador con el dado gris debe tener al menos otro dado con la misma cifra que el dado gris. |
 | G6 | El jugador con el dado gris no puede tener más de 3 dados de un mismo color. |
 | G7 | El jugador con el dado gris no puede sumar más de 15 (incluido el gris). |
+
+## Cartas negras (dado negro, niveles Bomba de la campaña)
+
+Cada ronda sale una junto al dado negro; la ven todos. Al final, quien tiene el dado negro la aplica a sus propios dados. Una carta no vuelve a salir hasta que han salido todas las demás.
+
+| Nº | Efecto |
+|---|---|
+| N1 | Elimina un dado de valor menor (de los que tengas, el que menos puntos tenga). |
+| N2 | Elimina un dado de valor mayor (de los que tengas, el que más puntos tenga). |
+| N3 | Elimina un dado del mismo valor que el dado negro. |
+| N4 | Elimina un dado del color que más tengas. |
+| N5 | Elimina un dado del color que menos tengas. |
+| N6 | Elimina 2 dados al azar. |
+| N7 | Elimina dos dados del mismo valor. |
+| N8 | Elimina un dado de valor menor o igual al dado negro. |
+| N9 | Elimina un dado de valor mayor o igual al dado negro. |
