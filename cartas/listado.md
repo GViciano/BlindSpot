@@ -67,7 +67,7 @@ Texto tal como aparece en el juego. El número coincide con el de la esquina de 
 | 59 | ★★★★★ | Exactamente 4 dados verdes. |  |
 | 60 | ★★★★★ | Tus dados azules suman 18 o más. | Si consigues exactamente una suma de 18 en tus dados azules: +1★ extra. |
 | 61 | ★★★★☆ | Ningún dado con número par. |  |
-| 62 | ★★★☆☆ | Ningún dado con número impar. |  |
+| 62 | ★★★★☆ | Ningún dado con número impar. |  |
 | 63 | ★★★☆☆ | Exactamente 2 dados con número par. |  |
 | 64 | ★★★☆☆ | Exactamente 3 dados con número par. |  |
 | 65 | ★★★☆☆ | Exactamente 2 dados con número impar. |  |

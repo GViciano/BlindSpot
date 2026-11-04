@@ -125,7 +125,7 @@ window.BLINDSPOTS_OBJETIVOS = [
 
   // Objetivos sobre los números de los dados
   { estrellas: 4, tipo: 'sin_pares' },
-  { estrellas: 3, tipo: 'sin_impares' },
+  { estrellas: 4, tipo: 'sin_impares' },
   { estrellas: 3, tipo: 'pares_exactos', n: 2 },
   { estrellas: 3, tipo: 'pares_exactos', n: 3 },
   { estrellas: 3, tipo: 'impares_exactos', n: 2 },
