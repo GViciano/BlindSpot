@@ -127,6 +127,7 @@ button { font: inherit; color: inherit; }
 .rack::after { content: ""; position: absolute; left: 6%; right: 6%; bottom: 0; height: 9px; border-radius: 0 0 8px 8px; background: var(--line); }
 .mcard { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; min-height: 74px; display: grid; gap: 8px; align-content: center; }
 .mcard .label { font-size: 11px; }
+.mod-last { margin: 8px 0 0; padding: 8px 10px; border-radius: 8px; background: var(--surface-2, #eef1f5); font-size: 14px; }
 .ver { color: var(--muted); font-size: 11px; opacity: .8; }
 .cardno { float: right; margin-left: 8px; font-size: 10px; font-weight: 600; color: var(--muted); letter-spacing: .02em; font-variant-numeric: tabular-nums; }
 .blackcards li .cardno, .sub .cardno { float: none; margin-left: auto; }
@@ -400,6 +401,12 @@ const I18N = {
     modHint: 'Ahora toca el dado: de la tirada o de la zona de cualquier jugador.',
     modCancel: 'Cancelar', modUsedBy: name => `Usada por ${name}`, modYouUsed: 'Ya has usado tu acción en este nivel.',
     logModRemove: (name, colour, v) => `${name} elimina un dado ${colour} (${v}) y vuelve a la bolsa.`,
+    modLast: 'Última acción:', modWhereTable: 'de la mesa', modWhereOwn: 'suyo', modWhereOf: name => `de ${name}`,
+    modDid_reroll: (n, c, w, a, b) => `${n} ha relanzado un dado ${c} ${w}: era un ${a} y ha salido un ${b}.`,
+    modDid_plus: (n, c, w, a, b) => `${n} ha sumado 1 a un dado ${c} ${w}: pasa de ${a} a ${b}.`,
+    modDid_minus: (n, c, w, a, b) => `${n} ha restado 1 a un dado ${c} ${w}: pasa de ${a} a ${b}.`,
+    modDid_flip: (n, c, w, a, b) => `${n} ha invertido un dado ${c} ${w} (cara opuesta): pasa de ${a} a ${b}.`,
+    modDid_remove: (n, c, w, a) => `${n} ha eliminado un dado ${c} ${w} (un ${a}); vuelve a la bolsa.`,
     logMod: (name, mod, colour, a, b) => `${name} usa «${mod}» en un dado ${colour}: ${a} → ${b}.`,
     gameType: 'Tipo de partida', freeGame: 'Partida libre', campaign: 'Campaña',
     levelN: n => `Nivel ${n}`, campLevelOf: (n, N) => `Nivel ${n} de ${N}`,
@@ -695,6 +702,12 @@ const I18N = {
     modHint: 'Now tap the die: in the roll or in any player’s area.',
     modCancel: 'Cancel', modUsedBy: name => `Used by ${name}`, modYouUsed: 'You have already used your action this level.',
     logModRemove: (name, colour, v) => `${name} removes a ${colour} die (${v}) and puts it back in the bag.`,
+    modLast: 'Last action:', modWhereTable: 'on the table', modWhereOwn: 'of their own', modWhereOf: name => `of ${name}’s`,
+    modDid_reroll: (n, c, w, a, b) => `${n} rerolled a ${c} die ${w}: it was a ${a} and came up ${b}.`,
+    modDid_plus: (n, c, w, a, b) => `${n} added 1 to a ${c} die ${w}: from ${a} to ${b}.`,
+    modDid_minus: (n, c, w, a, b) => `${n} subtracted 1 from a ${c} die ${w}: from ${a} to ${b}.`,
+    modDid_flip: (n, c, w, a, b) => `${n} flipped a ${c} die ${w} to its opposite face: from ${a} to ${b}.`,
+    modDid_remove: (n, c, w, a) => `${n} removed a ${c} die ${w} (a ${a}); it goes back to the bag.`,
     logMod: (name, mod, colour, a, b) => `${name} uses “${mod}” on a ${colour} die: ${a} → ${b}.`,
     gameType: 'Game type', freeGame: 'Free game', campaign: 'Campaign',
     levelN: n => `Level ${n}`, campLevelOf: (n, N) => `Level ${n} of ${N}`,
@@ -1516,7 +1529,7 @@ function startLevel() {
   const r = genMissions(P(), G.cfg);
   if (r.error) return r.error;
   G.players.forEach((p, i) => { p.missions = r.missions[i]; p.area = []; });
-  Object.assign(G, { greyRule: G.cfg.grey ? ri(GREY_RULES) : null, greyRes: null, bag: Array(G.C).fill(G.cfg.bag || BAG_PER_COLOUR), mods: G.cfg.mods ? dealActions(P()) : null, blackDeck: G.cfg.black ? drawBlackCards(P()) : null, bomb: null, lostBy: null, gid: rid(6), round: 0, active: G.starter, phase: 'roll', roll: [], groups: [], order: [], step: 0, taken: {}, results: null, win: null, log: [] });
+  Object.assign(G, { modNote: null, greyRule: G.cfg.grey ? ri(GREY_RULES) : null, greyRes: null, bag: Array(G.C).fill(G.cfg.bag || BAG_PER_COLOUR), mods: G.cfg.mods ? dealActions(P()) : null, blackDeck: G.cfg.black ? drawBlackCards(P()) : null, bomb: null, lostBy: null, gid: rid(6), round: 0, active: G.starter, phase: 'roll', roll: [], groups: [], order: [], step: 0, taken: {}, results: null, win: null, log: [] });
   log(['start']);
   if (G.camp !== null && G.camp !== undefined) log(['level', G.camp]);
   log(['first', G.starter]);
@@ -1750,7 +1763,10 @@ function applyMod(seat, kind, target) {
   }
   G.mods.used[action] = seat;
   G.mods.ver = (G.mods.ver || 0) + 1;
-  log(['mod', seat, MOD_KINDS.indexOf(kind), d.c, old, kind === 'remove' ? 0 : d.v]);
+  // Last element: whose die it was (0 = on the table, p + 1 = in player p's area).
+  const entry = ['mod', seat, MOD_KINDS.indexOf(kind), d.c, old, kind === 'remove' ? 0 : d.v, target.w === 'roll' ? 0 : target.p + 1];
+  log(entry);
+  G.modNote = entry;
   return true;
 }
 // The seat that uses an action from this screen.
@@ -1932,6 +1948,7 @@ function encodeG() {
     v: 2, cf: cfgWire(G.cfg), md: G.mods ? { av: G.mods.avail.map(x => ACTIONS.indexOf(x)), us: ACTIONS.map(x => G.mods.used[x] ?? -1), v: G.mods.ver || 0 } : null, gy: G.greyRule ?? -1, cp: G.camp ?? -1, h: G.hints ? 1 : 0, st: G.starter, C: G.C, r: G.round, a: G.active, ph: G.phase, s: G.step, id: G.gid,
     p: G.players.map(p => [p.name, p.bot ? 1 : 0, p.key || '', p.missions.map(m => [TYPES.indexOf(m.t), m.c ?? -1, m.c2 ?? -1, m.n ?? -1, m.s || 0, m.v || 0, m.id || 0, m.al ? 1 : 0]), p.area.map(encDie)]),
     rl: G.roll.map(d => encDie(d) + (d.gone ? 1000 : 0)),
+    mn: Array.isArray(G.modNote) ? G.modNote : null,
     bm: G.bomb ? [G.bomb.queue, G.bomb.step] : null, lb: G.lostBy ?? -1,
     bg: G.bag || [],
     gr: G.groups,
@@ -2000,7 +2017,8 @@ function decodeG(w) {
       online: true, cfg, mods, greyRule, camp: Number.isInteger(w.cp) && w.cp >= 0 && w.cp < 100 ? w.cp : null, hints: !!w.h, starter: int(w.st, 0, n - 1), C, round: int(w.r, 0, n), active: a, phase: ph,
       bag, bomb, lostBy, step: int(w.s, 0, n), gid: String(w.id || '').slice(0, 12), players, roll, groups, taken,
       order: Array.from({ length: n - 1 }, (_, k) => (a + 1 + k) % n),
-      log: (w.lg || []).slice(-6).filter(l => Array.isArray(l) && typeof l[0] === 'string' && l.length <= 6 && l.slice(1).every(x => Number.isInteger(x) && x >= 0 && x < 100)), seq: w.q, results: null, win: null,
+      log: (w.lg || []).slice(-6).filter(l => Array.isArray(l) && typeof l[0] === 'string' && l.length <= 7 && l.slice(1).every(x => Number.isInteger(x) && x >= 0 && x < 100)), seq: w.q,
+      modNote: Array.isArray(w.mn) && w.mn[0] === 'mod' && w.mn.length <= 7 && w.mn.slice(1).every(x => Number.isInteger(x) && x >= 0 && x < 100) ? w.mn : null, results: null, win: null,
     };
     if (ph === 'choose' && groups.length !== n) throw new Error('check');
     return g;
@@ -2026,7 +2044,7 @@ const PEERJS_URL = 'https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js';
 // Online relay through Supabase Realtime: works on networks that block direct browser-to-browser links.
 // The publishable key is meant to be public (it only allows what the project's settings allow).
 // Shown next to the connection line, to tell whether everyone has the same version loaded.
-const APP_VERSION = '2026.11.05c';
+const APP_VERSION = '2026.11.06';
 const SUPABASE_URL = 'https://vjphqqtoigpjncmsdudq.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_hUInzKity39UFsFwsFqmSw_HR3HMLE4';
 const SUPABASE_JS = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js';
@@ -2672,6 +2690,14 @@ function groupsHTML(interactive, me) {
   }).join('')}</div>`;
 }
 
+// What a special action did, in a full sentence: who, which die (and whose), before -> after.
+function modText(e) {
+  const who = i => (G.players[i] ? G.players[i].name : '?');
+  const kind = MOD_KINDS[e[2]] || 'reroll', colour = cname(e[3]) ? cname(e[3]).sing : '';
+  const where = e[6] === undefined ? '' : e[6] === 0 ? t('modWhereTable') : e[6] - 1 === e[1] ? t('modWhereOwn') : t('modWhereOf', who(e[6] - 1));
+  return t('modDid_' + kind, who(e[1]), colour, where, e[4], e[5]).replace(/ +:/g, ':').replace(/  +/g, ' ');
+}
+
 // One log entry ([code, ...args]) as text in the viewer's language.
 function logText(e) {
   if (typeof e === 'string') return e; // saved by an older version
@@ -2680,8 +2706,7 @@ function logText(e) {
     case 'start': return t('logStart', cfgText(G.cfg));
     case 'first': return t('logFirst', who(e[1]));
     case 'level': return campHasName(e[1]) ? t('logLevel', e[1] + 1, campName(e[1])) : t('logLevelN', e[1] + 1);
-    case 'mod': return MOD_KINDS[e[2]] === 'remove' ? t('logModRemove', who(e[1]), cname(e[3]) ? cname(e[3]).sing : '', e[4])
-      : t('logMod', who(e[1]), t('mod_' + (MOD_KINDS[e[2]] || 'reroll')), cname(e[3]) ? cname(e[3]).sing : '', e[4], e[5]);
+    case 'mod': return modText(e);
     case 'roll': return t('logRoll', who(e[1]), e[2]);
     case 'split': return t('logSplit', who(e[1]), e[2]);
     case 'take': return t('logTake', who(e[1]), LETTERS[e[2]] || '?');
@@ -2850,7 +2875,8 @@ function actionsHTML() {
   }).join('');
   const note = ui.modSel ? `${t('modHint')} <button type="button" class="linkbtn" data-action="mod-sel" data-m="${ui.modSel}">${t('modCancel')}</button>`
     : mineUsed ? t('modYouUsed') : me === null ? '' : t('modNote');
-  return `<div class="mods"><span class="label">${t('modsTitle')}</span><ul class="acts">${rows}</ul>${note ? `<p class="note">${note}</p>` : ''}</div>`;
+  const last = Array.isArray(G.modNote) ? `<p class="mod-last"><b>${t('modLast')}</b> ${esc(modText(G.modNote))}</p>` : '';
+  return `<div class="mods"><span class="label">${t('modsTitle')}</span><ul class="acts">${rows}</ul>${last}${note ? `<p class="note">${note}</p>` : ''}</div>`;
 }
 
 const blackNo = k => `<span class="cardno" title="${t('cardNo')}">N${k + 1}</span>`;
