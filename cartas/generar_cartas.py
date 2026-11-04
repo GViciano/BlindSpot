@@ -53,8 +53,8 @@ class Row:
         self.items.append(('die', size, dict(colour=colour, face=face, pip=pip)))
         return self
 
-    def any_die(self, size=11, face=None):
-        self.items.append(('any', size, dict(face=face)))
+    def any_die(self, size=11, face=None, crossed=False):
+        self.items.append(('any', size, dict(face=face, crossed=crossed)))
         return self
 
     def text(self, s, size=9, colour=INK, width=None):
@@ -87,9 +87,11 @@ class Row:
         parts = []
         for kind, w, o in self.items:
             if kind == 'die':
-                parts.append(die_svg(x, cy - w / 2, w, COLORS[o['colour']], o['face'], o['pip']))
+                parts.append(die_svg(x, cy - w / 2, w, COLORS.get(o['colour'], o['colour']), o['face'], o['pip']))
             elif kind == 'any':
                 parts.append(any_die_svg(x, cy - w / 2, w, o['face']))
+                if o.get('crossed'):
+                    parts.append(cross(x + w * 1.0, cy - w * 0.5, w * 0.24))
             elif kind == 'text':
                 parts.append(f'<text x="{x + w / 2:.2f}" y="{cy + o["size"] * 0.35:.2f}" font-size="{o["size"]}" '
                              f'text-anchor="middle" font-weight="700" fill="{o["colour"]}" font-family="{FONT}">{o["s"]}</text>')
@@ -348,6 +350,62 @@ def grey_back_svg():
             f'<text x="{CARD_W / 2}" y="{CARD_H / 2 + 5}" font-size="14" text-anchor="middle" font-weight="700" fill="#e7ebf1" font-family="{FONT}">?</text></svg>')
 
 
+BLACK_DIE = '#1c1e23'
+BLACK_BG = '#e4e5e8'
+
+
+def cross(cx, cy, r):
+    """Red badge with a white X on the die's corner: this die is removed."""
+    k = r * 0.45
+    return (f'<circle cx="{cx:.2f}" cy="{cy:.2f}" r="{r:.2f}" fill="{RED}" stroke="#ffffff" stroke-width="0.6"/>'
+            f'<line x1="{cx - k:.2f}" y1="{cy - k:.2f}" x2="{cx + k:.2f}" y2="{cy + k:.2f}" stroke="#ffffff" stroke-width="1" stroke-linecap="round"/>'
+            f'<line x1="{cx - k:.2f}" y1="{cy + k:.2f}" x2="{cx + k:.2f}" y2="{cy - k:.2f}" stroke="#ffffff" stroke-width="1" stroke-linecap="round"/>')
+
+
+def black_rule_content(k):
+    """Middle of a black card: which of the holder's dice is removed at the end."""
+    cy = CARD_H / 2 + 8
+    if k in (0, 1):  # lowest / highest of your dice
+        faces = [2, 4, 6]
+        r = Row(2.5)
+        for v in faces:
+            r.any_die(12, face=v, crossed=(v == (2 if k == 0 else 6)))
+        return r.svg(cy)
+    if k == 2:  # same value as the black die
+        return Row(3).die(BLACK_DIE, 14, face=4).text('=', 13).any_die(14, face=4, crossed=True).svg(cy)
+    if k in (3, 4):  # colour you have most / fewest of
+        return Row(4).any_die(15, crossed=True).wheel(13, '▲' if k == 3 else '▼').svg(cy)
+    if k == 5:  # two at random
+        return Row(3).any_die(14, crossed=True).any_die(14, crossed=True).text('?', 15).svg(cy)
+    if k == 6:  # two dice with the same value
+        return Row(3).any_die(14, face=3, crossed=True).text('=', 13).any_die(14, face=3, crossed=True).svg(cy)
+    if k in (7, 8):  # value ≤ / ≥ the black die
+        return Row(3).any_die(14, crossed=True).text('≤' if k == 7 else '≥', 14).die(BLACK_DIE, 14, face=4).svg(cy)
+    raise ValueError(k)
+
+
+def black_card_svg(k):
+    return ''.join([
+        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {CARD_W} {CARD_H}" width="{CARD_W}mm" height="{CARD_H}mm">',
+        f'<rect x="0.6" y="0.6" width="{CARD_W - 1.2}" height="{CARD_H - 1.2}" rx="3.2" fill="{BLACK_BG}" stroke="#9aa0aa" stroke-width="0.3"/>',
+        f'<rect x="3" y="3" width="{CARD_W - 6}" height="{CARD_H - 6}" rx="2.4" fill="none" stroke="{BLACK_DIE}" stroke-width="0.6"/>',
+        # who it is for: the player holding the black die
+        die_svg(CARD_W / 2 - 9, 9, 18, BLACK_DIE, stroke='#7d8594'),
+        f'<text x="{CARD_W / 2}" y="34" font-size="9" text-anchor="middle" font-weight="700" fill="{INK}" font-family="{FONT}">▼</text>',
+        black_rule_content(k),
+        f'<text x="{CARD_W - 6}" y="{CARD_H - 5.2}" font-size="2.6" text-anchor="end" fill="#8a909a" font-family="{FONT}">N{k + 1}</text>',
+        '</svg>'])
+
+
+def black_back_svg():
+    return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {CARD_W} {CARD_H}" width="{CARD_W}mm" height="{CARD_H}mm">'
+            f'<rect x="0.6" y="0.6" width="{CARD_W - 1.2}" height="{CARD_H - 1.2}" rx="3.2" fill="#15171b" stroke="#c9cfd8" stroke-width="0.3"/>'
+            '<pattern id="bst" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="2" height="4" fill="#23262c"/></pattern>'
+            f'<rect x="3" y="3" width="{CARD_W - 6}" height="{CARD_H - 6}" rx="2.4" fill="url(#bst)"/>'
+            + die_svg(CARD_W / 2 - 11, CARD_H / 2 - 11, 22, BLACK_DIE, stroke='#e7ebf1') +
+            f'<text x="{CARD_W / 2}" y="{CARD_H / 2 + 5}" font-size="14" text-anchor="middle" font-weight="700" fill="#e7ebf1" font-family="{FONT}">?</text></svg>')
+
+
 def main():
     objs = load_objectives()
     cards = [card_svg(o, i + 1) for i, o in enumerate(objs)]
@@ -366,9 +424,12 @@ def main():
     # Optional grey die: 7 common grey cards and their backs.
     html.append('<div class="page">' + ''.join(grey_card_svg(r) for r in range(7)) + '</div>')
     html.append('<div class="page">' + grey_back_svg() * 7 + '</div>')
+    # Black die (Bomb levels): 9 black cards and their backs.
+    html.append('<div class="page">' + ''.join(black_card_svg(k) for k in range(9)) + '</div>')
+    html.append('<div class="page">' + black_back_svg() * 9 + '</div>')
     html.append('</body></html>')
     OUT.write_text(''.join(html))
-    print(f'{len(cards)} cartas, {len(pages)} hojas + 1 de reversos + 2 de cartas grises -> {OUT}')
+    print(f'{len(cards)} cartas, {len(pages)} hojas + 1 de reversos + 2 de cartas grises + 2 de cartas negras -> {OUT}')
 
 
 if __name__ == '__main__':
