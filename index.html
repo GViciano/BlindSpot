@@ -93,7 +93,14 @@ button { font: inherit; color: inherit; }
 .prow .num { font-family: var(--font-display); color: var(--muted); text-align: center; }
 .prow input { width: 100%; min-width: 0; border: 1px solid var(--line); background: var(--surface-2); border-radius: 10px; padding: 9px 12px; font: inherit; color: var(--ink); }
 .toggle { display: flex; align-items: center; gap: 10px; cursor: pointer; }
-.toggle input { width: 18px; height: 18px; accent-color: var(--d0); }
+.toggle input { appearance: none; -webkit-appearance: none; flex: none; position: relative; width: 51px; height: 31px; margin: 0;
+  border-radius: 999px; background: var(--line); cursor: pointer; transition: background .2s ease; }
+.toggle input::before { content: ''; position: absolute; top: 2px; left: 2px; width: 27px; height: 27px; border-radius: 50%;
+  background: #fff; box-shadow: 0 2px 4px rgba(0, 0, 0, .25), 0 0 1px rgba(0, 0, 0, .2); transition: transform .2s ease; }
+.toggle input:checked { background: var(--ok); }
+.toggle input:checked::before { transform: translateX(20px); }
+.toggle input:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .toggle input, .toggle input::before { transition: none; } }
 .howto { margin: 0; padding: 0; list-style: none; display: grid; gap: 12px; counter-reset: s; }
 .howto li { display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 10px; counter-increment: s; }
 .howto li::before { content: counter(s); font-family: var(--font-display); width: 26px; height: 26px; border-radius: 7px; background: var(--surface-2); border: 1px solid var(--line); display: grid; place-items: center; font-size: 13px; }
@@ -3099,7 +3106,7 @@ $app.addEventListener('click', e => {
     case 'hints': S.hints = el.checked; persist(); return;
     case 'set-grey': S.grey = el.checked; persist(); return;
     case 'set-camp': S.camp = el.dataset.n === '1'; ui.err = ''; persist(); break;
-    case 'set-unlock': campSetAll(el.checked); ui.err = ''; persist(); break;
+    case 'set-unlock': campSetAll(el.checked); ui.err = ''; persist(); setTimeout(render, 220); return;
     case 'set-clevel': S.campLevel = +el.dataset.n; ui.err = ''; persist(); break;
     case 'start': ui.err = ''; newLocalGame(); if (G) advance(); persist(); break;
     case 'quit': ui.quit = true; break;
@@ -3187,7 +3194,7 @@ $app.addEventListener('click', e => {
     case 'on-hints': ON.lob.h = el.checked; publish(); saveOnline(); return;
     case 'on-grey': ON.lob.grey = el.checked; ON.lastLob = null; publish(); saveOnline(); return;
     case 'on-camp': ON.lob.camp = el.dataset.n === '1'; ui.err = ''; publish(); saveOnline(); break;
-    case 'on-unlock': campSetAll(el.checked); ui.err = ''; publish(); saveOnline(); break;
+    case 'on-unlock': campSetAll(el.checked); ui.err = ''; setTimeout(() => { publish(); saveOnline(); render(); }, 220); return;
     case 'on-clevel': ON.lob.campLevel = +el.dataset.n; ui.err = ''; publish(); saveOnline(); break;
     case 'on-start': hostStart(); return;
     default: return;
