@@ -15,7 +15,8 @@
 //   ninguno            Ningún dado de `color`.
 //   exactamente        Exactamente `n` dados de `color`.
 //   al_menos           `n` dados de `color` o más (se muestra como «2 dados azules»; con
-//                      decir_al_menos: true, como «Al menos 2 dados azules»).*
+//                      decir_al_menos: true, como «Al menos 2 dados azules»; también vale
+//                      en numero_al_menos).*
 //   como_maximo        Como máximo `n` dados de `color`.*
 //   suma_mayor         La suma de `color` es mayor que la de `color2`.
 //   mas_dados          Más dados de `color` que de `color2`.
@@ -146,7 +147,7 @@ window.BLINDSPOTS_OBJETIVOS = [
   { estrellas: 1, tipo: 'sin_numero', numero: 6 },
   { estrellas: 1, tipo: 'sin_numero', numero: 1 },
   { estrellas: 1, tipo: 'sin_numero', numero: 3 },
-  { estrellas: 2, tipo: 'numero_al_menos', numero: 6, n: 2 },
+  { estrellas: 2, tipo: 'numero_al_menos', numero: 6, n: 2, decir_al_menos: true },
   { estrellas: 2, tipo: 'numero_al_menos', numero: 1, n: 2 },
   { estrellas: 3, tipo: 'numero_al_menos', numero: 6, n: 3 },
   { estrellas: 3, tipo: 'numero_al_menos', numero: 4, n: 3 },

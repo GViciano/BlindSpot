@@ -1105,7 +1105,7 @@ function missionText(m) {
     case 'maxValue': return tm('maxValue', m.n);
     case 'minValue': return tm('minValue', m.n);
     case 'noNumber': return tm('noNumber', m.v);
-    case 'atLeastNumber': return tm('atLeastNumber', m.n, m.v);
+    case 'atLeastNumber': return m.al ? tm('atLeastSay', tm('atLeastNumber', m.n, m.v).replace(/\.$/, '')) : tm('atLeastNumber', m.n, m.v);
     case 'sumAllMax': return tm('sumAllMax', m.n);
     case 'sumAllMin': return tm('sumAllMin', m.n);
     case 'sumAllEven': return tm('sumAllEven');
@@ -1264,7 +1264,7 @@ function loadCatalogue() {
     if (spec.c) { m.c = col(e.color); if (m.c < 0) { bad.push(i + 1); return; } }
     if (spec.c2) { m.c2 = col(e.color2); if (m.c2 < 0 || m.c2 === m.c) { bad.push(i + 1); return; } }
     if (spec.n) { m.n = Number(e.n); if (!Number.isInteger(m.n) || m.n < 0 || m.n > 99) { bad.push(i + 1); return; } }
-    if (e.decir_al_menos === true && m.t === 'atLeast') m.al = 1;
+    if (e.decir_al_menos === true && (m.t === 'atLeast' || m.t === 'atLeastNumber')) m.al = 1;
     if (spec.v) { m.v = Number(e.numero); if (!Number.isInteger(m.v) || m.v < 1 || m.v > 6) { bad.push(i + 1); return; } }
     list.push(m);
   });
@@ -1993,7 +1993,7 @@ function decodeG(w) {
         if (m[4] > 0) o.s = int(m[4], 1, 5);
         if (m[5] > 0) o.v = int(m[5], 1, 6);
         if (Number.isInteger(m[6]) && m[6] > 0 && m[6] < 1000) o.id = m[6];
-        if (m[7] === 1 && t === 'atLeast') o.al = 1;
+        if (m[7] === 1 && (t === 'atLeast' || t === 'atLeastNumber')) o.al = 1;
         if (/^(noNumber|atLeastNumber)$/.test(t) && o.v === undefined) throw new Error('check');
         if (/^(noColor|exact|atLeast|atMost|sumGreater|countMore|sumAtLeast)$/.test(t) && o.c === undefined) throw new Error('check');
         if (/^(sumGreater|countMore)$/.test(t) && o.c2 === undefined) throw new Error('check');

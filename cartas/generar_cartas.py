@@ -219,7 +219,7 @@ def card_content(o):
     if t == 'sin_numero':
         return Row().faces([v], 20).svg(cy) + ban(CARD_W / 2, cy, 15), None
     if t == 'numero_al_menos':
-        return Row().text(str(n), 16).text('×', 10).faces([v], 16).svg(cy), n
+        return Row().text(f'≥{n}' if o.get('decir_al_menos') else str(n), 16).text('×', 10).faces([v], 16).svg(cy), n
     if t == 'suma_total_maxima':
         return Row().text('Σ', 14).any_die(15).text(f'≤{n}', 15).svg(cy), n
     if t == 'suma_total_minima':

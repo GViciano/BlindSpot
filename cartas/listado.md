@@ -88,7 +88,7 @@ Texto tal como aparece en el juego. El número coincide con el de la esquina de 
 | 80 | ★☆☆☆☆ | Ningún dado con un 6. |  |
 | 81 | ★☆☆☆☆ | Ningún dado con un 1. |  |
 | 82 | ★☆☆☆☆ | Ningún dado con un 3. |  |
-| 83 | ★★☆☆☆ | 2 dados con un 6. | Si consigues exactamente 2 dados con un 6: +1★ extra. |
+| 83 | ★★☆☆☆ | Al menos 2 dados con un 6. | Si consigues exactamente 2 dados con un 6: +1★ extra. |
 | 84 | ★★☆☆☆ | 2 dados con un 1. | Si consigues exactamente 2 dados con un 1: +1★ extra. |
 | 85 | ★★★☆☆ | 3 dados con un 6. | Si consigues exactamente 3 dados con un 6: +1★ extra. |
 | 86 | ★★★☆☆ | 3 dados con un 4. | Si consigues exactamente 3 dados con un 4: +1★ extra. |
