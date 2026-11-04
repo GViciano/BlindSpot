@@ -127,6 +127,7 @@ button { font: inherit; color: inherit; }
 .rack::after { content: ""; position: absolute; left: 6%; right: 6%; bottom: 0; height: 9px; border-radius: 0 0 8px 8px; background: var(--line); }
 .mcard { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; min-height: 74px; display: grid; gap: 8px; align-content: center; }
 .mcard .label { font-size: 11px; }
+.ver { color: var(--muted); font-size: 11px; opacity: .8; }
 .cardno { float: right; margin-left: 8px; font-size: 10px; font-weight: 600; color: var(--muted); letter-spacing: .02em; font-variant-numeric: tabular-nums; }
 .blackcards li .cardno, .sub .cardno { float: none; margin-left: auto; }
 .sub .cardno { margin-left: 6px; }
@@ -2012,6 +2013,8 @@ function lobWire() {
 const PEERJS_URL = 'https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js';
 // Online relay through Supabase Realtime: works on networks that block direct browser-to-browser links.
 // The publishable key is meant to be public (it only allows what the project's settings allow).
+// Shown next to the connection line, to tell whether everyone has the same version loaded.
+const APP_VERSION = '2026.11.05';
 const SUPABASE_URL = 'https://vjphqqtoigpjncmsdudq.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_hUInzKity39UFsFwsFqmSw_HR3HMLE4';
 const SUPABASE_JS = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js';
@@ -2155,26 +2158,33 @@ function supaRoom(code) {
     let client;
     try { client = getSupa(); } catch (e) { reject({ code: 'relay', detail: 'client' }); return; }
     const myId = rid(12);
-    const ch = client.channel('blindspots-' + code, { config: { presence: { key: myId } } });
-    let mine = {}, list = new Map([[myId, mine]]), connected = false, settled = false, sending = false, again = false;
+    let ch = null, mine = {}, list = new Map([[myId, mine]]), connected = false, settled = false, sending = false, again = false, closed = false, lastSent = 0;
     const peerHs = new Set(), connHs = new Set();
     const snap = () => [...list.entries()].map(([id, presence]) => ({ peer: id, by: null, isMe: id === myId, sameTab: id === myId, kind: 'viewer', guest: false, presence, updatedAt: Date.now() }));
     const firePeers = () => { const ps = snap(); peerHs.forEach(h => { try { h({ peers: ps, joined: [], left: [], updated: [] }); } catch (e) { console.error(e); } }); };
     const setConn = c => { if (connected === c) return; connected = c; connHs.forEach(h => h(c)); };
-    // Send only the latest presence; one track() at a time. It goes as a single JSON text:
-    // Supabase limits how many keys a presence object may have (the game state has many more).
+    // Send only the latest presence, one track() at a time and at most about 3 per second:
+    // Supabase closes the channel of a client that sends presence too fast. It goes as a
+    // single JSON text, because Supabase also limits how many keys a presence object may have.
+    const GAP = 350;
     const send = async () => {
-      if (!connected) return;
+      if (!connected || !ch) return;
       if (sending) { again = true; return; }
       sending = true;
+      const wait = lastSent + GAP - Date.now();
+      if (wait > 0) await sleep(wait);
       let ok = false;
-      try { ok = (await ch.track({ s: JSON.stringify(mine) })) === 'ok'; } catch (e) { ok = false; }
-      if (!ok) { again = true; await sleep(800); } // rejected or rate-limited: try again with the latest state
+      const c = ch;
+      if (connected && c === ch) {
+        lastSent = Date.now();
+        try { const r = await c.track({ s: JSON.stringify(mine) }); ok = r === 'ok'; if (!ok) api.lastErr = String(r); } catch (e) { ok = false; api.lastErr = (e && e.message) || 'track'; }
+      }
+      if (!ok) { again = true; await sleep(1000); }
       sending = false;
-      if (again) { again = false; send(); }
+      if (again && connected) { again = false; send(); }
     };
     const api = {
-      transport: 'supa',
+      transport: 'supa', lastErr: '',
       presence: async patch => {
         mine = Object.assign({}, mine);
         for (const k in patch) { if (patch[k] === null) delete mine[k]; else mine[k] = patch[k]; }
@@ -2187,36 +2197,53 @@ function supaRoom(code) {
       onPeers: h => { peerHs.add(h); setTimeout(() => h({ peers: snap(), joined: [], left: [], updated: [] }), 0); return () => peerHs.delete(h); },
       onConnection: h => { connHs.add(h); setTimeout(() => h(connected), 0); return () => connHs.delete(h); },
       connected: () => connected,
-      close: () => { try { client.removeChannel(ch); } catch (e) { /* already gone */ } },
+      close: () => { closed = true; try { if (ch) client.removeChannel(ch); } catch (e) { /* already gone */ } },
     };
-    ch.on('presence', { event: 'sync' }, () => {
-      const st = ch.presenceState();
-      const next = new Map();
-      for (const [k, arr] of Object.entries(st)) {
-        const last = Array.isArray(arr) ? arr[arr.length - 1] : null;
-        let pr = null;
-        if (last && typeof last.s === 'string') { try { pr = JSON.parse(last.s); } catch (e) { pr = null; } }
-        else if (last && last.pr && typeof last.pr === 'object') pr = last.pr;
-        if (pr && typeof pr === 'object' && !Array.isArray(pr)) next.set(k, pr);
-      }
-      next.set(myId, mine);
-      list = next;
-      firePeers();
-    });
-    ch.subscribe((status, err) => {
-      if (status === 'SUBSCRIBED') {
-        setConn(true);
-        send();
-        if (!settled) { settled = true; resolve(api); }
-      } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
-        setConn(false);
-        if (!settled) { settled = true; try { client.removeChannel(ch); } catch (e) { /* ignore */ } reject({ code: 'relay', detail: (err && err.message) || status }); }
-      }
-    });
+    let retry = 0;
+    // Joins the channel; if Supabase closes it later, joins again with the same identity.
+    const join = () => {
+      if (closed) return;
+      const c = client.channel('blindspots-' + code, { config: { presence: { key: myId } } });
+      ch = c;
+      c.on('presence', { event: 'sync' }, () => {
+        if (c !== ch) return;
+        const st = c.presenceState();
+        const next = new Map();
+        for (const [k, arr] of Object.entries(st)) {
+          const last = Array.isArray(arr) ? arr[arr.length - 1] : null;
+          let pr = null;
+          if (last && typeof last.s === 'string') { try { pr = JSON.parse(last.s); } catch (e) { pr = null; } }
+          else if (last && last.pr && typeof last.pr === 'object') pr = last.pr;
+          if (pr && typeof pr === 'object' && !Array.isArray(pr)) next.set(k, pr);
+        }
+        next.set(myId, mine);
+        list = next;
+        firePeers();
+      });
+      c.subscribe((status, err) => {
+        if (c !== ch) return;
+        if (status === 'SUBSCRIBED') {
+          retry = 0;
+          setConn(true);
+          send();
+          if (!settled) { settled = true; resolve(api); }
+        } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+          api.lastErr = (err && err.message) || status;
+          setConn(false);
+          if (!settled) { settled = true; closed = true; try { client.removeChannel(c); } catch (e) { /* ignore */ } reject({ code: 'relay', detail: api.lastErr }); return; }
+          if (closed) return;
+          console.warn('BlindSpots: canal de Supabase cerrado, reconectando…', api.lastErr);
+          ch = null;
+          try { client.removeChannel(c); } catch (e) { /* ignore */ }
+          setTimeout(join, Math.min(8000, 1000 * 2 ** retry++));
+        }
+      });
+    };
+    join();
     setTimeout(() => {
       if (settled) return;
-      settled = true;
-      try { client.removeChannel(ch); } catch (e) { /* ignore */ }
+      settled = true; closed = true;
+      try { if (ch) client.removeChannel(ch); } catch (e) { /* ignore */ }
       reject({ code: 'relay', detail: 'timeout' });
     }, 10000);
   });
@@ -2458,7 +2485,8 @@ function connHTML() {
   const others = ON.room.peers().filter(p => !p.sameTab && p.kind === 'viewer').length;
   const state = ON.roomErr ? t('connErr', esc(ON.roomErr)) : ON.connected ? t('connOk') : t('connWait');
   const via = ON.room.transport === 'supa' ? ` (${t('viaRelay')})` : ON.room.transport === 'p2p' ? ` (${t('viaDirect')})` : '';
-  return `<p class="note">${t('connLine', state + via, others, ON.transport === 'p2p')}</p>`;
+  const last = ON.room.lastErr && !ON.connected ? ` · ${esc(ON.room.lastErr)}` : '';
+  return `<p class="note">${t('connLine', state + via + last, others, ON.transport === 'p2p')} <span class="ver">v${APP_VERSION}</span></p>`;
 }
 
 async function initOnline(saved) {
