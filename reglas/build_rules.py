@@ -99,12 +99,12 @@ ol.steps > li::before {{ content: counter(s); position: absolute; left: 0; top: 
   <div class="rb">RULEBOOK</div>
   <div class="logo">BLIND<span class="dot"></span>SPOTS</div>
   <div class="tag">You can see everyone else's mission.<br>Everyone can see yours.<br>Nobody can see their own.</div>
-  <div class="meta"><span>3–5 players</span><span>Ages 10+</span><span>20 min</span></div>
+  <div class="meta"><span>3–4 players</span><span>Ages 10+</span><span>20 min</span></div>
 </div>
 
 <section>
   <h2><span class="bar"><i style="background:var(--blue)"></i><i style="background:var(--orange)"></i><i style="background:var(--green)"></i></span>Game Idea</h2>
-  <p class="lead">A cooperative game of dice and deduction for 3 to 5 players.</p>
+  <p class="lead">A cooperative game of dice and deduction for 3 or 4 players.</p>
   <p>In BlindSpots, everyone can see your mission, except you. Each player places one or more objective cards so that every other player can read them, while the owner sees only the back. Over several rounds you split colourful dice into groups and choose which group to take. Your teammates know what you need; you must trust their hints and read their choices.</p>
   <p>You win or lose together. At the end of the game all cards are revealed. If the team has completed its missions (or collected enough stars, depending on the level), everybody wins.</p>
   <p class="motto">Everyone sees your mission. Everyone helps you.<br>Only you are in the dark.</p>
@@ -133,7 +133,7 @@ ol.steps > li::before {{ content: counter(s); position: absolute; left: 0; top: 
   <h2><span class="bar"><i style="background:var(--green)"></i><i style="background:var(--blue)"></i></span>Setup</h2>
   <p>These steps describe a free game. When you play the campaign, the level you are playing fixes the colours, cards, dice and stars to win (see <i>Campaign</i>).</p>
   <ol class="steps">
-    <li><b>Choose the colours.</b> With 3 colours, play with blue, orange and green. With 4, add purple; with 5, add yellow. With 5 players, use at least 4 colours.</li>
+    <li><b>Choose the colours.</b> With 3 colours, play with blue, orange and green. With 4, add purple; with 5, add yellow.</li>
     <li><b>Fill the bag.</b> Place 15 dice of each colour in play into the bag. Return the other dice to the box.</li>
     <li><b>Agree on the mission.</b> Decide how many objectives each player receives (1 to 3) and which star values may come up. Then decide what the team needs to win: either <i>every objective</i>, or a total number of stars (see <i>End of the Game</i>).</li>
     <li><b>Deal the objective cards.</b> Shuffle the objective cards that fit your game and deal the agreed number to each player, face down. Leave out cards that show a colour not in play.</li>
@@ -151,7 +151,7 @@ ol.steps > li::before {{ content: counter(s); position: absolute; left: 0; top: 
     <div>
       <h3>1. Draw and roll</h3>
       <p>The dealer draws dice from the bag at random, without looking, and rolls them:</p>
-      <table><tr><th>Players</th><th>Dice per round</th></tr><tr><td>3</td><td>5</td></tr><tr><td>4</td><td>7</td></tr><tr><td>5</td><td>9</td></tr></table>
+      <table><tr><th>Players</th><th>Dice per round</th></tr><tr><td>3</td><td>5</td></tr><tr><td>4</td><td>7</td></tr></table>
       <p class="small">Rule of thumb: (players × 2) − 1. Dice that leave the bag never return to it, unless an action says so.</p>
       <h3>2. Form groups</h3>
       <p>The dealer splits the rolled dice into as many groups as there are players. Groups do not have to be the same size, but each group must contain at least one die. The dealer may not change the value shown on any die.</p>
@@ -331,8 +331,8 @@ ol.steps > li::before {{ content: counter(s); position: absolute; left: 0; top: 
   <p>Outside the campaign, set up the game to suit your group:</p>
   <table>
     <tr><th>Setting</th><th>Options</th></tr>
-    <tr><td>Players</td><td>3, 4 or 5</td></tr>
-    <tr><td>Colours</td><td>3, 4 or 5 (at least 4 with 5 players)</td></tr>
+    <tr><td>Players</td><td>3 or 4</td></tr>
+    <tr><td>Colours</td><td>3, 4 or 5</td></tr>
     <tr><td>Objectives per player</td><td>1, 2 or 3</td></tr>
     <tr><td>Difficulty</td><td>Any combination of 1★ to 5★ cards</td></tr>
     <tr><td>To win</td><td>Every objective, or a team star total</td></tr>

@@ -300,10 +300,11 @@ const TYPES = ['noColor', 'exact', 'atLeast', 'atMost', 'sumGreater', 'countMore
 const BAG_PER_COLOUR = 15;                       // dice of each colour in the bag
 const rollCount = P => P * 2 - 1;                  // dice drawn from the bag each round
 const totalDrawn = P => P * rollCount(P);          // one round per player
-// Fewest colours whose bag lasts the whole game (5 players need all 5).
+// Fewest colours whose bag lasts the whole game.
 const minColours = P => [3, 4, 5].find(C => C * BAG_PER_COLOUR >= totalDrawn(P)) || 5;
 const LETTERS = 'ABCDE';
 const STORE_KEY = 'blindspots-v2';
+const MAX_PLAYERS = 4; // the game is for 3 or 4 players
 const ONLINE_KEY = 'blindspots-online-v2';
 const TOKEN_KEY = 'blindspots-token';
 const BOT_NAMES = ['Carla', 'David', 'Elena', 'Bruno', 'Ana', 'Fede'];
@@ -360,7 +361,7 @@ const I18N = {
     htmlLang: 'es',
     langLabel: 'Idioma',
     // Home
-    meta: '3–5 jugadores · Cooperativo · Dados y deducción',
+    meta: '3–4 jugadores · Cooperativo · Dados y deducción',
     tagline: ['Ves la misión de todos.', 'Todos ven la tuya.', 'Nadie ve la suya.'],
     modeGroup: 'Modo de juego', modeLocal: 'En este dispositivo', modeOnline: 'Online',
     // How to play
@@ -634,7 +635,7 @@ const I18N = {
     // Rules
     rulesTitle: 'Reglas de BlindSpots', close: 'Cerrar',
     rulesBody: () => `
-      <p>Juego cooperativo de dados y deducción para 3–5 jugadores. Cada jugador tiene una misión personal que no puede ver; los demás sí la ven y deben ayudarle con sus decisiones.</p>
+      <p>Juego cooperativo de dados y deducción para 3 o 4 jugadores. Cada jugador tiene una misión personal que no puede ver; los demás sí la ven y deben ayudarle con sus decisiones.</p>
       <h3>Objetivo</h3>
       <p>El equipo gana si al final todos han cumplido su misión. Si falla una sola, el equipo pierde y puede volver a intentarlo.</p>
       <h3>Misiones</h3>
@@ -666,7 +667,7 @@ const I18N = {
   en: {
     htmlLang: 'en',
     langLabel: 'Language',
-    meta: '3–5 players · Cooperative · Dice and deduction',
+    meta: '3–4 players · Cooperative · Dice and deduction',
     tagline: ['You can see everyone else’s mission.', 'Everyone can see yours.', 'Nobody can see their own.'],
     modeGroup: 'Game mode', modeLocal: 'On this device', modeOnline: 'Online',
     howTitle: 'How to play',
@@ -929,7 +930,7 @@ const I18N = {
     },
     rulesTitle: 'BlindSpots rules', close: 'Close',
     rulesBody: () => `
-      <p>A cooperative dice and deduction game for 3–5 players. Each player has a personal mission they cannot see; everyone else can see it and must help them through their choices.</p>
+      <p>A cooperative dice and deduction game for 3 or 4 players. Each player has a personal mission they cannot see; everyone else can see it and must help them through their choices.</p>
       <h3>Goal</h3>
       <p>The team wins if, at the end, everyone has completed their mission. If even one fails, the team loses and can try again.</p>
       <h3>Missions</h3>
@@ -1337,7 +1338,7 @@ function campCfg(i, P) {
   return { C: l.C, per: l.per, cards: l.cards, stars: l.stars, need: Math.min(MAX_NEED, need || 0), bag: l.bagBy[P] || l.bag || 0, mods: l.mods, grey: l.grey, perRound: l.perRoundBy[P] || 0, black: l.black };
 }
 // Player counts every level supports (a level that gives values per player count only supports those).
-const CAMP_PLAYERS = [3, 4, 5].filter(P => CAMPAIGN.every(l => {
+const CAMP_PLAYERS = [3, 4].filter(P => CAMPAIGN.every(l => {
   const keyed = [l.needBy, l.bagBy, l.perRoundBy].filter(o => Object.keys(o).length);
   return keyed.every(o => o[P]) && (!(l.bagBy[P] || l.bag) || (l.bagBy[P] || l.bag) * l.C >= P * (l.perRoundBy[P] || rollCount(P)));
 }));
@@ -2051,7 +2052,7 @@ const PEERJS_URL = 'https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js';
 // Online relay through Supabase Realtime: works on networks that block direct browser-to-browser links.
 // The publishable key is meant to be public (it only allows what the project's settings allow).
 // Shown next to the connection line, to tell whether everyone has the same version loaded.
-const APP_VERSION = '2026.11.06b';
+const APP_VERSION = '2026.11.07';
 const SUPABASE_URL = 'https://vjphqqtoigpjncmsdudq.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_hUInzKity39UFsFwsFqmSw_HR3HMLE4';
 const SUPABASE_JS = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js';
@@ -2421,7 +2422,7 @@ function cleanLob(l) {
   if (!l || typeof l !== 'object') return d;
   const ok = (v, lo, hi) => Number.isInteger(v) && v >= lo && v <= hi;
   const out = {
-    n: ok(l.n, 3, 5) ? l.n : d.n, C: ok(l.C, 3, 5) ? l.C : d.C, per: ok(l.per, 1, 3) ? l.per : d.per,
+    n: ok(l.n, 3, MAX_PLAYERS) ? l.n : d.n, C: ok(l.C, 3, 5) ? l.C : d.C, per: ok(l.per, 1, 3) ? l.per : d.per,
     stars: ok(l.stars, 1, ALL_STARS) ? l.stars : d.stars, need: ok(l.need, 0, MAX_NEED) ? l.need : 0, grey: l.grey === true, camp: l.camp === true, campLevel: ok(l.campLevel, 0, 99) ? l.campLevel : 0, h: l.h !== false,
   };
   return out;
@@ -2541,7 +2542,7 @@ function sendAct(a, noWait) {
 }
 
 // Seats available online: the campaign may allow fewer players than 5.
-function maxSeats() { return ON.lob.camp && CAMPAIGN.length && CAMP_PLAYERS.length ? Math.max(...CAMP_PLAYERS) : 5; }
+function maxSeats() { return Math.min(MAX_PLAYERS, ON.lob.camp && CAMPAIGN.length && CAMP_PLAYERS.length ? Math.max(...CAMP_PLAYERS) : MAX_PLAYERS); }
 
 function hostStart() {
   const seats = seatPreview().slice(0, maxSeats());
@@ -2975,7 +2976,7 @@ function waitingRoomHTML() {
               : t('shareClaude')}</p></div>
           <div class="field"><span class="label">${t('inRoomTitle', seats.length)}</span><ul class="rows">${rows}</ul></div>
           <div class="field"><span class="label">${t('gamePlayers')}</span>
-            <div class="seg" role="group" aria-label="${t('playersCount')}">${[3, 4, 5].map(k => `<button type="button" data-action="on-count" data-n="${k}" aria-pressed="${total === k}" ${k < nh || (ON.lob.camp && CAMPAIGN.length && !CAMP_PLAYERS.includes(k)) ? 'disabled' : ''}>${k}</button>`).join('')}</div>
+            <div class="seg" role="group" aria-label="${t('playersCount')}">${[3, 4].map(k => `<button type="button" data-action="on-count" data-n="${k}" aria-pressed="${total === k}" ${k < nh || (ON.lob.camp && CAMPAIGN.length && !CAMP_PLAYERS.includes(k)) ? 'disabled' : ''}>${k}</button>`).join('')}</div>
             ${ON.lob.camp && CAMPAIGN.length && CAMP_PLAYERS.length < 3 ? `<p class="note">${t('campPlayers', CAMP_PLAYERS.join(' / '))}</p>` : ''}
             <p class="note">${botsN > 0 ? t('botsFill', botsN) : t('allHumans')}</p>
           </div>
@@ -3105,7 +3106,7 @@ function localSetupHTML() {
   return `<section class="panel">
       <h2>${t('localTitle')}</h2>
       <div class="field"><span class="label">${t('players')}</span>
-        <div class="seg" role="group" aria-label="${t('playersCount')}">${[3, 4, 5].map(k => `<button type="button" data-action="count" data-n="${k}" aria-pressed="${n === k}" ${campOn && !CAMP_PLAYERS.includes(k) ? 'disabled' : ''}>${k}</button>`).join('')}</div>
+        <div class="seg" role="group" aria-label="${t('playersCount')}">${[3, 4].map(k => `<button type="button" data-action="count" data-n="${k}" aria-pressed="${n === k}" ${campOn && !CAMP_PLAYERS.includes(k) ? 'disabled' : ''}>${k}</button>`).join('')}</div>
         ${campOn && CAMP_PLAYERS.length < 3 ? `<p class="note">${t('campPlayers', CAMP_PLAYERS.join(' / '))}</p>` : ''}
       </div>
       <div class="field"><span class="label">${t('whoPlays')}</span><div class="players">${rows}</div><p class="note">${modeNote}</p></div>
@@ -3352,6 +3353,7 @@ function start(data) {
     // Settings saved by an older version used a star range instead of a set.
     if (!Number.isInteger(S.stars) || S.stars < 1 || S.stars > ALL_STARS) S.stars = ALL_STARS;
     if (!Number.isInteger(S.need) || S.need < 0 || S.need > MAX_NEED) S.need = 0;
+    if (!Number.isInteger(S.count) || S.count < 3 || S.count > MAX_PLAYERS) S.count = MAX_PLAYERS;
     S.grey = S.grey === true;
     S.camp = S.camp === true;
     if (!Number.isInteger(S.campLevel) || S.campLevel < 0) S.campLevel = 0;

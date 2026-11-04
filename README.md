@@ -1,6 +1,6 @@
 # BlindSpots
 
-Juego cooperativo de dados y deducción para 3–5 jugadores.
+Juego cooperativo de dados y deducción para 3 o 4 jugadores.
 
 > Ves la misión de todos. Todos ven la tuya. Nadie ve la suya.
 
