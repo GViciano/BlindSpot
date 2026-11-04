@@ -321,7 +321,22 @@ const COLOR_NAMES = {
 const GREY = 5;
 // The black (bomb) die: colour index 6. It counts as a die but not as a colour; each carries a black card.
 const BLACK = 6;
-const BLACK_CARDS = 7;
+const BLACK_CARDS = 9;
+// Black cards come out of a deck kept in this browser: a card doesn't come back until all the others have.
+const BLACK_DECK_KEY = 'blindspots-black-deck';
+function drawBlackCards(n) {
+  const all = [...Array(BLACK_CARDS).keys()];
+  let deck = lsGet(BLACK_DECK_KEY);
+  deck = Array.isArray(deck) ? deck.filter((k, i) => all.includes(k) && deck.indexOf(k) === i) : [];
+  const out = [];
+  while (out.length < n) {
+    if (!deck.length) deck = shuffle(all.filter(k => !out.includes(k)));
+    if (!deck.length) deck = shuffle(all.slice());
+    out.push(deck.shift());
+  }
+  lsSet(BLACK_DECK_KEY, deck);
+  return out;
+}
 const GREY_RULES = 7;
 const cname = c => COLOR_NAMES[LANG][c];
 const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
@@ -398,11 +413,13 @@ const I18N = {
     perRoundN: n => `${n} dados por ronda`, blackOn: 'dado negro',
     blackCard0: () => 'Elimina un dado de valor menor (de los que tengas, el que menos puntos tenga).',
     blackCard1: () => 'Elimina un dado de valor mayor (de los que tengas, el que más puntos tenga).',
-    blackCard2: v => `Elimina un dado de valor ${v}.`,
+    blackCard2: v => `Elimina un dado del mismo valor que el dado negro (${v}).`,
     blackCard3: () => 'Elimina un dado del color que más tengas.',
     blackCard4: () => 'Elimina un dado del color que menos tengas.',
     blackCard5: () => 'Elimina 2 dados al azar.',
     blackCard6: () => 'Elimina dos dados del mismo valor.',
+    blackCard7: v => `Elimina un dado de valor menor o igual al dado negro (${v}).`,
+    blackCard8: v => `Elimina un dado de valor mayor o igual al dado negro (${v}).`,
     blackTitle: 'Cartas negras (se aplican al final)', blackNone: 'Aún no hay dados negros.',
     blackThisRound: 'Dado negro de esta ronda:',
     blackBlocked: 'Ya tienes un dado negro', blackYouHave: 'Ya tienes un dado negro: no puedes coger el grupo que lleva otro.',
@@ -689,11 +706,13 @@ const I18N = {
     perRoundN: n => `${n} dice per round`, blackOn: 'black die',
     blackCard0: () => 'Remove your lowest die (the one with the fewest pips you have).',
     blackCard1: () => 'Remove your highest die (the one with the most pips you have).',
-    blackCard2: v => `Remove a die showing ${v}.`,
+    blackCard2: v => `Remove a die with the same value as the black die (${v}).`,
     blackCard3: () => 'Remove a die of the colour you have most of.',
     blackCard4: () => 'Remove a die of the colour you have fewest of.',
     blackCard5: () => 'Remove 2 dice at random.',
     blackCard6: () => 'Remove two dice with the same value.',
+    blackCard7: v => `Remove a die with a value lower than or equal to the black die (${v}).`,
+    blackCard8: v => `Remove a die with a value higher than or equal to the black die (${v}).`,
     blackTitle: 'Black cards (applied at the end)', blackNone: 'No black dice yet.',
     blackThisRound: 'This round’s black die:',
     blackBlocked: 'You already have a black die', blackYouHave: 'You already have a black die: you can’t take the group with another one.',
@@ -1480,7 +1499,7 @@ function startLevel() {
   const r = genMissions(P(), G.cfg);
   if (r.error) return r.error;
   G.players.forEach((p, i) => { p.missions = r.missions[i]; p.area = []; });
-  Object.assign(G, { greyRule: G.cfg.grey ? ri(GREY_RULES) : null, greyRes: null, bag: Array(G.C).fill(G.cfg.bag || BAG_PER_COLOUR), mods: G.cfg.mods ? dealActions(P()) : null, blackDeck: G.cfg.black ? shuffle([...Array(BLACK_CARDS).keys()]) : null, bomb: null, lostBy: null, gid: rid(6), round: 0, active: G.starter, phase: 'roll', roll: [], groups: [], order: [], step: 0, taken: {}, results: null, win: null, log: [] });
+  Object.assign(G, { greyRule: G.cfg.grey ? ri(GREY_RULES) : null, greyRes: null, bag: Array(G.C).fill(G.cfg.bag || BAG_PER_COLOUR), mods: G.cfg.mods ? dealActions(P()) : null, blackDeck: G.cfg.black ? drawBlackCards(P()) : null, bomb: null, lostBy: null, gid: rid(6), round: 0, active: G.starter, phase: 'roll', roll: [], groups: [], order: [], step: 0, taken: {}, results: null, win: null, log: [] });
   log(['start']);
   if (G.camp !== null && G.camp !== undefined) log(['level', G.camp]);
   log(['first', G.starter]);
@@ -1597,6 +1616,8 @@ function bombInfo(p) {
   else if (k === 3 && counts.length) { const mx = Math.max(...counts); options = idx.filter(i => cnt[area[i].c] === mx); }
   else if (k === 4 && counts.length) { const mn = Math.min(...counts); options = idx.filter(i => cnt[area[i].c] === mn); }
   else if (k === 5) options = idx;
+  else if (k === 7) options = idx.filter(i => area[i].v <= bv);
+  else if (k === 8) options = idx.filter(i => area[i].v >= bv);
   else if (k === 6) options = idx.filter(i => idx.filter(j => area[j].v === area[i].v).length >= 2);
   const auto = k === 5 || options.length === 0 || (k === 6 && options.length < 2);
   return { k, bv, options, need: k === 6 ? 2 : 1, auto };
@@ -1920,7 +1941,7 @@ function decodeG(w) {
     if (!Array.isArray(w.p) || w.p.length < 3 || w.p.length > 5) throw 0;
     const n = w.p.length;
     const die = (x, i) => {
-      int(x, 1, 266);
+      int(x, 1, 200 + BLACK_CARDS * 10);
       let d;
       if (x >= 200) { if (!cfg.black) throw 0; d = { c: BLACK, v: int(x % 10, 1, 6), k: int(Math.floor((x - 200) / 10), 0, BLACK_CARDS - 1) }; }
       else { const c = Math.floor(x / 10), v = x % 10; if (c !== GREY || !cfg.grey) int(c, 0, C - 1); int(v, 1, 6); d = { c, v }; }
