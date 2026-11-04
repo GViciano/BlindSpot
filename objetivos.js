@@ -124,7 +124,7 @@ window.BLINDSPOTS_OBJETIVOS = [
   { estrellas: 5, tipo: 'suma_al_menos', color: 'azul', n: 18 },
 
   // Objetivos sobre los números de los dados
-  { estrellas: 3, tipo: 'sin_pares' },
+  { estrellas: 4, tipo: 'sin_pares' },
   { estrellas: 3, tipo: 'sin_impares' },
   { estrellas: 3, tipo: 'pares_exactos', n: 2 },
   { estrellas: 3, tipo: 'pares_exactos', n: 3 },
