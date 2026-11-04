@@ -2161,12 +2161,15 @@ function supaRoom(code) {
     const snap = () => [...list.entries()].map(([id, presence]) => ({ peer: id, by: null, isMe: id === myId, sameTab: id === myId, kind: 'viewer', guest: false, presence, updatedAt: Date.now() }));
     const firePeers = () => { const ps = snap(); peerHs.forEach(h => { try { h({ peers: ps, joined: [], left: [], updated: [] }); } catch (e) { console.error(e); } }); };
     const setConn = c => { if (connected === c) return; connected = c; connHs.forEach(h => h(c)); };
-    // Send only the latest presence; one track() at a time.
+    // Send only the latest presence; one track() at a time. It goes as a single JSON text:
+    // Supabase limits how many keys a presence object may have (the game state has many more).
     const send = async () => {
       if (!connected) return;
       if (sending) { again = true; return; }
       sending = true;
-      try { await ch.track({ pr: mine }); } catch (e) { /* the next change sends again */ }
+      let ok = false;
+      try { ok = (await ch.track({ s: JSON.stringify(mine) })) === 'ok'; } catch (e) { ok = false; }
+      if (!ok) { again = true; await sleep(800); } // rejected or rate-limited: try again with the latest state
       sending = false;
       if (again) { again = false; send(); }
     };
@@ -2191,7 +2194,10 @@ function supaRoom(code) {
       const next = new Map();
       for (const [k, arr] of Object.entries(st)) {
         const last = Array.isArray(arr) ? arr[arr.length - 1] : null;
-        if (last && last.pr && typeof last.pr === 'object') next.set(k, last.pr);
+        let pr = null;
+        if (last && typeof last.s === 'string') { try { pr = JSON.parse(last.s); } catch (e) { pr = null; } }
+        else if (last && last.pr && typeof last.pr === 'object') pr = last.pr;
+        if (pr && typeof pr === 'object' && !Array.isArray(pr)) next.set(k, pr);
       }
       next.set(myId, mine);
       list = next;
