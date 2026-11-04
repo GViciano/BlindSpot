@@ -13,7 +13,7 @@ La web está en español y en inglés. Cada jugador elige su idioma con el selec
 ## Modos de juego
 
 - **En este dispositivo:** varias personas se pasan el móvil u ordenador, o una persona juega con bots.
-- **Online, sin cuenta:** quien crea la partida recibe un código de 4 caracteres. Los demás abren la página, eligen «Online» y se unen con ese código. Los navegadores se conectan entre sí por WebRTC con [PeerJS](https://peerjs.com/); su servidor público solo se usa para que se encuentren. La partida vive en el navegador del anfitrión, que debe mantener la página abierta.
+- **Online, sin cuenta:** quien crea la partida recibe un código de 4 caracteres. Los demás abren la página, eligen «Online» y se unen con ese código. La partida pasa por el servicio en tiempo real de [Supabase](https://supabase.com/) (un canal por código de partida), que funciona con cualquier red. Si Supabase no responde, el juego usa una conexión directa entre navegadores con [PeerJS](https://peerjs.com/). La partida vive en el navegador del anfitrión, que debe mantener la página abierta.
 
 ## Ajustes de la partida
 

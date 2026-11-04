@@ -466,7 +466,7 @@ const I18N = {
     playersOf: (a, b) => `Jugadores (${a} de ${b})`, botSeat: 'Hueco para un bot', watching: n => `${n} mirando`,
     waitHostStart: name => `Esperando a que ${name} empiece…`, theHost: 'el anfitrión',
     connLine: (state, others, p2p) => `Conexión: ${state} · ${others === 0 ? `no veo a nadie más ${p2p ? 'en la partida' : 'con la página abierta'}` : `veo a ${others} ${plural(others, 'persona', 'personas')} más ${p2p ? 'en la partida' : 'con la página abierta'}`}.`,
-    connOk: 'conectado', connWait: 'conectando…', connErr: code => `error de conexión (${code})`,
+    connOk: 'conectado', connWait: 'conectando…', viaRelay: 'por servidor', viaDirect: 'conexión directa', connErr: code => `error de conexión (${code})`,
     errCode: 'El código tiene 4 letras o números.',
     errNoRoom: 'El modo online no está disponible en esta vista.',
     p2p_not_found: 'No encuentro esa partida. Comprueba el código y que el anfitrión tenga la página abierta.',
@@ -725,7 +725,7 @@ const I18N = {
     playersOf: (a, b) => `Players (${a} of ${b})`, botSeat: 'Seat for a bot', watching: n => `${n} watching`,
     waitHostStart: name => `Waiting for ${name} to start…`, theHost: 'the host',
     connLine: (state, others, p2p) => `Connection: ${state} · ${others === 0 ? `I can’t see anyone else ${p2p ? 'in the game' : 'with the page open'}` : `I can see ${others} other ${plural(others, 'person', 'people')} ${p2p ? 'in the game' : 'with the page open'}`}.`,
-    connOk: 'connected', connWait: 'connecting…', connErr: code => `connection error (${code})`,
+    connOk: 'connected', connWait: 'connecting…', viaRelay: 'via server', viaDirect: 'direct link', connErr: code => `connection error (${code})`,
     errCode: 'The code is 4 letters or numbers.',
     errNoRoom: 'Online mode isn’t available in this view.',
     p2p_not_found: 'Can’t find that game. Check the code and that the host has the page open.',
@@ -1761,6 +1761,11 @@ function lobWire() {
 
 /* ---------- Online outside claude.ai: PeerJS ---------- */
 const PEERJS_URL = 'https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js';
+// Online relay through Supabase Realtime: works on networks that block direct browser-to-browser links.
+// The publishable key is meant to be public (it only allows what the project's settings allow).
+const SUPABASE_URL = 'https://vjphqqtoigpjncmsdudq.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_hUInzKity39UFsFwsFqmSw_HR3HMLE4';
+const SUPABASE_JS = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js';
 const PEER_PREFIX = 'blindspots-v1-';
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
@@ -1877,11 +1882,105 @@ function p2pRoom(code, role) {
 const P2P_ERRORS = ['not_found', 'code_taken', 'unsupported', 'network', 'timeout', 'ice'];
 
 // PeerJS loads only once someone opens the online tab.
+function loadScript(src, ready) {
+  if (ready()) return Promise.resolve(true);
+  return new Promise(res => {
+    const s = document.createElement('script');
+    s.src = src;
+    s.onload = () => res(!!ready());
+    s.onerror = () => res(false);
+    document.head.appendChild(s);
+  });
+}
+const loadSupabase = () => loadScript(SUPABASE_JS, () => window.supabase && typeof window.supabase.createClient === 'function');
+let supaClient = null;
+function getSupa() {
+  if (!supaClient) supaClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
+  return supaClient;
+}
+
+// Same calls as p2pRoom, over a Supabase Realtime channel per game code: everyone's
+// presence is relayed by Supabase, so no direct link between browsers is needed.
+function supaRoom(code) {
+  return new Promise((resolve, reject) => {
+    let client;
+    try { client = getSupa(); } catch (e) { reject({ code: 'relay', detail: 'client' }); return; }
+    const myId = rid(12);
+    const ch = client.channel('blindspots-' + code, { config: { presence: { key: myId } } });
+    let mine = {}, list = new Map([[myId, mine]]), connected = false, settled = false, sending = false, again = false;
+    const peerHs = new Set(), connHs = new Set();
+    const snap = () => [...list.entries()].map(([id, presence]) => ({ peer: id, by: null, isMe: id === myId, sameTab: id === myId, kind: 'viewer', guest: false, presence, updatedAt: Date.now() }));
+    const firePeers = () => { const ps = snap(); peerHs.forEach(h => { try { h({ peers: ps, joined: [], left: [], updated: [] }); } catch (e) { console.error(e); } }); };
+    const setConn = c => { if (connected === c) return; connected = c; connHs.forEach(h => h(c)); };
+    // Send only the latest presence; one track() at a time.
+    const send = async () => {
+      if (!connected) return;
+      if (sending) { again = true; return; }
+      sending = true;
+      try { await ch.track({ pr: mine }); } catch (e) { /* the next change sends again */ }
+      sending = false;
+      if (again) { again = false; send(); }
+    };
+    const api = {
+      transport: 'supa',
+      presence: async patch => {
+        mine = Object.assign({}, mine);
+        for (const k in patch) { if (patch[k] === null) delete mine[k]; else mine[k] = patch[k]; }
+        mine = JSON.parse(JSON.stringify(mine));
+        list.set(myId, mine);
+        firePeers();
+        send();
+      },
+      peers: snap,
+      onPeers: h => { peerHs.add(h); setTimeout(() => h({ peers: snap(), joined: [], left: [], updated: [] }), 0); return () => peerHs.delete(h); },
+      onConnection: h => { connHs.add(h); setTimeout(() => h(connected), 0); return () => connHs.delete(h); },
+      connected: () => connected,
+      close: () => { try { client.removeChannel(ch); } catch (e) { /* already gone */ } },
+    };
+    ch.on('presence', { event: 'sync' }, () => {
+      const st = ch.presenceState();
+      const next = new Map();
+      for (const [k, arr] of Object.entries(st)) {
+        const last = Array.isArray(arr) ? arr[arr.length - 1] : null;
+        if (last && last.pr && typeof last.pr === 'object') next.set(k, last.pr);
+      }
+      next.set(myId, mine);
+      list = next;
+      firePeers();
+    });
+    ch.subscribe((status, err) => {
+      if (status === 'SUBSCRIBED') {
+        setConn(true);
+        send();
+        if (!settled) { settled = true; resolve(api); }
+      } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+        setConn(false);
+        if (!settled) { settled = true; try { client.removeChannel(ch); } catch (e) { /* ignore */ } reject({ code: 'relay', detail: (err && err.message) || status }); }
+      }
+    });
+    setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      try { client.removeChannel(ch); } catch (e) { /* ignore */ }
+      reject({ code: 'relay', detail: 'timeout' });
+    }, 10000);
+  });
+}
+
+// Supabase first; if it can't be reached, the direct PeerJS link.
+async function openOnline(code, role, saved) {
+  if (await loadSupabase()) {
+    try { return { room: await supaRoom(code), code }; } catch (e) { console.warn('BlindSpots: Supabase no disponible, se usa la conexión directa.', e && e.detail); }
+  }
+  if (!(await loadPeerJS())) return { err: { k: 'p2p_network', a: [], detail: 'peerjs' } };
+  return openP2P(code, role, saved);
+}
+
 async function ensureP2P() {
   if (ON.transport !== 'p2p' || ON.status !== 'idle') return;
   ON.status = 'pending';
   render();
-  ON.status = (await loadPeerJS()) ? 'ok' : 'none';
+  ON.status = (await loadSupabase()) || (await loadPeerJS()) ? 'ok' : 'none';
   const saved = ON.resume;
   ON.resume = null;
   if (ON.status === 'ok' && saved) enterRoom(saved.code, saved.role, saved);
@@ -1972,7 +2071,7 @@ async function enterRoom(code, role, saved) {
     if (ui.connecting) return;
     if (ON.room) { ON.room.close(); ON.room = null; }
     ui.connecting = true; render();
-    const r = await openP2P(code, role, saved);
+    const r = await openOnline(code, role, saved);
     ui.connecting = false;
     if (r.err) { ui.err = r.err; if (saved) { ON.role = null; saveOnline(); } render(); return; }
     code = r.code;
@@ -2103,7 +2202,8 @@ function connHTML() {
   if (!ON.room) return '';
   const others = ON.room.peers().filter(p => !p.sameTab && p.kind === 'viewer').length;
   const state = ON.roomErr ? t('connErr', esc(ON.roomErr)) : ON.connected ? t('connOk') : t('connWait');
-  return `<p class="note">${t('connLine', state, others, ON.transport === 'p2p')}</p>`;
+  const via = ON.room.transport === 'supa' ? ` (${t('viaRelay')})` : ON.room.transport === 'p2p' ? ` (${t('viaDirect')})` : '';
+  return `<p class="note">${t('connLine', state + via, others, ON.transport === 'p2p')}</p>`;
 }
 
 async function initOnline(saved) {
