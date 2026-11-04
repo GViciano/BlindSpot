@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>BlindSpots · Rules</title>
+<style>
+@page { size: A4; margin: 18mm 17mm 20mm; @bottom-center { content: counter(page); font: 600 9pt 'Inter', sans-serif; color: #8a94a6; } }
+@page cover { margin: 0; @bottom-center { content: none; } }
+:root { --ink: #18202c; --muted: #5d6778; --line: #d9dee6; --blue: #2f6fdb; --orange: #ee8420; --green: #2a9a58;
+  --purple: #8a4fd1; --yellow: #f1c232; --paper: #fdfcf7; --tint: #f2f5fa; }
+* { box-sizing: border-box; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body { margin: 0; font: 400 10pt/1.5 'Inter', 'DejaVu Sans', sans-serif; color: var(--ink); background: #fff; }
+h1, h2, h3 { font-family: 'Inter Display', 'Inter', sans-serif; line-height: 1.15; margin: 0; }
+h2 { font-size: 19pt; font-weight: 800; letter-spacing: -.01em; margin: 0 0 10px; padding-top: 4px; display: flex; align-items: center; gap: 10px; break-after: avoid; }
+h2 .bar { display: inline-flex; gap: 3px; }
+h2 .bar i { width: 7px; height: 22px; border-radius: 2px; display: block; }
+h3 { font-size: 12pt; font-weight: 700; margin: 16px 0 6px; break-after: avoid; }
+p { margin: 0 0 8px; }
+section { margin-bottom: 22px; }
+section.page { break-before: page; }
+.lead { font-size: 11pt; color: var(--muted); }
+table { border-collapse: collapse; width: 100%; margin: 8px 0 12px; font-size: 9pt; break-inside: avoid; }
+th { text-align: left; background: var(--ink); color: #fff; font-weight: 600; padding: 5px 8px; }
+td { padding: 4.5px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+tr:nth-child(even) td { background: #f7f8fb; }
+td.n { font-weight: 700; white-space: nowrap; }
+table.compact { font-size: 8.3pt; } table.compact td { padding: 2.6px 8px; }
+ol, ul { margin: 0 0 10px; padding-left: 20px; }
+li { margin-bottom: 4px; }
+ol.steps { list-style: none; padding: 0; counter-reset: s; }
+ol.steps > li { counter-increment: s; position: relative; padding-left: 34px; margin-bottom: 8px; }
+ol.steps > li::before { content: counter(s); position: absolute; left: 0; top: 0; width: 23px; height: 23px; border-radius: 6px;
+  background: var(--ink); color: #fff; font-weight: 700; font-size: 10pt; display: grid; place-items: center; }
+.box { border-radius: 10px; padding: 10px 14px; margin: 10px 0 14px; break-inside: avoid; }
+.box b.t { display: block; font-size: 8.5pt; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 3px; }
+.box.example { background: #eef4fd; border-left: 5px solid var(--blue); }
+.box.example b.t { color: var(--blue); }
+.box.important { background: #fdf3e8; border-left: 5px solid var(--orange); }
+.box.important b.t { color: var(--orange); }
+.box.tip { background: #eef8f2; border-left: 5px solid var(--green); }
+.box.tip b.t { color: var(--green); }
+.motto { font-family: 'Inter Display', sans-serif; font-weight: 800; font-size: 14pt; text-align: center; margin: 14px 0; }
+.cards { display: flex; gap: 12px; justify-content: center; margin: 10px 0 6px; break-inside: avoid; }
+.cards figure { margin: 0; text-align: center; font-size: 8pt; color: var(--muted); width: 34mm; }
+.cards svg { width: 34mm; height: auto; display: block; margin-bottom: 4px; filter: drop-shadow(0 1px 2px rgba(0,0,0,.18)); }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.faq p b { display: block; }
+.ref { border: 2px solid var(--ink); border-radius: 12px; padding: 12px 16px; break-inside: avoid; }
+.small { font-size: 8.5pt; color: var(--muted); }
+/* cover */
+.cover { page: cover; position: relative; width: 210mm; height: 297mm; background: #18202c; color: #fff; overflow: hidden; break-after: page; }
+.cover .cd { position: absolute; filter: drop-shadow(0 4px 8px rgba(0,0,0,.45)); }
+.cover .logo { position: absolute; left: 0; right: 0; top: 38%; text-align: center; font: 900 54pt 'Inter Display', sans-serif; letter-spacing: .02em; }
+.cover .logo .dot { display: inline-block; width: 30px; height: 30px; border-radius: 50%; background: var(--orange); margin: 0 10px; vertical-align: middle; position: relative; top: -6px; }
+.cover .tag { position: absolute; left: 0; right: 0; top: 52%; text-align: center; font: 500 15pt 'Inter', sans-serif; color: #c9d1de; line-height: 1.6; }
+.cover .meta { position: absolute; left: 0; right: 0; bottom: 30mm; text-align: center; font: 600 12pt 'Inter', sans-serif; letter-spacing: .12em; text-transform: uppercase; color: #fff; }
+.cover .meta span { display: inline-block; margin: 0 12px; padding: 6px 14px; border: 1.5px solid rgba(255,255,255,.35); border-radius: 999px; }
+.cover .rb { position: absolute; left: 0; right: 0; top: 30%; text-align: center; font: 700 12pt 'Inter', sans-serif; letter-spacing: .4em; color: var(--yellow); }
+</style></head><body>
+
+<div class="cover">
+  <span class="cd" style="left:8%;top:14%;transform:rotate(-14deg)"><svg viewBox="0 0 108 108" width="108" height="108"><rect x="1.00" y="1.00" width="106.00" height="106.00" rx="21.20" fill="#2f6fdb" stroke="rgba(0,0,0,.25)" stroke-width="0.3"/><circle cx="28.56" cy="28.56" r="10.07" fill="#ffffff"/><circle cx="79.44" cy="28.56" r="10.07" fill="#ffffff"/><circle cx="54.00" cy="54.00" r="10.07" fill="#ffffff"/><circle cx="28.56" cy="79.44" r="10.07" fill="#ffffff"/><circle cx="79.44" cy="79.44" r="10.07" fill="#ffffff"/></svg></span><span class="cd" style="left:26%;top:6%;transform:rotate(9deg)"><svg viewBox="0 0 88 88" width="88" height="88"><rect x="1.00" y="1.00" width="86.00" height="86.00" rx="17.20" fill="#ee8420" stroke="rgba(0,0,0,.25)" stroke-width="0.3"/><circle cx="23.36" cy="23.36" r="8.17" fill="#ffffff"/><circle cx="44.00" cy="44.00" r="8.17" fill="#ffffff"/><circle cx="64.64" cy="64.64" r="8.17" fill="#ffffff"/></svg></span><span class="cd" style="left:72%;top:9%;transform:rotate(-8deg)"><svg viewBox="0 0 98 98" width="98" height="98"><rect x="1.00" y="1.00" width="96.00" height="96.00" rx="19.20" fill="#2a9a58" stroke="rgba(0,0,0,.25)" stroke-width="0.3"/><circle cx="27.88" cy="24.04" r="9.12" fill="#ffffff"/><circle cx="70.12" cy="24.04" r="9.12" fill="#ffffff"/><circle cx="27.88" cy="49.00" r="9.12" fill="#ffffff"/><circle cx="70.12" cy="49.00" r="9.12" fill="#ffffff"/><circle cx="27.88" cy="73.96" r="9.12" fill="#ffffff"/><circle cx="70.12" cy="73.96" r="9.12" fill="#ffffff"/></svg></span><span class="cd" style="left:86%;top:24%;transform:rotate(16deg)"><svg viewBox="0 0 81 81" width="81" height="81"><rect x="1.00" y="1.00" width="79.00" height="79.00" rx="15.80" fill="#8a4fd1" stroke="rgba(0,0,0,.25)" stroke-width="0.3"/><circle cx="23.12" cy="23.12" r="7.50" fill="#ffffff"/><circle cx="57.88" cy="57.88" r="7.50" fill="#ffffff"/></svg></span><span class="cd" style="left:14%;top:66%;transform:rotate(12deg)"><svg viewBox="0 0 85 85" width="85" height="85"><rect x="1.00" y="1.00" width="83.00" height="83.00" rx="16.60" fill="#f1c232" stroke="rgba(0,0,0,.25)" stroke-width="0.3"/><circle cx="24.24" cy="24.24" r="7.88" fill="#3b2c00"/><circle cx="60.76" cy="24.24" r="7.88" fill="#3b2c00"/><circle cx="24.24" cy="60.76" r="7.88" fill="#3b2c00"/><circle cx="60.76" cy="60.76" r="7.88" fill="#3b2c00"/></svg></span><span class="cd" style="left:80%;top:70%;transform:rotate(-18deg)"><svg viewBox="0 0 102 102" width="102" height="102"><rect x="1.00" y="1.00" width="100.00" height="100.00" rx="20.00" fill="#2f6fdb" stroke="rgba(0,0,0,.25)" stroke-width="0.3"/><circle cx="51.00" cy="51.00" r="9.50" fill="#ffffff"/></svg></span><span class="cd" style="left:62%;top:80%;transform:rotate(7deg)"><svg viewBox="0 0 74 74" width="74" height="74"><rect x="1.00" y="1.00" width="72.00" height="72.00" rx="14.40" fill="#ee8420" stroke="rgba(0,0,0,.25)" stroke-width="0.3"/><circle cx="21.16" cy="18.28" r="6.84" fill="#ffffff"/><circle cx="52.84" cy="18.28" r="6.84" fill="#ffffff"/><circle cx="21.16" cy="37.00" r="6.84" fill="#ffffff"/><circle cx="52.84" cy="37.00" r="6.84" fill="#ffffff"/><circle cx="21.16" cy="55.72" r="6.84" fill="#ffffff"/><circle cx="52.84" cy="55.72" r="6.84" fill="#ffffff"/></svg></span><span class="cd" style="left:32%;top:82%;transform:rotate(-6deg)"><svg viewBox="0 0 68 68" width="68" height="68"><rect x="1.00" y="1.00" width="66.00" height="66.00" rx="13.20" fill="#2a9a58" stroke="rgba(0,0,0,.25)" stroke-width="0.3"/><circle cx="19.48" cy="19.48" r="6.27" fill="#ffffff"/><circle cx="48.52" cy="48.52" r="6.27" fill="#ffffff"/></svg></span><span class="cd" style="left:90%;top:52%;transform:rotate(4deg)"><svg viewBox="0 0 64 64" width="64" height="64"><rect x="1.00" y="1.00" width="62.00" height="62.00" rx="12.40" fill="#8b93a1" stroke="rgba(0,0,0,.25)" stroke-width="0.3"/><circle cx="17.12" cy="17.12" r="5.89" fill="#ffffff"/><circle cx="32.00" cy="32.00" r="5.89" fill="#ffffff"/><circle cx="46.88" cy="46.88" r="5.89" fill="#ffffff"/></svg></span><span class="cd" style="left:4%;top:42%;transform:rotate(-4deg)"><svg viewBox="0 0 68 68" width="68" height="68"><rect x="1.00" y="1.00" width="66.00" height="66.00" rx="13.20" fill="#1c1e23" stroke="rgba(0,0,0,.25)" stroke-width="0.3"/><circle cx="18.16" cy="18.16" r="6.27" fill="#ffffff"/><circle cx="49.84" cy="18.16" r="6.27" fill="#ffffff"/><circle cx="34.00" cy="34.00" r="6.27" fill="#ffffff"/><circle cx="18.16" cy="49.84" r="6.27" fill="#ffffff"/><circle cx="49.84" cy="49.84" r="6.27" fill="#ffffff"/></svg></span>
+  <div class="rb">RULEBOOK</div>
+  <div class="logo">BLIND<span class="dot"></span>SPOTS</div>
+  <div class="tag">You can see everyone else's mission.<br>Everyone can see yours.<br>Nobody can see their own.</div>
+  <div class="meta"><span>3–5 players</span><span>Ages 10+</span><span>20 min</span></div>
+</div>
+
+<section>
+  <h2><span class="bar"><i style="background:var(--blue)"></i><i style="background:var(--orange)"></i><i style="background:var(--green)"></i></span>Game Idea</h2>
+  <p class="lead">A cooperative game of dice and deduction for 3 to 5 players.</p>
+  <p>In BlindSpots, everyone can see your mission, except you. Each player places one or more objective cards so that every other player can read them, while the owner sees only the back. Over several rounds you split colourful dice into groups and choose which group to take. Your teammates know what you need; you must trust their hints and read their choices.</p>
+  <p>You win or lose together. At the end of the game all cards are revealed. If the team has completed its missions (or collected enough stars, depending on the level), everybody wins.</p>
+  <p class="motto">Everyone sees your mission. Everyone helps you.<br>Only you are in the dark.</p>
+</section>
+
+<section>
+  <h2><span class="bar"><i style="background:var(--purple)"></i><i style="background:var(--yellow)"></i></span>Components</h2>
+  <table>
+    <tr><th>Qty</th><th>Component</th><th>Notes</th></tr>
+    <tr><td class="n">75</td><td>Coloured dice</td><td>15 each in blue, orange, green, purple and yellow</td></tr>
+    <tr><td class="n">1</td><td>Grey die</td><td>Grey die variant (campaign levels 11–15)</td></tr>
+    <tr><td class="n">4</td><td>Black dice</td><td>Black die variant, the “Bomb” (campaign levels 16–20)</td></tr>
+    <tr><td class="n">1</td><td>Cloth bag</td><td>Holds the coloured dice in play</td></tr>
+    <tr><td class="n">123</td><td>Objective cards</td><td>Numbered 1–123, 1 to 5 stars each</td></tr>
+    <tr><td class="n">7</td><td>Grey cards</td><td>Numbered G1–G7, grey back</td></tr>
+    <tr><td class="n">9</td><td>Black cards</td><td>Numbered N1–N9, black back</td></tr>
+    <tr><td class="n">4</td><td>Action tiles</td><td>Reroll, +1 / −1, Flip, Remove</td></tr>
+    <tr><td class="n">5</td><td>Card stands</td><td>Hold your cards facing the other players</td></tr>
+    <tr><td class="n">1</td><td>Campaign log</td><td>Track your progress through the 25 levels</td></tr>
+    <tr><td class="n">1</td><td>Rulebook</td><td>This booklet</td></tr>
+  </table>
+  <p>The cards carry no text: only dice, colours, numbers and symbols, so they can be played in any language. The small number in the bottom right corner identifies each card and matches the card list on the separate card sheet.</p>
+</section>
+
+<section class="page">
+  <h2><span class="bar"><i style="background:var(--green)"></i><i style="background:var(--blue)"></i></span>Setup</h2>
+  <p>These steps describe a free game. When you play the campaign, the level you are playing fixes the colours, cards, dice and stars to win (see <i>Campaign</i>).</p>
+  <ol class="steps">
+    <li><b>Choose the colours.</b> With 3 colours, play with blue, orange and green. With 4, add purple; with 5, add yellow. With 5 players, use at least 4 colours.</li>
+    <li><b>Fill the bag.</b> Place 15 dice of each colour in play into the bag. Return the other dice to the box.</li>
+    <li><b>Agree on the mission.</b> Decide how many objectives each player receives (1 to 3) and which star values may come up. Then decide what the team needs to win: either <i>every objective</i>, or a total number of stars (see <i>End of the Game</i>).</li>
+    <li><b>Deal the objective cards.</b> Shuffle the objective cards that fit your game and deal the agreed number to each player, face down. Leave out cards that show a colour not in play.</li>
+    <li><b>Place your cards without looking.</b> Without looking at the front, slide your cards into your card stand so that the front faces the other players. From now on you may look at everyone's cards except your own.</li>
+    <li><b>Choose the first dealer.</b> Pick a player at random. Play passes clockwise; each player deals once.</li>
+    <li><b>Variants.</b> If you play with the grey die, black dice or action tiles, prepare them now (see <i>Variants</i>).</li>
+  </ol>
+  <div class="box important"><b class="t">Important</b>Never look at your own cards until the end of the game. If you see one by accident, swap it for a new card from the deck.</div>
+</section>
+
+<section class="page">
+  <h2><span class="bar"><i style="background:var(--orange)"></i><i style="background:var(--purple)"></i></span>Playing the Game</h2>
+  <p>A game lasts as many rounds as there are players. In each round, one player is the <b>dealer</b>. The first dealer starts; after each round, the role passes to the left.</p>
+  <div class="two">
+    <div>
+      <h3>1. Draw and roll</h3>
+      <p>The dealer draws dice from the bag at random, without looking, and rolls them:</p>
+      <table><tr><th>Players</th><th>Dice per round</th></tr><tr><td>3</td><td>5</td></tr><tr><td>4</td><td>7</td></tr><tr><td>5</td><td>9</td></tr></table>
+      <p class="small">Rule of thumb: (players × 2) − 1. Dice that leave the bag never return to it, unless an action says so.</p>
+      <h3>2. Form groups</h3>
+      <p>The dealer splits the rolled dice into as many groups as there are players. Groups do not have to be the same size, but each group must contain at least one die. The dealer may not change the value shown on any die.</p>
+    </div>
+    <div>
+      <h3>3. Choose groups</h3>
+      <p>Starting with the player to the dealer's left and going clockwise, each player chooses one of the remaining groups and places it in their personal area. <b>The dealer takes the last group.</b></p>
+      <p>The dealer knows what the others need, but not what they need themselves. Building the groups is the heart of the game: give each teammate a group that helps them, and hope that what is left suits you.</p>
+      <h3>4. Next round</h3>
+      <p>The dice in your area stay there until the end of the game and all count towards your mission. The player to the left of the dealer becomes the new dealer and a new round begins.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="bar"><i style="background:var(--blue)"></i><i style="background:var(--green)"></i></span>Communication</h2>
+  <p>Talking is part of the game, within limits. You may discuss the groups on the table and give advice, but you may never reveal what a card says.</p>
+  <table>
+    <tr><th>Allowed</th><th>Not allowed</th></tr>
+    <tr><td>“I think group B suits you better.”</td><td>“Your card says: no blue dice.”</td></tr>
+    <tr><td>“That die could be dangerous for someone.”</td><td>Reading out, describing or pointing at a symbol on someone's card</td></tr>
+    <tr><td>“I'd rather not take the green dice.”</td><td>Telling a player how many stars their cards are worth</td></tr>
+  </table>
+  <p>When in doubt, ask the table. The spirit of the game: hints, not answers.</p>
+</section>
+
+<section class="page">
+  <h2><span class="bar"><i style="background:var(--yellow)"></i><i style="background:var(--orange)"></i></span>Objective Cards</h2>
+  <p>Each objective card states one condition about <b>all the dice in your area at the end of the game</b>. Its stars (1 to 5) show its difficulty and how many stars it is worth when completed. If you hold several cards, together they form your mission.</p>
+  <div class="cards">
+    <figure><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 63.5 88.9" width="63.5mm" height="88.9mm"><rect x="0.6" y="0.6" width="62.3" height="87.7" rx="3.2" fill="#fdfcf7" stroke="#c9cfd8" stroke-width="0.3"/><rect x="3" y="3" width="57.5" height="82.9" rx="2.4" fill="none" stroke="#e7e9ee" stroke-width="0.4"/><text x="17.35" y="11.50" font-size="7.6" text-anchor="middle" font-family="'DejaVu Sans', sans-serif" fill="#e8a317">★</text><text x="24.55" y="11.50" font-size="7.6" text-anchor="middle" font-family="'DejaVu Sans', sans-serif" fill="#d9dde4">★</text><text x="31.75" y="11.50" font-size="7.6" text-anchor="middle" font-family="'DejaVu Sans', sans-serif" fill="#d9dde4">★</text><text x="38.95" y="11.50" font-size="7.6" text-anchor="middle" font-family="'DejaVu Sans', sans-serif" fill="#d9dde4">★</text><text x="46.15" y="11.50" font-size="7.6" text-anchor="middle" font-family="'DejaVu Sans', sans-serif" fill="#d9dde4">★</text><rect x="21.75" y="36.45" width="20.00" height="20.00" rx="4.00" fill="#2f6fdb" stroke="rgba(0,0,0,.25)" stroke-width="0.3"/><circle cx="31.75" cy="46.45" r="15.00" fill="none" stroke="#d23b3b" stroke-width="1.6"/><line x1="21.25" y1="56.95" x2="42.25" y2="35.95" stroke="#d23b3b" stroke-width="1.6"/><text x="57.5" y="83.7" font-size="2.6" text-anchor="end" fill="#b3bac6" font-family="'DejaVu Sans', sans-serif">1</text></svg>No blue dice</figure>
+    <figure><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 63.5 88.9" width="63.5mm" height="88.9mm"><rect x="0.6" y="0.6" width="62.3" height="87.7" rx="3.2" fill="#fdfcf7" stroke="#c9cfd8" stroke-width="0.3"/><rect x="3" y="3" width="57.5" height="82.9" rx="2.4" fill="none" stroke="#e7e9ee" stroke-width="0.4"/><text x="17.35" y="11.50" font-size="7.6" text-anchor="middle" font-family="'DejaVu Sans', sans-serif" fill="#e8a317">★</text><text x="24.55" y="11.50" font-size="7.6" text-anchor="middle" font-family="'DejaVu Sans', sans-serif" fill="#d9dde4">★</text><text x="31.75" y="11.50" font-size="7.6" text-anchor="middle" font-family="'DejaVu Sans', sans-serif" fill="#d9dde4">★</text><text x="38.95" y="11.50" font-size="7.6" text-anchor="middle" font-family="'DejaVu Sans', sans-serif" fill="#d9dde4">★</text><text x="46.15" y="11.50" font-size="7.6" text-anchor="middle" font-family="'DejaVu Sans', sans-serif" fill="#d9dde4">★</text><g transform="translate(31.75,46.45) scale(0.986) translate(-31.75,-46.45)"><text x="17.95" y="52.05" font-size="16" text-anchor="middle" font-weight="700" fill="#18202c" font-family="'DejaVu Sans', sans-serif">≥2</text><text x="36.07" y="49.95" font-size="10" text-anchor="middle" font-weight="700" fill="#18202c" font-family="'DejaVu Sans', sans-serif">×</text><rect x="41.87" y="38.45" width="16.00" height="16.00" rx="3.20" fill="#2f6fdb" stroke="rgba(0,0,0,.25)" stroke-width="0.3"/></g><line x1="9" y1="67.9" x2="54.5" y2="67.9" stroke="#e1e4ea" stroke-width="0.3"/><text x="8.81" y="77.05" font-size="9" text-anchor="middle" font-weight="700" fill="#8a94a6" font-family="'DejaVu Sans', sans-serif">*</text><text x="19.48" y="77.05" font-size="9" text-anchor="middle" font-weight="700" fill="#8a94a6" font-family="'DejaVu Sans', sans-serif">=2</text><text x="31.59" y="77.05" font-size="9" text-anchor="middle" font-weight="700" fill="#8a94a6" font-family="'DejaVu Sans', sans-serif">→</text><text x="43.70" y="77.05" font-size="9" text-anchor="middle" font-weight="700" fill="#e8a317" font-family="'DejaVu Sans', sans-serif">+1</text><text x="54.53" y="77.05" font-size="9" text-anchor="middle" font-weight="700" fill="#e8a317" font-family="'DejaVu Sans', sans-serif">★</text><text x="57.5" y="83.7" font-size="2.6" text-anchor="end" fill="#b3bac6" font-family="'DejaVu Sans', sans-serif">2</text></svg>At least 2 blue dice<br>(exactly 2: +1★)</figure>
+    <figure><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 63.5 88.9" width="63.5mm" height="88.9mm"><rect x="0.6" y="0.6" width="62.3" height="87.7" rx="3.2" fill="#fdfcf7" stroke="#c9cfd8" stroke-width="0.3"/><rect x="3" y="3" width="57.5" height="82.9" rx="2.4" fill="none" stroke="#e7e9ee" stroke-width="0.4"/><text x="17.35" y="11.50" font-size="7.6" text-anchor="middle" font-family="'DejaVu Sans', sans-serif" fill="#e8a317">★</text><text x="24.55" y="11.50" font-size="7.6" text-anchor="middle" font-family="'DejaVu Sans', sans-serif" fill="#e8a317">★</text><text x="31.75" y="11.50" font-size="7.6" text-anchor="middle" font-family="'DejaVu Sans', sans-serif" fill="#e8a317">★</text><text x="38.95" y="11.50" font-size="7.6" text-anchor="middle" font-family="'DejaVu Sans', sans-serif" fill="#d9dde4">★</text><text x="46.15" y="11.50" font-size="7.6" text-anchor="middle" font-family="'DejaVu Sans', sans-serif" fill="#d9dde4">★</text><g transform="translate(31.75,46.45) scale(0.986) translate(-31.75,-46.45)"><text x="17.95" y="52.05" font-size="16" text-anchor="middle" font-weight="700" fill="#18202c" font-family="'DejaVu Sans', sans-serif">=2</text><text x="36.07" y="49.95" font-size="10" text-anchor="middle" font-weight="700" fill="#18202c" font-family="'DejaVu Sans', sans-serif">×</text><rect x="41.87" y="38.45" width="16.00" height="16.00" rx="3.20" fill="#ee8420" stroke="rgba(0,0,0,.25)" stroke-width="0.3"/></g><text x="57.5" y="83.7" font-size="2.6" text-anchor="end" fill="#b3bac6" font-family="'DejaVu Sans', sans-serif">13</text></svg>Exactly 2 orange dice</figure>
+    <figure><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 63.5 88.9" width="63.5mm" height="88.9mm"><rect x="0.6" y="0.6" width="62.3" height="87.7" rx="3.2" fill="#fdfcf7" stroke="#c9cfd8" stroke-width="0.3"/><rect x="3" y="3" width="57.5" height="82.9" rx="2.4" fill="none" stroke="#e7e9ee" stroke-width="0.4"/><text x="17.35" y="11.50" font-size="7.6" text-anchor="middle" font-family="'DejaVu Sans', sans-serif" fill="#e8a317">★</text><text x="24.55" y="11.50" font-size="7.6" text-anchor="middle" font-family="'DejaVu Sans', sans-serif" fill="#e8a317">★</text><text x="31.75" y="11.50" font-size="7.6" text-anchor="middle" font-family="'DejaVu Sans', sans-serif" fill="#e8a317">★</text><text x="38.95" y="11.50" font-size="7.6" text-anchor="middle" font-family="'DejaVu Sans', sans-serif" fill="#d9dde4">★</text><text x="46.15" y="11.50" font-size="7.6" text-anchor="middle" font-family="'DejaVu Sans', sans-serif" fill="#d9dde4">★</text><text x="25.61" y="41.05" font-size="16" text-anchor="middle" font-weight="700" fill="#e8a317" font-family="'DejaVu Sans', sans-serif">♛</text><text x="39.70" y="40.35" font-size="14" text-anchor="middle" font-weight="700" fill="#18202c" font-family="'DejaVu Sans', sans-serif">▼</text><text x="22.95" y="60.35" font-size="14" text-anchor="middle" font-weight="700" fill="#18202c" font-family="'DejaVu Sans', sans-serif">#</text><rect x="30.43" y="47.45" width="16.00" height="16.00" rx="3.20" fill="#ffffff" stroke="#18202c" stroke-width="0.35"/><circle cx="34.91" cy="51.93" r="1.52" fill="#18202c"/><circle cx="41.95" cy="58.97" r="1.52" fill="#18202c"/><text x="57.5" y="83.7" font-size="2.6" text-anchor="end" fill="#b3bac6" font-family="'DejaVu Sans', sans-serif">122</text></svg>Fewer dice showing a 2 than any other player</figure>
+  </div>
+  <h3>Reading the symbols</h3>
+  <table>
+    <tr><th>Symbol</th><th>Meaning</th><th>Example</th></tr>
+    <tr><td>Die with a red “no” sign</td><td>None of these dice</td><td>No blue dice</td></tr>
+    <tr><td>2 × die</td><td>2 or more of these dice</td><td>2 green dice</td></tr>
+    <tr><td>≥2 × die</td><td>At least 2 of these dice</td><td>At least 2 blue dice</td></tr>
+    <tr><td>=2 × die</td><td>Exactly 2, no more, no fewer</td><td>Exactly 2 green dice</td></tr>
+    <tr><td>≤1 × die</td><td>At most 1 of these dice</td><td>At most 1 blue die</td></tr>
+    <tr><td>Σ</td><td>The sum of the values shown</td><td>Your blue dice add up to 12 or more</td></tr>
+    <tr><td>#</td><td>The number of dice</td><td>7 or more dice in total</td></tr>
+    <tr><td>Four-colour die</td><td>A die of any colour</td><td>Your dice add up to 20 or less</td></tr>
+    <tr><td>White die face</td><td>A value, regardless of colour</td><td>No die showing a 3</td></tr>
+    <tr><td>Colour wheel</td><td>Different colours</td><td>Dice of exactly 3 different colours</td></tr>
+    <tr><td>♛ ▲ / ♛ ▼</td><td>More / fewer than every other player</td><td>Fewer dice showing a 4 than any other player</td></tr>
+  </table>
+  <div class="two">
+    <div>
+      <h3>The bonus star</h3>
+      <p>Cards with an asterisk line at the bottom, such as <b>* =2 → +1★</b>, reward precision. The objective is met with the amount shown or more (or, for “at most” cards, that amount or fewer). If you hit the amount <b>exactly</b>, the card earns 1 extra star.</p>
+      <h3>Comparisons with other players</h3>
+      <p>Cards with a crown compare you with every other player: you must be strictly first. A tie does not count.</p>
+    </div>
+    <div>
+      <h3>Values, colours and special dice</h3>
+      <ul>
+        <li><b>Value</b> means the number of pips on the die, from 1 to 6. Even values are 2, 4 and 6; odd values are 1, 3 and 5.</li>
+        <li><b>Straights</b> are consecutive values, such as 2-3-4-5. A colour straight must be made of dice of one colour.</li>
+        <li>The <b>grey</b> and <b>black</b> dice count as dice, for sums and for values, but never as a colour.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+
+
+<section class="page">
+  <h2><span class="bar"><i style="background:var(--purple)"></i><i style="background:var(--blue)"></i></span>End of the Game</h2>
+  <p>The game ends after the last dealer's round. If you play with black dice, resolve the bombs first (see <i>Variants</i>). Then everyone turns their card stand around and checks their cards against the dice in their area.</p>
+  <p>The team wins in one of two ways, agreed during setup:</p>
+  <ul>
+    <li><b>Every objective.</b> Every card of every player must be completed.</li>
+    <li><b>Team stars.</b> Each completed card is worth its stars, plus 1 bonus star for an exact hit. Add up the stars of the whole team. If the total reaches the target, you win.</li>
+  </ul>
+  <div class="box example"><b class="t">Example</b>Ana completes her 3-star card and hits its bonus. Bruno completes a 2-star card and fails a 1-star card. Carla completes a 4-star card. The team scores 4 + 2 + 4 = <b>10 stars</b>.</div>
+  <p>In addition, the team loses whatever its score if:</p>
+  <ul>
+    <li>the player holding the grey die has not met the grey card, or</li>
+    <li>a player received a second black die (see <i>Variants</i>).</li>
+  </ul>
+  <p>Lost? Shuffle, deal new cards and try again. Every game is different.</p>
+</section>
+
+<section>
+  <h2><span class="bar"><i style="background:var(--orange)"></i><i style="background:var(--yellow)"></i><i style="background:var(--green)"></i></span>Variants</h2>
+  <p>The three variants below are introduced step by step in the campaign. In a free game, you may add the grey die.</p>
+  <h3>Special actions</h3>
+  <p><b>Setup.</b> With 3 players, shuffle the 4 action tiles and place 3 of them face up; return the fourth to the box. With 4 players, use all 4.</p>
+  <p><b>Using an action.</b> At any time during the game, any player may use one available action on <b>any visible die</b>: in the dealer's roll, in a group, or in any player's area. Then take the tile: it is no longer available to anyone. Each player may use only one action per game.</p>
+  <table>
+    <tr><th>Tile</th><th>Effect</th></tr>
+    <tr><td class="n">Reroll</td><td>Roll the die again.</td></tr>
+    <tr><td class="n">+1 / −1</td><td>Turn the die to one pip more or one pip less (never below 1 or above 6).</td></tr>
+    <tr><td class="n">Flip</td><td>Turn the die to its opposite face: 1 ↔ 6, 2 ↔ 5, 3 ↔ 4.</td></tr>
+    <tr><td class="n">Remove</td><td>Put the die back into the bag.</td></tr>
+  </table>
+  <div class="box tip"><b class="t">Tip</b>Announce each action clearly: who you are, which die, whose die it was and its value before and after (“I flip Bruno's orange die: from 5 to 2”). Agree on it as a team: a used action is gone for everyone.</div>
+</section>
+
+<section class="page">
+  <h3 style="margin-top:0">The grey die</h3>
+  <div class="two">
+    <div>
+      <p><b>Setup.</b> Shuffle the 7 grey cards and place them face down.</p>
+      <p><b>First round.</b> The first dealer also rolls the grey die and reveals the top grey card, face up for everyone, including you. The grey die joins the groups like any other die.</p>
+      <p><b>End of the game.</b> Whoever holds the grey die must meet the grey card. If not, the team loses, even if it has enough stars. The grey die counts as a die, for sums and for values, but not as a colour.</p>
+    </div>
+    <div class="cards" style="justify-content:flex-start"><figure><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 63.5 88.9" width="63.5mm" height="88.9mm"><rect x="0.6" y="0.6" width="62.3" height="87.7" rx="3.2" fill="#dfe2e7" stroke="#b5bcc7" stroke-width="0.3"/><rect x="3" y="3" width="57.5" height="82.9" rx="2.4" fill="none" stroke="#c9ced6" stroke-width="0.4"/><rect x="22.75" y="9.00" width="18.00" height="18.00" rx="3.60" fill="#8b93a1" stroke="rgba(0,0,0,.25)" stroke-width="0.3"/><text x="31.75" y="34" font-size="9" text-anchor="middle" font-weight="700" fill="#18202c" font-family="'DejaVu Sans', sans-serif">▼</text><path d="M31.75,52.45 L31.75,39.45 A13.00,13.00 0 0 1 44.11,48.43 Z" fill="#2f6fdb"/><path d="M31.75,52.45 L44.11,48.43 A13.00,13.00 0 0 1 39.39,62.97 Z" fill="#ee8420"/><path d="M31.75,52.45 L39.39,62.97 A13.00,13.00 0 0 1 24.11,62.97 Z" fill="#2a9a58"/><path d="M31.75,52.45 L24.11,62.97 A13.00,13.00 0 0 1 19.39,48.43 Z" fill="#8a4fd1"/><path d="M31.75,52.45 L19.39,48.43 A13.00,13.00 0 0 1 31.75,39.45 Z" fill="#f1c232"/><circle cx="31.75" cy="52.45" r="6.76" fill="#ffffff"/><text x="31.75" y="56.43" font-size="11.05" text-anchor="middle" font-weight="700" fill="#18202c" font-family="'DejaVu Sans', sans-serif">✓</text><text x="57.5" y="83.7" font-size="2.6" text-anchor="end" fill="#9aa2ae" font-family="'DejaVu Sans', sans-serif">G1</text></svg>G1: at least 1 die of each colour</figure><figure><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 63.5 88.9" width="63.5mm" height="88.9mm"><rect x="0.6" y="0.6" width="62.3" height="87.7" rx="3.2" fill="#dfe2e7" stroke="#b5bcc7" stroke-width="0.3"/><rect x="3" y="3" width="57.5" height="82.9" rx="2.4" fill="none" stroke="#c9ced6" stroke-width="0.4"/><rect x="22.75" y="9.00" width="18.00" height="18.00" rx="3.60" fill="#8b93a1" stroke="rgba(0,0,0,.25)" stroke-width="0.3"/><text x="31.75" y="34" font-size="9" text-anchor="middle" font-weight="700" fill="#18202c" font-family="'DejaVu Sans', sans-serif">▼</text><g transform="translate(31.75,52.45) scale(0.832) translate(-31.75,-52.45)"><text x="5.85" y="57.35" font-size="14" text-anchor="middle" font-weight="700" fill="#18202c" font-family="'DejaVu Sans', sans-serif">Σ</text><clipPath id="anyclip6"><rect x="12.49" y="44.95" width="15.00" height="15.00" rx="3.00"/></clipPath><g clip-path="url(#anyclip6)"><rect x="12.49" y="44.95" width="7.50" height="7.50" fill="#2f6fdb" opacity="0.55"/><rect x="19.99" y="44.95" width="7.50" height="7.50" fill="#ee8420" opacity="0.55"/><rect x="12.49" y="52.45" width="7.50" height="7.50" fill="#2a9a58" opacity="0.55"/><rect x="19.99" y="52.45" width="7.50" height="7.50" fill="#8a4fd1" opacity="0.55"/></g><rect x="12.49" y="44.95" width="15.00" height="15.00" rx="3.00" fill="none" stroke="#18202c" stroke-width="0.35"/><text x="45.89" y="57.70" font-size="15" text-anchor="middle" font-weight="700" fill="#18202c" font-family="'DejaVu Sans', sans-serif">≤15</text></g><text x="57.5" y="83.7" font-size="2.6" text-anchor="end" fill="#9aa2ae" font-family="'DejaVu Sans', sans-serif">G7</text></svg>G7: total of no more than 15</figure></div>
+  </div>
+  <table>
+    <tr><th>Card</th><th>Rule for the holder of the grey die</th></tr>
+    <tr><td class="n">G1</td><td>At least 1 die of each colour in play</td></tr>
+    <tr><td class="n">G2</td><td>Total of at least 15 (grey die included)</td></tr>
+    <tr><td class="n">G3</td><td>No other die with the same value as the grey die</td></tr>
+    <tr><td class="n">G4</td><td>At most 6 dice (grey die included)</td></tr>
+    <tr><td class="n">G5</td><td>At least one other die with the same value as the grey die</td></tr>
+    <tr><td class="n">G6</td><td>No more than 3 dice of the same colour</td></tr>
+    <tr><td class="n">G7</td><td>Total of no more than 15 (grey die included)</td></tr>
+  </table>
+
+  <h3>The black die: the Bomb</h3>
+  <p><b>Setup.</b> Shuffle the 9 black cards and place them face down. The black cards form a single deck from game to game: a card only comes back once all the others have been drawn. When the deck runs out, shuffle all 9 again.</p>
+  <p><b>Each round.</b> The dealer draws coloured dice as the level states (6 with 3 players, 8 with 4) and also rolls one black die. Then they reveal the top black card and place it next to that black die. The card travels with the die.</p>
+  <p><b>One black die each.</b> Each player may end the game with only <b>one</b> black die. If you already have one, you may not choose a group that contains another.</p>
+  <div class="box important"><b class="t">Careful with the dealer</b>If the last group contains a black die and the dealer already has one, <b>the team loses the level at once</b>.</div>
+</section>
+
+<section>
+  <p><b>The bombs go off.</b> After the last round and before scoring, each player holding a black die, in turn order, applies its card to <b>their own dice</b> and removes them. You choose which dice, among those the card allows. If no die fits the card, nothing happens. The black die itself is never removed by its card. Removed dice go back to the box.</p>
+  <div class="cards"><figure><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 63.5 88.9" width="63.5mm" height="88.9mm"><rect x="0.6" y="0.6" width="62.3" height="87.7" rx="3.2" fill="#e4e5e8" stroke="#9aa0aa" stroke-width="0.3"/><rect x="3" y="3" width="57.5" height="82.9" rx="2.4" fill="none" stroke="#1c1e23" stroke-width="0.6"/><rect x="22.75" y="9.00" width="18.00" height="18.00" rx="3.60" fill="#1c1e23" stroke="#7d8594" stroke-width="0.35"/><text x="31.75" y="34" font-size="9" text-anchor="middle" font-weight="700" fill="#18202c" font-family="'DejaVu Sans', sans-serif">▼</text><clipPath id="anyclip7"><rect x="11.25" y="46.45" width="12.00" height="12.00" rx="2.40"/></clipPath><g clip-path="url(#anyclip7)"><rect x="11.25" y="46.45" width="6.00" height="6.00" fill="#2f6fdb" opacity="0.55"/><rect x="17.25" y="46.45" width="6.00" height="6.00" fill="#ee8420" opacity="0.55"/><rect x="11.25" y="52.45" width="6.00" height="6.00" fill="#2a9a58" opacity="0.55"/><rect x="17.25" y="52.45" width="6.00" height="6.00" fill="#8a4fd1" opacity="0.55"/></g><rect x="11.25" y="46.45" width="12.00" height="12.00" rx="2.40" fill="none" stroke="#18202c" stroke-width="0.35"/><circle cx="14.61" cy="49.81" r="1.14" fill="#18202c"/><circle cx="19.89" cy="55.09" r="1.14" fill="#18202c"/><circle cx="23.25" cy="46.45" r="2.88" fill="#d23b3b" stroke="#ffffff" stroke-width="0.6"/><line x1="21.95" y1="45.15" x2="24.55" y2="47.75" stroke="#ffffff" stroke-width="1" stroke-linecap="round"/><line x1="21.95" y1="47.75" x2="24.55" y2="45.15" stroke="#ffffff" stroke-width="1" stroke-linecap="round"/><clipPath id="anyclip8"><rect x="25.75" y="46.45" width="12.00" height="12.00" rx="2.40"/></clipPath><g clip-path="url(#anyclip8)"><rect x="25.75" y="46.45" width="6.00" height="6.00" fill="#2f6fdb" opacity="0.55"/><rect x="31.75" y="46.45" width="6.00" height="6.00" fill="#ee8420" opacity="0.55"/><rect x="25.75" y="52.45" width="6.00" height="6.00" fill="#2a9a58" opacity="0.55"/><rect x="31.75" y="52.45" width="6.00" height="6.00" fill="#8a4fd1" opacity="0.55"/></g><rect x="25.75" y="46.45" width="12.00" height="12.00" rx="2.40" fill="none" stroke="#18202c" stroke-width="0.35"/><circle cx="29.11" cy="49.81" r="1.14" fill="#18202c"/><circle cx="34.39" cy="49.81" r="1.14" fill="#18202c"/><circle cx="29.11" cy="55.09" r="1.14" fill="#18202c"/><circle cx="34.39" cy="55.09" r="1.14" fill="#18202c"/><clipPath id="anyclip9"><rect x="40.25" y="46.45" width="12.00" height="12.00" rx="2.40"/></clipPath><g clip-path="url(#anyclip9)"><rect x="40.25" y="46.45" width="6.00" height="6.00" fill="#2f6fdb" opacity="0.55"/><rect x="46.25" y="46.45" width="6.00" height="6.00" fill="#ee8420" opacity="0.55"/><rect x="40.25" y="52.45" width="6.00" height="6.00" fill="#2a9a58" opacity="0.55"/><rect x="46.25" y="52.45" width="6.00" height="6.00" fill="#8a4fd1" opacity="0.55"/></g><rect x="40.25" y="46.45" width="12.00" height="12.00" rx="2.40" fill="none" stroke="#18202c" stroke-width="0.35"/><circle cx="43.61" cy="49.33" r="1.14" fill="#18202c"/><circle cx="48.89" cy="49.33" r="1.14" fill="#18202c"/><circle cx="43.61" cy="52.45" r="1.14" fill="#18202c"/><circle cx="48.89" cy="52.45" r="1.14" fill="#18202c"/><circle cx="43.61" cy="55.57" r="1.14" fill="#18202c"/><circle cx="48.89" cy="55.57" r="1.14" fill="#18202c"/><text x="57.5" y="83.7" font-size="2.6" text-anchor="end" fill="#8a909a" font-family="'DejaVu Sans', sans-serif">N1</text></svg>N1: your lowest die</figure><figure><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 63.5 88.9" width="63.5mm" height="88.9mm"><rect x="0.6" y="0.6" width="62.3" height="87.7" rx="3.2" fill="#e4e5e8" stroke="#9aa0aa" stroke-width="0.3"/><rect x="3" y="3" width="57.5" height="82.9" rx="2.4" fill="none" stroke="#1c1e23" stroke-width="0.6"/><rect x="22.75" y="9.00" width="18.00" height="18.00" rx="3.60" fill="#1c1e23" stroke="#7d8594" stroke-width="0.35"/><text x="31.75" y="34" font-size="9" text-anchor="middle" font-weight="700" fill="#18202c" font-family="'DejaVu Sans', sans-serif">▼</text><rect x="9.29" y="45.45" width="14.00" height="14.00" rx="2.80" fill="#1c1e23" stroke="rgba(0,0,0,.25)" stroke-width="0.3"/><circle cx="13.21" cy="49.37" r="1.33" fill="#ffffff"/><circle cx="19.37" cy="49.37" r="1.33" fill="#ffffff"/><circle cx="13.21" cy="55.53" r="1.33" fill="#ffffff"/><circle cx="19.37" cy="55.53" r="1.33" fill="#ffffff"/><text x="31.75" y="57.00" font-size="13" text-anchor="middle" font-weight="700" fill="#18202c" font-family="'DejaVu Sans', sans-serif">=</text><clipPath id="anyclip10"><rect x="40.21" y="45.45" width="14.00" height="14.00" rx="2.80"/></clipPath><g clip-path="url(#anyclip10)"><rect x="40.21" y="45.45" width="7.00" height="7.00" fill="#2f6fdb" opacity="0.55"/><rect x="47.21" y="45.45" width="7.00" height="7.00" fill="#ee8420" opacity="0.55"/><rect x="40.21" y="52.45" width="7.00" height="7.00" fill="#2a9a58" opacity="0.55"/><rect x="47.21" y="52.45" width="7.00" height="7.00" fill="#8a4fd1" opacity="0.55"/></g><rect x="40.21" y="45.45" width="14.00" height="14.00" rx="2.80" fill="none" stroke="#18202c" stroke-width="0.35"/><circle cx="44.13" cy="49.37" r="1.33" fill="#18202c"/><circle cx="50.29" cy="49.37" r="1.33" fill="#18202c"/><circle cx="44.13" cy="55.53" r="1.33" fill="#18202c"/><circle cx="50.29" cy="55.53" r="1.33" fill="#18202c"/><circle cx="54.21" cy="45.45" r="3.36" fill="#d23b3b" stroke="#ffffff" stroke-width="0.6"/><line x1="52.70" y1="43.94" x2="55.72" y2="46.96" stroke="#ffffff" stroke-width="1" stroke-linecap="round"/><line x1="52.70" y1="46.96" x2="55.72" y2="43.94" stroke="#ffffff" stroke-width="1" stroke-linecap="round"/><text x="57.5" y="83.7" font-size="2.6" text-anchor="end" fill="#8a909a" font-family="'DejaVu Sans', sans-serif">N3</text></svg>N3: same value as the black die</figure><figure><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 63.5 88.9" width="63.5mm" height="88.9mm"><rect x="0.6" y="0.6" width="62.3" height="87.7" rx="3.2" fill="#e4e5e8" stroke="#9aa0aa" stroke-width="0.3"/><rect x="3" y="3" width="57.5" height="82.9" rx="2.4" fill="none" stroke="#1c1e23" stroke-width="0.6"/><rect x="22.75" y="9.00" width="18.00" height="18.00" rx="3.60" fill="#1c1e23" stroke="#7d8594" stroke-width="0.35"/><text x="31.75" y="34" font-size="9" text-anchor="middle" font-weight="700" fill="#18202c" font-family="'DejaVu Sans', sans-serif">▼</text><clipPath id="anyclip11"><rect x="8.87" y="45.45" width="14.00" height="14.00" rx="2.80"/></clipPath><g clip-path="url(#anyclip11)"><rect x="8.87" y="45.45" width="7.00" height="7.00" fill="#2f6fdb" opacity="0.55"/><rect x="15.87" y="45.45" width="7.00" height="7.00" fill="#ee8420" opacity="0.55"/><rect x="8.87" y="52.45" width="7.00" height="7.00" fill="#2a9a58" opacity="0.55"/><rect x="15.87" y="52.45" width="7.00" height="7.00" fill="#8a4fd1" opacity="0.55"/></g><rect x="8.87" y="45.45" width="14.00" height="14.00" rx="2.80" fill="none" stroke="#18202c" stroke-width="0.35"/><circle cx="22.87" cy="45.45" r="3.36" fill="#d23b3b" stroke="#ffffff" stroke-width="0.6"/><line x1="21.36" y1="43.94" x2="24.38" y2="46.96" stroke="#ffffff" stroke-width="1" stroke-linecap="round"/><line x1="21.36" y1="46.96" x2="24.38" y2="43.94" stroke="#ffffff" stroke-width="1" stroke-linecap="round"/><text x="31.75" y="57.35" font-size="14" text-anchor="middle" font-weight="700" fill="#18202c" font-family="'DejaVu Sans', sans-serif">≤</text><rect x="40.63" y="45.45" width="14.00" height="14.00" rx="2.80" fill="#1c1e23" stroke="rgba(0,0,0,.25)" stroke-width="0.3"/><circle cx="44.55" cy="49.37" r="1.33" fill="#ffffff"/><circle cx="50.71" cy="49.37" r="1.33" fill="#ffffff"/><circle cx="44.55" cy="55.53" r="1.33" fill="#ffffff"/><circle cx="50.71" cy="55.53" r="1.33" fill="#ffffff"/><text x="57.5" y="83.7" font-size="2.6" text-anchor="end" fill="#8a909a" font-family="'DejaVu Sans', sans-serif">N8</text></svg>N8: lower than or equal to the black die</figure></div>
+  <table>
+    <tr><th>Card</th><th>Remove from your area</th></tr>
+    <tr><td class="n">N1</td><td>Your lowest die (your choice among ties)</td></tr>
+    <tr><td class="n">N2</td><td>Your highest die (your choice among ties)</td></tr>
+    <tr><td class="n">N3</td><td>A die with the same value as the black die</td></tr>
+    <tr><td class="n">N4</td><td>A die of the colour you have most of</td></tr>
+    <tr><td class="n">N5</td><td>A die of the colour you have fewest of</td></tr>
+    <tr><td class="n">N6</td><td>2 dice at random: the player to your left picks them without looking</td></tr>
+    <tr><td class="n">N7</td><td>Two dice with the same value</td></tr>
+    <tr><td class="n">N8</td><td>A die with a value lower than or equal to the black die</td></tr>
+    <tr><td class="n">N9</td><td>A die with a value higher than or equal to the black die</td></tr>
+  </table>
+  <p>The black die counts as a die, for sums and for values, but not as a colour. Actions may not be used while the bombs go off.</p>
+</section>
+
+<section class="page">
+  <h2><span class="bar"><i style="background:var(--blue)"></i><i style="background:var(--orange)"></i><i style="background:var(--green)"></i><i style="background:var(--purple)"></i><i style="background:var(--yellow)"></i></span>Campaign</h2>
+  <p>The campaign leads 3 or 4 players through 25 levels in five worlds of five levels each. Each level fixes the colours, the objective cards each player receives, the dice in the bag and the stars the team needs. Beat a level to unlock the next one and tick it in the campaign log. If you lose, replay the level with new cards. You may replay any level you have already beaten.</p>
+  <p><b>Dealing campaign cards.</b> Sort the objective cards by stars. Each player receives one card of each value shown in the <i>Cards</i> column: “3 + 1” means one 3-star card and one 1-star card. <b>Stars to win:</b> use the value for your player count; add up the stars of all completed cards, plus bonus stars.</p>
+  <table class="compact">
+    <tr><th>Level</th><th>Name</th><th>Colours</th><th>Cards</th><th>Dice per colour<br>3 / 4 players</th><th>Stars to win<br>3 / 4 players</th><th>Rules</th></tr>
+    <tr><td class="n">1</td><td>First Steps 1</td><td>3</td><td>1</td><td>6 / 10</td><td>2 / 3</td><td>Basic game</td></tr><tr><td class="n">2</td><td>First Steps 2</td><td>3</td><td>2</td><td>6 / 10</td><td>4 / 6</td><td>Basic game</td></tr><tr><td class="n">3</td><td>First Steps 3</td><td>3</td><td>1 + 1</td><td>6 / 10</td><td>5 / 7</td><td>Basic game</td></tr><tr><td class="n">4</td><td>First Steps 4</td><td>3</td><td>2 + 2</td><td>6 / 10</td><td>10 / 14</td><td>Basic game</td></tr><tr><td class="n">5</td><td>First Steps 5</td><td>3</td><td>3</td><td>6 / 10</td><td>9 / 12</td><td>Basic game</td></tr><tr><td class="n">6</td><td>Actions 1</td><td>3</td><td>3 + 1</td><td>6 / 10</td><td>10 / 13</td><td>Special actions</td></tr><tr><td class="n">7</td><td>Actions 2</td><td>3</td><td>3 + 2</td><td>6 / 10</td><td>13 / 18</td><td>Special actions</td></tr><tr><td class="n">8</td><td>Actions 3</td><td>3</td><td>3 + 3</td><td>6 / 10</td><td>15 / 20</td><td>Special actions</td></tr><tr><td class="n">9</td><td>Actions 4</td><td>3</td><td>4 + 3</td><td>6 / 10</td><td>18 / 25</td><td>Special actions</td></tr><tr><td class="n">10</td><td>Actions 5</td><td>3</td><td>4 + 4</td><td>6 / 10</td><td>12 / 16</td><td>Special actions</td></tr><tr><td class="n">11</td><td>Grey 1</td><td>3</td><td>3</td><td>6 / 10</td><td>6 / 8</td><td>Grey die</td></tr><tr><td class="n">12</td><td>Grey 2</td><td>3</td><td>1 + 3</td><td>6 / 10</td><td>10 / 13</td><td>Grey die</td></tr><tr><td class="n">13</td><td>Grey 3</td><td>3</td><td>2 + 3</td><td>6 / 10</td><td>12 / 16</td><td>Grey die</td></tr><tr><td class="n">14</td><td>Grey 4</td><td>3</td><td>3 + 3</td><td>6 / 10</td><td>14 / 19</td><td>Grey die</td></tr><tr><td class="n">15</td><td>Grey 5</td><td>3</td><td>5</td><td>6 / 10</td><td>10 / 13</td><td>Grey die</td></tr><tr><td class="n">16</td><td>Bomb 1</td><td>3</td><td>4</td><td>6 / 11</td><td>8 / 12</td><td>Black die</td></tr><tr><td class="n">17</td><td>Bomb 2</td><td>3</td><td>2 + 3</td><td>6 / 11</td><td>12 / 17</td><td>Black die</td></tr><tr><td class="n">18</td><td>Bomb 3</td><td>3</td><td>1 + 2 + 3</td><td>6 / 11</td><td>15 / 20</td><td>Black die</td></tr><tr><td class="n">19</td><td>Bomb 4</td><td>3</td><td>3 + 4</td><td>6 / 11</td><td>18 / 24</td><td>Black die</td></tr><tr><td class="n">20</td><td>Bomb 5</td><td>3</td><td>2 + 2 + 3</td><td>6 / 11</td><td>20 / 26</td><td>Black die</td></tr><tr><td class="n">21</td><td>Four Colours 1</td><td>4</td><td>2 + 3</td><td>6 / 10</td><td>13 / 17</td><td>Basic game</td></tr><tr><td class="n">22</td><td>Four Colours 2</td><td>4</td><td>3 + 3</td><td>6 / 10</td><td>15 / 20</td><td>Basic game</td></tr><tr><td class="n">23</td><td>Four Colours 3</td><td>4</td><td>3 + 4</td><td>6 / 10</td><td>21 / 24</td><td>Basic game</td></tr><tr><td class="n">24</td><td>Four Colours 4</td><td>4</td><td>2 + 2 + 3</td><td>6 / 10</td><td>19 / 23</td><td>Basic game</td></tr><tr><td class="n">25</td><td>Four Colours 5</td><td>4</td><td>3 + 3 + 3</td><td>6 / 10</td><td>24 / 33</td><td>Basic game</td></tr>
+  </table>
+  <p class="small">In the Bomb levels (16–20), the dealer draws 6 coloured dice per round with 3 players and 8 with 4, plus one black die.</p>
+  <div class="box tip"><b class="t">New rules along the way</b>Before levels 6, 11 and 16, read the matching section of <i>Variants</i> aloud: special actions, the grey die and the black die. Each new world adds one idea; the levels within a world grow harder.</div>
+</section>
+
+<section>
+  <h2><span class="bar"><i style="background:var(--green)"></i><i style="background:var(--yellow)"></i></span>Free Play</h2>
+  <p>Outside the campaign, set up the game to suit your group:</p>
+  <table>
+    <tr><th>Setting</th><th>Options</th></tr>
+    <tr><td>Players</td><td>3, 4 or 5</td></tr>
+    <tr><td>Colours</td><td>3, 4 or 5 (at least 4 with 5 players)</td></tr>
+    <tr><td>Objectives per player</td><td>1, 2 or 3</td></tr>
+    <tr><td>Difficulty</td><td>Any combination of 1★ to 5★ cards</td></tr>
+    <tr><td>To win</td><td>Every objective, or a team star total</td></tr>
+    <tr><td>Grey die</td><td>On or off</td></tr>
+  </table>
+  <div class="box tip"><b class="t">Your first game</b>We recommend 3 colours, 1 objective per player and cards of 1★ to 3★.</div>
+</section>
+
+<section class="faq">
+  <h2><span class="bar"><i style="background:var(--purple)"></i><i style="background:var(--orange)"></i></span>Frequently Asked Questions</h2>
+  <div class="two">
+    <div>
+      <p><b>Can a group be empty?</b> No. Every group contains at least one die.</p>
+      <p><b>May the dealer see the values before forming groups?</b> Yes. The dice are rolled first and then split as they lie.</p>
+      <p><b>Two of my cards seem to contradict each other.</b> Cards dealt to the same player must be compatible. If you deal by hand, reshuffle a card that clearly contradicts another.</p>
+      <p><b>Two players have the same crown card.</b> Only one player can be strictly first at the same thing. Replace the second copy.</p>
+    </div>
+    <div>
+      <p><b>Does the grey or black die count for “dice of exactly 3 colours”?</b> No. They count as dice and for values, never as a colour.</p>
+      <p><b>Can an action target the black die?</b> Yes. If the black die is removed, its card is discarded with it.</p>
+      <p><b>The black card says “your lowest die” and I have two 1s.</b> Choose either one.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="ref">
+    <h2 style="font-size:15pt"><span class="bar"><i style="background:var(--blue)"></i><i style="background:var(--orange)"></i><i style="background:var(--green)"></i></span>Quick Reference</h2>
+    <ol class="steps">
+      <li>The dealer draws (players × 2) − 1 dice and rolls them.</li>
+      <li>The dealer forms one group per player, at least one die each.</li>
+      <li>Clockwise from the dealer's left, each player takes a group; the dealer takes the last one.</li>
+      <li>The role of dealer passes to the left. Play as many rounds as there are players.</li>
+      <li>Bombs go off (black die only), then reveal all cards and score.</li>
+    </ol>
+  </div>
+  <p class="motto">Everyone sees your mission. Only you are in the dark.</p>
+</section>
+</body></html>
