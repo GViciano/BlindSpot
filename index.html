@@ -2539,11 +2539,11 @@ function waitingRoomHTML() {
             ${ON.lob.camp && CAMPAIGN.length && CAMP_PLAYERS.length < 3 ? `<p class="note">${t('campPlayers', CAMP_PLAYERS.join(' / '))}</p>` : ''}
             <p class="note">${botsN > 0 ? t('botsFill', botsN) : t('allHumans')}</p>
           </div>
+          <div class="actions"><button type="button" class="btn primary big" data-action="on-start" ${ON.lob.camp && CAMPAIGN.length ? '' : pool(Math.max(ON.lob.C, minColours(total)), ON.lob.stars).length ? '' : 'disabled'}>${ON.lob.camp && CAMPAIGN.length ? t('campStart', Math.min(ON.lob.campLevel || 0, campMax()) + 1) : t('startGame')}</button></div>
+          ${errHTML()}
           ${gameTypeHTML('on', ON.lob.camp)}
           ${ON.lob.camp && CAMPAIGN.length ? campPickerHTML('on', ON.lob.campLevel, total) : settingsHTML('on', ON.lob, total)}
           <label class="toggle"><input id="on-hints" type="checkbox" data-action="on-hints" ${ON.lob.h ? 'checked' : ''}> ${t('hintsToggle')}</label>
-          <div class="actions"><button type="button" class="btn primary big" data-action="on-start" ${ON.lob.camp && CAMPAIGN.length ? '' : pool(Math.max(ON.lob.C, minColours(total)), ON.lob.stars).length ? '' : 'disabled'}>${ON.lob.camp && CAMPAIGN.length ? t('campStart', Math.min(ON.lob.campLevel || 0, campMax()) + 1) : t('startGame')}</button></div>
-          ${errHTML()}
           ${connHTML()}
         </section>
         ${howtoPanel()}
@@ -2664,11 +2664,11 @@ function localSetupHTML() {
         ${campOn && CAMP_PLAYERS.length < 3 ? `<p class="note">${t('campPlayers', CAMP_PLAYERS.join(' / '))}</p>` : ''}
       </div>
       <div class="field"><span class="label">${t('whoPlays')}</span><div class="players">${rows}</div><p class="note">${modeNote}</p></div>
+      <div class="actions"><button type="button" class="btn primary big" data-action="start" ${S.camp && CAMPAIGN.length ? '' : pool(Math.max(S.colors, minColours(S.count)), S.stars).length ? '' : 'disabled'}>${S.camp && CAMPAIGN.length ? t('campStart', Math.min(S.campLevel || 0, campMax()) + 1) : t('start')}</button></div>
+      ${errHTML()}
       ${gameTypeHTML('set', S.camp)}
       ${S.camp && CAMPAIGN.length ? campPickerHTML('set', S.campLevel, n) : settingsHTML('set', { C: S.colors, per: S.per, stars: S.stars, need: S.need || 0, grey: !!S.grey }, n)}
       <label class="toggle"><input id="hints" type="checkbox" data-action="hints" ${S.hints ? 'checked' : ''}> ${t('hintsToggle')}</label>
-      <div class="actions"><button type="button" class="btn primary big" data-action="start" ${S.camp && CAMPAIGN.length ? '' : pool(Math.max(S.colors, minColours(S.count)), S.stars).length ? '' : 'disabled'}>${S.camp && CAMPAIGN.length ? t('campStart', Math.min(S.campLevel || 0, campMax()) + 1) : t('start')}</button></div>
-      ${errHTML()}
     </section>`;
 }
 
