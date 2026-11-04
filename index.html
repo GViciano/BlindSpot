@@ -377,6 +377,7 @@ const I18N = {
     gameType: 'Tipo de partida', freeGame: 'Partida libre', campaign: 'Campaña',
     levelN: n => `Nivel ${n}`, campLevelOf: (n, N) => `Nivel ${n} de ${N}`,
     campPick: 'Nivel de la campaña', campLocked: 'Se desbloquea al superar el nivel anterior.',
+    campUnlockAll: 'Desbloquear todos los niveles',
     campProgress: (k, N) => `Has desbloqueado ${k} de ${N} niveles. Los niveles superados se pueden volver a jugar.`,
     campStart: n => `Jugar el nivel ${n}`,
     nextLevel: (n, name) => `Siguiente nivel: ${n} · ${name}`, nextLevelN: n => `Siguiente nivel: ${n}`, retryLevel: 'Reintentar el nivel', repeatLevel: 'Repetir este nivel',
@@ -667,6 +668,7 @@ const I18N = {
     gameType: 'Game type', freeGame: 'Free game', campaign: 'Campaign',
     levelN: n => `Level ${n}`, campLevelOf: (n, N) => `Level ${n} of ${N}`,
     campPick: 'Campaign level', campLocked: 'Unlocks when you beat the previous level.',
+    campUnlockAll: 'Unlock all levels',
     campProgress: (k, N) => `You have unlocked ${k} of ${N} levels. Beaten levels can be played again.`,
     campStart: n => `Play level ${n}`,
     nextLevel: (n, name) => `Next level: ${n} · ${name}`, nextLevelN: n => `Next level: ${n}`, retryLevel: 'Retry the level', repeatLevel: 'Replay this level',
@@ -1285,11 +1287,15 @@ const CAMP_PLAYERS = [3, 4, 5].filter(P => CAMPAIGN.every(l => {
   return keyed.every(o => o[P]) && (!(l.bagBy[P] || l.bag) || (l.bagBy[P] || l.bag) * l.C >= P * (l.perRoundBy[P] || rollCount(P)));
 }));
 // Highest level this browser has unlocked (0-based).
-function campMax() {
+// With "unlock all levels" ticked, every level can be picked.
+function campReached() {
   const v = lsGet(CAMP_KEY);
   return v && Number.isInteger(v.max) ? Math.max(0, Math.min(v.max, CAMPAIGN.length - 1)) : 0;
 }
-function campUnlock(i) { if (i < CAMPAIGN.length && i > campMax()) lsSet(CAMP_KEY, { max: i }); }
+const campAll = () => { const v = lsGet(CAMP_KEY); return !!(v && v.all === true); };
+function campMax() { return campAll() ? Math.max(0, CAMPAIGN.length - 1) : campReached(); }
+function campUnlock(i) { if (i < CAMPAIGN.length && i > campReached()) lsSet(CAMP_KEY, { max: i, all: campAll() }); }
+function campSetAll(on) { lsSet(CAMP_KEY, { max: campReached(), all: !!on }); }
 
 const mkey = m => [m.t, m.c, m.c2, m.n, m.v].join(':');
 const mcolours = m => [m.c, m.c2].filter(x => x !== undefined);
@@ -2911,8 +2917,9 @@ function campPickerHTML(pre, level, players) {
     </button></li>`;
   }).join('');
   return `<div class="field"><span class="label">${t('campPick')}</span>
-    <p class="note">${t('campProgress', max + 1, CAMPAIGN.length)}</p>
-    <ol class="levels">${rows}</ol></div>`;
+    <p class="note">${t('campProgress', campReached() + 1, CAMPAIGN.length)}</p>
+    <ol class="levels">${rows}</ol>
+    <label class="toggle"><input id="${pre}-unlock" type="checkbox" data-action="${pre}-unlock" ${campAll() ? 'checked' : ''}> ${t('campUnlockAll')}</label></div>`;
 }
 
 function localSetupHTML() {
@@ -3069,6 +3076,7 @@ $app.addEventListener('click', e => {
     case 'hints': S.hints = el.checked; persist(); return;
     case 'set-grey': S.grey = el.checked; persist(); return;
     case 'set-camp': S.camp = el.dataset.n === '1'; ui.err = ''; persist(); break;
+    case 'set-unlock': campSetAll(el.checked); ui.err = ''; persist(); break;
     case 'set-clevel': S.campLevel = +el.dataset.n; ui.err = ''; persist(); break;
     case 'start': ui.err = ''; newLocalGame(); if (G) advance(); persist(); break;
     case 'quit': ui.quit = true; break;
@@ -3156,6 +3164,7 @@ $app.addEventListener('click', e => {
     case 'on-hints': ON.lob.h = el.checked; publish(); saveOnline(); return;
     case 'on-grey': ON.lob.grey = el.checked; ON.lastLob = null; publish(); saveOnline(); return;
     case 'on-camp': ON.lob.camp = el.dataset.n === '1'; ui.err = ''; publish(); saveOnline(); break;
+    case 'on-unlock': campSetAll(el.checked); ui.err = ''; publish(); saveOnline(); break;
     case 'on-clevel': ON.lob.campLevel = +el.dataset.n; ui.err = ''; publish(); saveOnline(); break;
     case 'on-start': hostStart(); return;
     default: return;
