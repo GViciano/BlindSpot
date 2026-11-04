@@ -23,8 +23,8 @@ Texto tal como aparece en el juego. El número coincide con el de la esquina de 
 | 15 | ★★★☆☆ | Tus dados naranjas suman 12 o más. | Si consigues exactamente una suma de 12 en tus dados naranjas: +1★ extra. |
 | 16 | ★★★★☆ | Tus dados naranjas suman 15 o más. | Si consigues exactamente una suma de 15 en tus dados naranjas: +1★ extra. |
 | 17 | ★☆☆☆☆ | Ningún dado verde. |  |
-| 18 | ★☆☆☆☆ | 2 dados verdes. | Si consigues exactamente 2 dados verdes: +1★ extra. |
-| 19 | ★★☆☆☆ | 3 dados verdes. | Si consigues exactamente 3 dados verdes: +1★ extra. |
+| 18 | ★☆☆☆☆ | Al menos 2 dados verdes. | Si consigues exactamente 2 dados verdes: +1★ extra. |
+| 19 | ★★☆☆☆ | Al menos 3 dados verdes. | Si consigues exactamente 3 dados verdes: +1★ extra. |
 | 20 | ★★☆☆☆ | Como máximo 1 dado verde. | Si consigues exactamente 1 dado verde: +1★ extra. |
 | 21 | ★★★☆☆ | Exactamente 2 dados verdes. |  |
 | 22 | ★★★★☆ | Exactamente 3 dados verdes. |  |
