@@ -7,7 +7,7 @@ Texto tal como aparece en el juego. El número coincide con el de la esquina de 
 | Nº | Estrellas | Objetivo | Estrella extra (*) |
 |---|---|---|---|
 | 1 | ★☆☆☆☆ | Ningún dado azul. |  |
-| 2 | ★☆☆☆☆ | 2 dados azules. | Si consigues exactamente 2 dados azules: +1★ extra. |
+| 2 | ★☆☆☆☆ | Como máximo 2 dados azules. | Si consigues exactamente 2 dados azules: +1★ extra. |
 | 3 | ★★☆☆☆ | 3 dados azules. | Si consigues exactamente 3 dados azules: +1★ extra. |
 | 4 | ★★☆☆☆ | Como máximo 1 dado azul. | Si consigues exactamente 1 dado azul: +1★ extra. |
 | 5 | ★★★☆☆ | Exactamente 2 dados azules. |  |
