@@ -2024,7 +2024,7 @@ const PEERJS_URL = 'https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js';
 // Online relay through Supabase Realtime: works on networks that block direct browser-to-browser links.
 // The publishable key is meant to be public (it only allows what the project's settings allow).
 // Shown next to the connection line, to tell whether everyone has the same version loaded.
-const APP_VERSION = '2026.11.05b';
+const APP_VERSION = '2026.11.05c';
 const SUPABASE_URL = 'https://vjphqqtoigpjncmsdudq.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_hUInzKity39UFsFwsFqmSw_HR3HMLE4';
 const SUPABASE_JS = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js';
@@ -2168,14 +2168,26 @@ function supaRoom(code) {
     let client;
     try { client = getSupa(); } catch (e) { reject({ code: 'relay', detail: 'client' }); return; }
     const myId = rid(12);
-    let ch = null, mine = {}, list = new Map([[myId, mine]]), connected = false, settled = false, sending = false, again = false, closed = false, lastSent = 0;
+    // Presence only says who is in the channel (a tiny payload); what each one shows (seat,
+    // game state, moves) goes by broadcast, which allows much bigger messages: Supabase
+    // limits presence payloads, and the game state didn't get through.
+    let ch = null, mine = {}, connected = false, settled = false, sending = false, again = false, closed = false, lastSent = 0;
+    let members = new Set();          // ids present in the channel right now
+    const inPresence = new Set();     // ids seen in presence at some point
+    const data = new Map();           // id -> latest state received from that id
+    let list = new Map([[myId, mine]]);
     const peerHs = new Set(), connHs = new Set();
     const snap = () => [...list.entries()].map(([id, presence]) => ({ peer: id, by: null, isMe: id === myId, sameTab: id === myId, kind: 'viewer', guest: false, presence, updatedAt: Date.now() }));
     const firePeers = () => { const ps = snap(); peerHs.forEach(h => { try { h({ peers: ps, joined: [], left: [], updated: [] }); } catch (e) { console.error(e); } }); };
+    const rebuild = () => {
+      const next = new Map();
+      for (const id of members) if (id !== myId && data.has(id)) next.set(id, data.get(id));
+      next.set(myId, mine);
+      list = next;
+      firePeers();
+    };
     const setConn = c => { if (connected === c) return; connected = c; connHs.forEach(h => h(c)); };
-    // Send only the latest presence, one track() at a time and at most about 3 per second:
-    // Supabase closes the channel of a client that sends presence too fast. It goes as a
-    // single JSON text, because Supabase also limits how many keys a presence object may have.
+    // Sends the latest state, one message at a time and at most about 3 per second.
     const GAP = 350;
     const send = async () => {
       if (!connected || !ch) return;
@@ -2187,7 +2199,7 @@ function supaRoom(code) {
       const c = ch;
       if (connected && c === ch) {
         lastSent = Date.now();
-        try { const r = await c.track({ s: JSON.stringify(mine) }); ok = r === 'ok'; if (!ok) api.lastErr = String(r); } catch (e) { ok = false; api.lastErr = (e && e.message) || 'track'; }
+        try { const r = await c.send({ type: 'broadcast', event: 'pr', payload: { from: myId, s: JSON.stringify(mine) } }); ok = r === 'ok'; if (!ok) api.lastErr = String(r); } catch (e) { ok = false; api.lastErr = (e && e.message) || 'send'; }
       }
       if (!ok) { again = true; await sleep(1000); }
       sending = false;
@@ -2207,40 +2219,61 @@ function supaRoom(code) {
       onPeers: h => { peerHs.add(h); setTimeout(() => h({ peers: snap(), joined: [], left: [], updated: [] }), 0); return () => peerHs.delete(h); },
       onConnection: h => { connHs.add(h); setTimeout(() => h(connected), 0); return () => connHs.delete(h); },
       connected: () => connected,
-      close: () => { closed = true; try { if (ch) client.removeChannel(ch); } catch (e) { /* already gone */ } },
+      close: () => { closed = true; clearInterval(beat); try { if (ch) client.removeChannel(ch); } catch (e) { /* already gone */ } },
     };
+    // Everyone repeats their state now and then, so nobody misses it for long.
+    const beat = setInterval(() => { if (connected) send(); }, 3000);
     let retry = 0;
     // Joins the channel; if Supabase closes it later, joins again with the same identity.
     const join = () => {
       if (closed) return;
-      const c = client.channel('blindspots-' + code, { config: { presence: { key: myId } } });
+      const c = client.channel('blindspots-' + code, { config: { presence: { key: myId }, broadcast: { self: false, ack: false } } });
       ch = c;
       c.on('presence', { event: 'sync' }, () => {
         if (c !== ch) return;
         const st = c.presenceState();
-        const next = new Map();
+        const next = new Set(Object.keys(st));
+        let newcomer = false;
+        for (const id of next) if (!members.has(id) && id !== myId) newcomer = true;
+        // Older versions sent their whole state as presence.
         for (const [k, arr] of Object.entries(st)) {
           const last = Array.isArray(arr) ? arr[arr.length - 1] : null;
           let pr = null;
           if (last && typeof last.s === 'string') { try { pr = JSON.parse(last.s); } catch (e) { pr = null; } }
           else if (last && last.pr && typeof last.pr === 'object') pr = last.pr;
-          if (pr && typeof pr === 'object' && !Array.isArray(pr)) next.set(k, pr);
+          if (pr && typeof pr === 'object' && !Array.isArray(pr) && !data.has(k)) data.set(k, pr);
         }
-        next.set(myId, mine);
-        list = next;
-        firePeers();
+        // Someone who was in the channel and isn't any more has left.
+        for (const id of [...data.keys()]) if (inPresence.has(id) && !next.has(id)) { data.delete(id); inPresence.delete(id); }
+        next.forEach(id => inPresence.add(id));
+        for (const id of data.keys()) if (!inPresence.has(id)) next.add(id); // presence may lag behind the first message
+        members = next;
+        rebuild();
+        if (newcomer) send(); // a new arrival gets everyone's state straight away
       });
-      c.subscribe((status, err) => {
+      c.on('broadcast', { event: 'pr' }, msg => {
+        if (c !== ch) return;
+        const pl = msg && msg.payload;
+        if (!pl || typeof pl.from !== 'string' || pl.from === myId || typeof pl.s !== 'string' || pl.s.length > 200000) return;
+        let pr = null;
+        try { pr = JSON.parse(pl.s); } catch (e) { return; }
+        if (!pr || typeof pr !== 'object' || Array.isArray(pr)) return;
+        data.set(pl.from, pr);
+        members.add(pl.from);
+        rebuild();
+      });
+      c.subscribe(async (status, err) => {
         if (c !== ch) return;
         if (status === 'SUBSCRIBED') {
           retry = 0;
+          try { await c.track({ on: 1 }); } catch (e) { /* presence is only used to see who leaves */ }
           setConn(true);
           send();
           if (!settled) { settled = true; resolve(api); }
         } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
           api.lastErr = (err && err.message) || status;
           setConn(false);
-          if (!settled) { settled = true; closed = true; try { client.removeChannel(c); } catch (e) { /* ignore */ } reject({ code: 'relay', detail: api.lastErr }); return; }
+          if (!settled) { settled = true; closed = true; clearInterval(beat); try { client.removeChannel(c); } catch (e) { /* ignore */ } reject({ code: 'relay', detail: api.lastErr }); return; }
           if (closed) return;
           console.warn('BlindSpots: canal de Supabase cerrado, reconectando…', api.lastErr);
           ch = null;
@@ -2252,7 +2285,7 @@ function supaRoom(code) {
     join();
     setTimeout(() => {
       if (settled) return;
-      settled = true; closed = true;
+      settled = true; closed = true; clearInterval(beat);
       try { if (ch) client.removeChannel(ch); } catch (e) { /* ignore */ }
       reject({ code: 'relay', detail: 'timeout' });
     }, 10000);
