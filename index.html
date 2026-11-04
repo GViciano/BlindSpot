@@ -535,6 +535,8 @@ const I18N = {
     allHumans: 'Todos los asientos son de personas.',
     startGame: 'Empezar partida',
     connectingGame: 'Conectando con la partida…',
+    seenLine: 'Lo que recibo:',
+    cantRead: (host, hv, mv, err) => `${host} ya ha empezado la partida, pero este dispositivo no la puede leer. Versión del anfitrión: ${hv}; la tuya: ${mv}. Si no coinciden, recargad todos la página. Detalle: ${err}`,
     notFound: code => `No encuentro la partida ${code}. Comprueba el código y que el anfitrión tenga la página abierta.`,
     notFoundClaude: 'Si abajo pone que no ves a nadie más, este dispositivo y el del anfitrión no se están viendo: abrid los dos el mismo enlace en claude.ai con la sesión iniciada.',
     playersOf: (a, b) => `Jugadores (${a} de ${b})`, botSeat: 'Hueco para un bot', watching: n => `${n} mirando`,
@@ -822,6 +824,8 @@ const I18N = {
     allHumans: 'Every seat is taken by a person.',
     startGame: 'Start game',
     connectingGame: 'Connecting to the game…',
+    seenLine: 'What I receive:',
+    cantRead: (host, hv, mv, err) => `${host} has started the game, but this device can’t read it. Host version: ${hv}; yours: ${mv}. If they differ, everyone should reload the page. Detail: ${err}`,
     notFound: code => `Can’t find game ${code}. Check the code and that the host has the page open.`,
     notFoundClaude: 'If the line below says you can’t see anyone else, this device and the host’s can’t reach each other: both of you should open the same link on claude.ai while signed in.',
     playersOf: (a, b) => `Players (${a} of ${b})`, botSeat: 'Seat for a bot', watching: n => `${n} watching`,
@@ -1939,23 +1943,23 @@ function encodeG() {
 // Rebuilds the game from the host's presence. Anything malformed is ignored.
 function decodeG(w) {
   try {
-    const int = (x, lo, hi) => { if (!Number.isInteger(x) || x < lo || x > hi) throw 0; return x; };
+    const int = (x, lo, hi) => { if (!Number.isInteger(x) || x < lo || x > hi) throw new Error(`${JSON.stringify(x)} ∉ ${lo}–${hi}`); return x; };
     const C = int(w.C, 3, 5);
     const cf = Array.isArray(w.cf) ? w.cf : [];
     const cfg = cfgFromWire([C, ...cf.slice(1)]);
-    if (!cfg) throw 0;
+    if (!cfg) throw new Error('check');
     let mods = null;
     if (cfg.mods && w.md && Array.isArray(w.md.av) && Array.isArray(w.md.us)) {
       mods = { avail: w.md.av.map(x => ACTIONS[int(x, 0, 3)]), used: {}, ver: Number(w.md.v) || 0 };
       w.md.us.slice(0, 4).forEach((p, i) => { if (Number.isInteger(p) && p >= 0) mods.used[ACTIONS[i]] = int(p, 0, 4); });
     }
     const greyRule = cfg.grey ? int(w.gy, 0, GREY_RULES - 1) : null;
-    if (!Array.isArray(w.p) || w.p.length < 3 || w.p.length > 5) throw 0;
+    if (!Array.isArray(w.p) || w.p.length < 3 || w.p.length > 5) throw new Error('check');
     const n = w.p.length;
     const die = (x, i) => {
       int(x, 1, 200 + BLACK_CARDS * 10);
       let d;
-      if (x >= 200) { if (!cfg.black) throw 0; d = { c: BLACK, v: int(x % 10, 1, 6), k: int(Math.floor((x - 200) / 10), 0, BLACK_CARDS - 1) }; }
+      if (x >= 200) { if (!cfg.black) throw new Error('check'); d = { c: BLACK, v: int(x % 10, 1, 6), k: int(Math.floor((x - 200) / 10), 0, BLACK_CARDS - 1) }; }
       else { const c = Math.floor(x / 10), v = x % 10; if (c !== GREY || !cfg.grey) int(c, 0, C - 1); int(v, 1, 6); d = { c, v }; }
       if (i !== undefined) d.id = i;
       return d;
@@ -1971,9 +1975,9 @@ function decodeG(w) {
         if (m[4] > 0) o.s = int(m[4], 1, 5);
         if (m[5] > 0) o.v = int(m[5], 1, 6);
         if (Number.isInteger(m[6]) && m[6] > 0 && m[6] < 1000) o.id = m[6];
-        if (/^(noNumber|atLeastNumber)$/.test(t) && o.v === undefined) throw 0;
-        if (/^(noColor|exact|atLeast|atMost|sumGreater|countMore|sumAtLeast)$/.test(t) && o.c === undefined) throw 0;
-        if (/^(sumGreater|countMore)$/.test(t) && o.c2 === undefined) throw 0;
+        if (/^(noNumber|atLeastNumber)$/.test(t) && o.v === undefined) throw new Error('check');
+        if (/^(noColor|exact|atLeast|atMost|sumGreater|countMore|sumAtLeast)$/.test(t) && o.c === undefined) throw new Error('check');
+        if (/^(sumGreater|countMore)$/.test(t) && o.c2 === undefined) throw new Error('check');
         return o;
       }),
       area: p[4].slice(0, 60).map(x => die(x)),
@@ -1984,10 +1988,10 @@ function decodeG(w) {
     const taken = {};
     (w.tk || []).forEach((t, i) => { if (t >= 0) taken[i] = int(t, 0, n - 1); });
     const ph = ['roll', 'group', 'choose', 'bomb', 'reveal'].includes(w.ph) ? w.ph : null;
-    if (!ph) throw 0;
+    if (!ph) throw new Error('check');
     let bomb = null;
     if (Array.isArray(w.bm) && Array.isArray(w.bm[0])) bomb = { queue: w.bm[0].slice(0, n).map(x => int(x, 0, n - 1)), step: int(w.bm[1], 0, n) };
-    if (ph === 'bomb' && !bomb) throw 0;
+    if (ph === 'bomb' && !bomb) throw new Error('check');
     const lostBy = Number.isInteger(w.lb) && w.lb >= 0 ? int(w.lb, 0, n - 1) : null;
     const a = int(w.a, 0, n - 1);
     const g = {
@@ -1996,9 +2000,15 @@ function decodeG(w) {
       order: Array.from({ length: n - 1 }, (_, k) => (a + 1 + k) % n),
       log: (w.lg || []).slice(-6).filter(l => Array.isArray(l) && typeof l[0] === 'string' && l.length <= 6 && l.slice(1).every(x => Number.isInteger(x) && x >= 0 && x < 100)), seq: w.q, results: null, win: null,
     };
-    if (ph === 'choose' && groups.length !== n) throw 0;
+    if (ph === 'choose' && groups.length !== n) throw new Error('check');
     return g;
-  } catch (e) { return null; }
+  } catch (e) {
+    // Why the host's game couldn't be read: shown to the guest so it can be reported.
+    const at = ((e && e.stack) || '').split('\n').slice(0, 3).map(l => (l.match(/:(\d+):\d+\)?\s*$/) || [])[1]).filter(Boolean).join('/');
+    ON.decodeErr = `${(e && e.message) || e}${at ? ' @' + at : ''}`;
+    console.warn('BlindSpots: no se puede leer la partida del anfitrión', e, w);
+    return null;
+  }
 }
 
 function lobWire() {
@@ -2014,7 +2024,7 @@ const PEERJS_URL = 'https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js';
 // Online relay through Supabase Realtime: works on networks that block direct browser-to-browser links.
 // The publishable key is meant to be public (it only allows what the project's settings allow).
 // Shown next to the connection line, to tell whether everyone has the same version loaded.
-const APP_VERSION = '2026.11.05';
+const APP_VERSION = '2026.11.05b';
 const SUPABASE_URL = 'https://vjphqqtoigpjncmsdudq.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_hUInzKity39UFsFwsFqmSw_HR3HMLE4';
 const SUPABASE_JS = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js';
@@ -2333,6 +2343,18 @@ function hostPeer() {
   return ON.gpeers.find(p => !p.sameTab && p.presence.host === 1 && p.presence.code === ON.code) || null;
 }
 
+// What this device receives from everyone else (to diagnose connection problems).
+function seenHTML() {
+  if (!ON.room) return '';
+  const rows = ON.room.peers().filter(p => !p.sameTab).map(p => {
+    const pr = p.presence || {};
+    const what = pr.host === 1 ? `host ${String(pr.code || '?').toUpperCase()}${pr.g ? ' · g' + (pr.g.q ?? '') : ''}${pr.lob ? ' · lob' : ''}` : pr.gc ? `→ ${String(pr.gc).toUpperCase()}` : '-';
+    const size = JSON.stringify(pr).length;
+    return `${esc(cleanName(pr.nm) || '?')} (${what} · ${size} B · v${esc(String(pr.ver || '?').slice(0, 12))})`;
+  });
+  return `<p class="note">${t('seenLine')} ${rows.length ? rows.join('; ') : '—'}${ON.room.lastErr ? ` · ${esc(ON.room.lastErr)}` : ''}</p>`;
+}
+
 // Fills in any setting a saved lobby lacks (older versions saved levels instead).
 function cleanLob(l) {
   const d = { n: 4, C: 3, per: 1, stars: ALL_STARS, need: 0, grey: false, camp: false, campLevel: 0, h: true };
@@ -2375,10 +2397,10 @@ async function enterRoom(code, role, saved) {
       if (saved.G && saved.G.players && saved.G.cfg) G = saved.G;
     }
     else ON.order = [];
-    setPresence({ nm: ON.nm, tk: ON.tk, host: 1, code, gc: null, act: null, n: null });
+    setPresence({ nm: ON.nm, tk: ON.tk, host: 1, code, gc: null, act: null, n: null, ver: APP_VERSION });
     publish();
   } else {
-    setPresence({ nm: ON.nm, tk: ON.tk, gc: code, host: null, code: null, g: null, lob: null, open: null, act: null, n: 0 });
+    setPresence({ nm: ON.nm, tk: ON.tk, gc: code, host: null, code: null, g: null, lob: null, open: null, act: null, n: 0, ver: APP_VERSION });
   }
   announce();
   saveOnline();
@@ -2901,10 +2923,14 @@ function waitingRoomHTML() {
   }
   const lob = ON.hostLob;
   const h = hostPeer();
+  const name0 = p => esc(cleanName(p.presence.nm) || t('someone'));
   let inner;
-  if (!h || !lob) {
+  if (h && h.presence.g && !G) {
+    const hv = typeof h.presence.ver === 'string' ? h.presence.ver.slice(0, 20) : '?';
+    inner = `<p class="info">${t('cantRead', name0(h), esc(hv), esc(APP_VERSION), esc(ON.decodeErr || '?'))}</p>`;
+  } else if (!h || !lob) {
     inner = Date.now() - ON.joinedAt < 4000 ? waitHTML(t('connectingGame'))
-      : `<p class="info">${t('notFound', code)} ${ON.transport === 'p2p' ? '' : t('notFoundClaude')}</p>`;
+      : `<p class="info">${t('notFound', code)} ${ON.transport === 'p2p' ? '' : t('notFoundClaude')}</p>${seenHTML()}`;
   } else {
     const seats = Array.isArray(lob.seats) ? lob.seats.slice(0, 5).map(cleanName) : [];
     const n = Math.min(5, Math.max(3, Number(lob.n) || 3, seats.length));
