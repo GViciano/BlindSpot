@@ -6,7 +6,7 @@ Texto tal como aparece en el juego. El número coincide con el de la esquina de 
 
 | Nº | Estrellas | Objetivo | Estrella extra (*) |
 |---|---|---|---|
-| 1 | ★☆☆☆☆ | Ningún dado azul. |  |
+| 1 | ★★☆☆☆ | Ningún dado azul. |  |
 | 2 | ★☆☆☆☆ | Al menos 2 dados azules. | Si consigues exactamente 2 dados azules: +1★ extra. |
 | 3 | ★★☆☆☆ | Al menos 3 dados azules. | Si consigues exactamente 3 dados azules: +1★ extra. |
 | 4 | ★★☆☆☆ | Como máximo 1 dado azul. | Si consigues exactamente 1 dado azul: +1★ extra. |
@@ -14,7 +14,7 @@ Texto tal como aparece en el juego. El número coincide con el de la esquina de 
 | 6 | ★★★★☆ | Exactamente 3 dados azules. |  |
 | 7 | ★★★☆☆ | Tus dados azules suman 12 o más. | Si consigues exactamente una suma de 12 en tus dados azules: +1★ extra. |
 | 8 | ★★★★☆ | Tus dados azules suman 15 o más. | Si consigues exactamente una suma de 15 en tus dados azules: +1★ extra. |
-| 9 | ★☆☆☆☆ | Ningún dado naranja. |  |
+| 9 | ★★☆☆☆ | Ningún dado naranja. |  |
 | 10 | ★☆☆☆☆ | Al menos 2 dados naranjas. | Si consigues exactamente 2 dados naranjas: +1★ extra. |
 | 11 | ★★☆☆☆ | Al menos 3 dados naranjas. | Si consigues exactamente 3 dados naranjas: +1★ extra. |
 | 12 | ★★☆☆☆ | Como máximo 1 dado naranja. | Si consigues exactamente 1 dado naranja: +1★ extra. |
@@ -22,7 +22,7 @@ Texto tal como aparece en el juego. El número coincide con el de la esquina de 
 | 14 | ★★★★☆ | Exactamente 3 dados naranjas. |  |
 | 15 | ★★★☆☆ | Tus dados naranjas suman 12 o más. | Si consigues exactamente una suma de 12 en tus dados naranjas: +1★ extra. |
 | 16 | ★★★★☆ | Tus dados naranjas suman 15 o más. | Si consigues exactamente una suma de 15 en tus dados naranjas: +1★ extra. |
-| 17 | ★☆☆☆☆ | Ningún dado verde. |  |
+| 17 | ★★☆☆☆ | Ningún dado verde. |  |
 | 18 | ★☆☆☆☆ | Al menos 2 dados verdes. | Si consigues exactamente 2 dados verdes: +1★ extra. |
 | 19 | ★★☆☆☆ | Al menos 3 dados verdes. | Si consigues exactamente 3 dados verdes: +1★ extra. |
 | 20 | ★★☆☆☆ | Como máximo 1 dado verde. | Si consigues exactamente 1 dado verde: +1★ extra. |
@@ -30,7 +30,7 @@ Texto tal como aparece en el juego. El número coincide con el de la esquina de 
 | 22 | ★★★★☆ | Exactamente 3 dados verdes. |  |
 | 23 | ★★★☆☆ | Tus dados verdes suman 12 o más. | Si consigues exactamente una suma de 12 en tus dados verdes: +1★ extra. |
 | 24 | ★★★★☆ | Tus dados verdes suman 15 o más. | Si consigues exactamente una suma de 15 en tus dados verdes: +1★ extra. |
-| 25 | ★☆☆☆☆ | Ningún dado morado. |  |
+| 25 | ★★☆☆☆ | Ningún dado morado. |  |
 | 26 | ★☆☆☆☆ | 2 dados morados. | Si consigues exactamente 2 dados morados: +1★ extra. |
 | 27 | ★★☆☆☆ | 3 dados morados. | Si consigues exactamente 3 dados morados: +1★ extra. |
 | 28 | ★★☆☆☆ | Como máximo 1 dado morado. | Si consigues exactamente 1 dado morado: +1★ extra. |
@@ -38,7 +38,7 @@ Texto tal como aparece en el juego. El número coincide con el de la esquina de 
 | 30 | ★★★★☆ | Exactamente 3 dados morados. |  |
 | 31 | ★★★☆☆ | Tus dados morados suman 12 o más. | Si consigues exactamente una suma de 12 en tus dados morados: +1★ extra. |
 | 32 | ★★★★☆ | Tus dados morados suman 15 o más. | Si consigues exactamente una suma de 15 en tus dados morados: +1★ extra. |
-| 33 | ★☆☆☆☆ | Ningún dado amarillo. |  |
+| 33 | ★★☆☆☆ | Ningún dado amarillo. |  |
 | 34 | ★☆☆☆☆ | 2 dados amarillos. | Si consigues exactamente 2 dados amarillos: +1★ extra. |
 | 35 | ★★☆☆☆ | 3 dados amarillos. | Si consigues exactamente 3 dados amarillos: +1★ extra. |
 | 36 | ★★☆☆☆ | Como máximo 1 dado amarillo. | Si consigues exactamente 1 dado amarillo: +1★ extra. |
