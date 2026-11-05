@@ -62,11 +62,11 @@ const INTRO_GRIS = {
 const INTRO_BOMBA = {
   titulo: { es: 'Nuevo: el dado negro (Bomba)', en: 'New: the black die (Bomb)' },
   texto: {
-    es: 'En estos niveles se sacan más dados por ronda (6 con 3 jugadores, 8 con 4) y, además, cada ronda se tira un dado negro con una carta negra que ve todo el mundo.\n'
+    es: 'En estos niveles se sacan más dados por ronda (6 con 3 jugadores, 8 con 4) y, además, cada ronda se tira un dado negro. Al empezar cada ronda, antes de tirar, se muestra la carta negra de esa ronda, que ve todo el mundo: así sabéis su efecto antes de coger el dado negro.\n'
       + 'Cada jugador solo puede acabar con UN dado negro: si ya tienes uno, no puedes coger un grupo que lleve otro. Cuidado con quien reparte: si le queda un grupo con un dado negro y ya tiene uno, el equipo pierde el nivel en el acto.\n'
       + 'Al final de la partida explotan las bombas: quien tiene un dado negro aplica su carta a sus propios dados y elige cuál elimina (por ejemplo, «Elimina un dado de valor mayor»: el que más puntos tenga de los suyos). Si ningún dado cumple la carta, no pasa nada.\n'
       + 'El dado negro cuenta como dado, para la suma y para los números, pero no cuenta como color.',
-    en: 'In these levels more dice are dealt each round (6 with 3 players, 8 with 4) and, on top of that, every round a black die is rolled with a black card that everyone can see.\n'
+    en: 'In these levels more dice are dealt each round (6 with 3 players, 8 with 4) and, on top of that, a black die is rolled every round. At the start of each round, before the roll, that round’s black card is shown to everyone: you know its effect before anyone takes the black die.\n'
       + 'Each player can end up with only ONE black die: if you already have one, you can’t take a group that has another. Watch out for the dealer: if they are left a group with a black die and already have one, the team loses the level on the spot.\n'
       + 'At the end of the game the bombs go off: whoever has a black die applies its card to their own dice and chooses which one to remove (for example, “Remove your highest die”: the one with the most pips among their own). If no die fits the card, nothing happens.\n'
       + 'The black die counts as a die, for sums and for numbers, but not as a colour.',

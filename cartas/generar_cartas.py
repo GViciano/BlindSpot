@@ -407,6 +407,61 @@ def black_back_svg():
             f'<text x="{CARD_W / 2}" y="{CARD_H / 2 + 5}" font-size="14" text-anchor="middle" font-weight="700" fill="#e7ebf1" font-family="{FONT}">?</text></svg>')
 
 
+ACTION_BG = '#e3f1ee'
+ACTION_INK = '#1d7a6a'
+
+
+def bolt(cx, cy, h, fill):
+    """Lightning bolt: marks an action card."""
+    k = h / 20
+    pts = [(1, -10), (-5, 1), (-0.5, 1), (-2, 10), (5, -2), (0.5, -2), (2, -10)]
+    return '<polygon points="' + ' '.join(f'{cx + x * k:.2f},{cy + y * k:.2f}' for x, y in pts) + f'" fill="{fill}"/>'
+
+
+def action_content(kind):
+    """Middle of an action card: what the action does to any visible die."""
+    cy = CARD_H / 2 + 8
+    if kind == 0:  # reroll: the die with a circular arrow around it
+        r = 15
+        out = any_die_svg(CARD_W / 2 - 8, cy - 8, 16, 5)
+        out += (f'<path d="M{CARD_W / 2 + r:.2f},{cy:.2f} A{r},{r} 0 1 1 {CARD_W / 2 + r * 0.42:.2f},{cy - r * 0.91:.2f}" fill="none" '
+                f'stroke="{ACTION_INK}" stroke-width="1.6" stroke-linecap="round"/>')
+        ax, ay = CARD_W / 2 + r, cy
+        out += f'<polygon points="{ax - 3.2:.2f},{ay - 3.5:.2f} {ax + 3.2:.2f},{ay - 3.5:.2f} {ax:.2f},{ay + 1.2:.2f}" fill="{ACTION_INK}"/>'
+        return out
+    if kind == 1:  # one pip more or one pip less
+        return Row(3).any_die(16, face=3).text('±1', 15, ACTION_INK).svg(cy)
+    if kind == 2:  # flip to the opposite face
+        return Row(3).any_die(14, face=2).text('↔', 13, ACTION_INK).any_die(14, face=5).svg(cy)
+    if kind == 3:  # remove: the die goes back into the bag
+        bx, by = CARD_W / 2 + 12, cy
+        bag = (f'<path d="M{bx - 7:.2f},{by - 5:.2f} Q{bx - 10:.2f},{by + 9:.2f} {bx:.2f},{by + 9:.2f} Q{bx + 10:.2f},{by + 9:.2f} {bx + 7:.2f},{by - 5:.2f} Z" '
+               f'fill="#c9a77a" stroke="{INK}" stroke-width="0.4"/>'
+               f'<path d="M{bx - 7:.2f},{by - 5:.2f} Q{bx:.2f},{by - 9:.2f} {bx + 7:.2f},{by - 5:.2f}" fill="none" stroke="{INK}" stroke-width="0.6"/>')
+        return any_die_svg(CARD_W / 2 - 24, cy - 7, 14, 4) + Row().text('→', 12, ACTION_INK).svg(cy).replace(f'x="{CARD_W / 2:.2f}"', f'x="{CARD_W / 2 - 3:.2f}"') + bag
+    raise ValueError(kind)
+
+
+def action_card_svg(kind):
+    return ''.join([
+        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {CARD_W} {CARD_H}" width="{CARD_W}mm" height="{CARD_H}mm">',
+        f'<rect x="0.6" y="0.6" width="{CARD_W - 1.2}" height="{CARD_H - 1.2}" rx="3.2" fill="{ACTION_BG}" stroke="#9cc7bd" stroke-width="0.3"/>',
+        f'<rect x="3" y="3" width="{CARD_W - 6}" height="{CARD_H - 6}" rx="2.4" fill="none" stroke="{ACTION_INK}" stroke-width="0.6"/>',
+        # one use per player and level: a single bolt
+        f'<circle cx="{CARD_W / 2}" cy="18" r="9" fill="{ACTION_INK}"/>', bolt(CARD_W / 2, 18, 12, '#ffffff'),
+        action_content(kind),
+        f'<text x="{CARD_W - 6}" y="{CARD_H - 5.2}" font-size="2.6" text-anchor="end" fill="#6f9c92" font-family="{FONT}">A{kind + 1}</text>',
+        '</svg>'])
+
+
+def action_back_svg():
+    return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {CARD_W} {CARD_H}" width="{CARD_W}mm" height="{CARD_H}mm">'
+            f'<rect x="0.6" y="0.6" width="{CARD_W - 1.2}" height="{CARD_H - 1.2}" rx="3.2" fill="#17564b" stroke="#c9cfd8" stroke-width="0.3"/>'
+            '<pattern id="ast" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="2" height="4" fill="#1d6a5c"/></pattern>'
+            f'<rect x="3" y="3" width="{CARD_W - 6}" height="{CARD_H - 6}" rx="2.4" fill="url(#ast)"/>'
+            f'<circle cx="{CARD_W / 2}" cy="{CARD_H / 2}" r="13" fill="rgba(255,255,255,.12)"/>' + bolt(CARD_W / 2, CARD_H / 2, 18, '#e7ebf1') + '</svg>')
+
+
 def main():
     objs = load_objectives()
     cards = [card_svg(o, i + 1) for i, o in enumerate(objs)]
@@ -428,9 +483,12 @@ def main():
     # Black die (Bomb levels): 9 black cards and their backs.
     html.append('<div class="page">' + ''.join(black_card_svg(k) for k in range(9)) + '</div>')
     html.append('<div class="page">' + black_back_svg() * 9 + '</div>')
+    # Special actions (campaign levels 6-10): 4 action cards and their backs.
+    html.append('<div class="page">' + ''.join(action_card_svg(k) for k in range(4)) + '</div>')
+    html.append('<div class="page">' + action_back_svg() * 4 + '</div>')
     html.append('</body></html>')
     OUT.write_text(''.join(html))
-    print(f'{len(cards)} cartas, {len(pages)} hojas + 1 de reversos + 2 de cartas grises + 2 de cartas negras -> {OUT}')
+    print(f'{len(cards)} cartas, {len(pages)} hojas + 1 de reversos + 2 de cartas grises + 2 de cartas negras + 2 de cartas de acción -> {OUT}')
 
 
 if __name__ == '__main__':

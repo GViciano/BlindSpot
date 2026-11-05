@@ -1,6 +1,6 @@
 # Cartas de objetivos
 
-`cartas.pdf` tiene una carta por cada objetivo de `objetivos.js`, en tamaño póquer (63,5 × 88,9 mm), 9 por hoja A4, una hoja de reversos las 7 cartas grises del dado gris (G1–G7) con sus reversos grises y, al final, las 9 cartas negras del dado negro (N1–N9) con sus reversos negros. Las cartas no llevan texto: solo dados de colores, caras de dado, números y símbolos, así que sirven en cualquier idioma.
+`cartas.pdf` tiene una carta por cada objetivo de `objetivos.js`, en tamaño póquer (63,5 × 88,9 mm), 9 por hoja A4, una hoja de reversos las 7 cartas grises del dado gris (G1–G7) con sus reversos grises las 9 cartas negras del dado negro (N1–N9) con sus reversos negros y, al final, las 4 cartas de acción (A1–A4) con sus reversos. Las cartas no llevan texto: solo dados de colores, caras de dado, números y símbolos, así que sirven en cualquier idioma.
 
 Para regenerarlo después de cambiar `objetivos.js`:
 
@@ -21,3 +21,7 @@ Arriba, el dado negro con la flecha: la carta es para quien tenga ese dado. En e
 - N6: 2 dados al azar (?).
 - N7: dos dados del mismo valor.
 - N8 / N9: un dado de valor menor o igual / mayor o igual que el dado negro.
+
+## Cómo leer las cartas de acción
+
+Llevan un rayo arriba. A1: relanzar (dado con flecha circular). A2: ±1. A3: invertir (2 ↔ 5, cara opuesta). A4: eliminar (el dado vuelve a la bolsa).

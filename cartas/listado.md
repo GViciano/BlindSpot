@@ -159,3 +159,14 @@ Cada ronda sale una junto al dado negro; la ven todos. Al final, quien tiene el 
 | N7 | Elimina dos dados del mismo valor. |
 | N8 | Elimina un dado de valor menor o igual al dado negro. |
 | N9 | Elimina un dado de valor mayor o igual al dado negro. |
+
+## Cartas de acción (niveles 6–10 de la campaña)
+
+Con 3 jugadores se usan 3 de las 4 al azar; con 4 jugadores, las 4. Cada jugador puede usar una en todo el nivel, sobre cualquier dado a la vista, y se queda la carta.
+
+| Nº | Acción |
+|---|---|
+| A1 | Relanzar un dado. |
+| A2 | Sumar o restar 1 a un dado (sin bajar de 1 ni pasar de 6). |
+| A3 | Invertir un dado: poner la cara opuesta (1↔6, 2↔5, 3↔4). |
+| A4 | Eliminar un dado: vuelve a la bolsa. |
