@@ -278,7 +278,7 @@ ol.steps > li::before {{ content: counter(s); position: absolute; left: 0; top: 
 
   <h3>The black die: the Bomb</h3>
   <p><b>Setup.</b> Shuffle the 9 black cards and place them face down. The black cards form a single deck from game to game: a card only comes back once all the others have been drawn. When the deck runs out, shuffle all 9 again.</p>
-  <p><b>Each round.</b> The dealer draws coloured dice as the level states (6 with 3 players, 8 with 4) and also rolls one black die. Then they reveal the top black card and place it next to that black die. The card travels with the die.</p>
+  <p><b>Each round.</b> Before drawing any dice, the dealer reveals the top black card, so everyone knows its effect before anyone takes the black die. Then they draw coloured dice as the level states (6 with 3 players, 8 with 4), roll them together with one black die and place the card next to that black die. The card travels with the die.</p>
   <p><b>One black die each.</b> Each player may end the game with only <b>one</b> black die. If you already have one, you may not choose a group that contains another.</p>
   <div class="box important"><b class="t">Careful with the dealer</b>If the last group contains a black die and the dealer already has one, <b>the team loses the level at once</b>.</div>
 </section>

@@ -247,6 +247,8 @@ button.group:hover { border-color: var(--muted); }
 .grey-res { font-size: 13px; margin-top: 4px; font-weight: 700; }
 .blackcards { border: 1px solid var(--line, #ccc); border-radius: 12px; padding: 10px 12px; margin-bottom: 12px; }
 .blackcards ul { list-style: none; margin: 6px 0 0; padding: 0; display: grid; gap: 6px; }
+.blackcards li.next { background: var(--surface-2, #eef1f5); border-radius: 8px; padding: 6px 8px; }
+.blackcards li small { color: var(--muted); font-size: 12px; }
 .blackcards li { display: flex; align-items: center; gap: 8px; font-size: 14px; }
 .group.blocked { opacity: .45; }
 .bomb-pick button[aria-pressed="true"] { outline: 3px solid var(--bad, #c0392b); outline-offset: 2px; }
@@ -433,15 +435,15 @@ const I18N = {
     perRoundN: n => `${n} dados por ronda`, blackOn: 'dado negro',
     blackCard0: () => 'Elimina un dado de valor menor (de los que tengas, el que menos puntos tenga).',
     blackCard1: () => 'Elimina un dado de valor mayor (de los que tengas, el que más puntos tenga).',
-    blackCard2: v => `Elimina un dado del mismo valor que el dado negro (${v}).`,
+    blackCard2: v => `Elimina un dado del mismo valor que el dado negro${v ? ` (${v})` : ''}.`,
     blackCard3: () => 'Elimina un dado del color que más tengas.',
     blackCard4: () => 'Elimina un dado del color que menos tengas.',
     blackCard5: () => 'Elimina 2 dados al azar.',
     blackCard6: () => 'Elimina dos dados del mismo valor.',
-    blackCard7: v => `Elimina un dado de valor menor o igual al dado negro (${v}).`,
-    blackCard8: v => `Elimina un dado de valor mayor o igual al dado negro (${v}).`,
+    blackCard7: v => `Elimina un dado de valor menor o igual al dado negro${v ? ` (${v})` : ''}.`,
+    blackCard8: v => `Elimina un dado de valor mayor o igual al dado negro${v ? ` (${v})` : ''}.`,
     blackTitle: 'Cartas negras (se aplican al final)', blackNone: 'Aún no hay dados negros.',
-    blackThisRound: 'Dado negro de esta ronda:',
+    blackThisRound: 'Dado negro de esta ronda:', blackNext: 'Carta negra de esta ronda:', blackNextNote: 'Este es el efecto del dado negro que se va a tirar en esta ronda.',
     blackBlocked: 'Ya tienes un dado negro', blackYouHave: 'Ya tienes un dado negro: no puedes coger el grupo que lleva otro.',
     blackDealerHas: name => `Ojo: ${name} reparte y ya tiene un dado negro. Si le dejáis el grupo con el dado negro, perdéis el nivel.`,
     bombTitle: '¡Bomba!', bombYou: 'Tu carta negra:', bombOf: name => `Carta negra de ${name}:`,
@@ -736,15 +738,15 @@ const I18N = {
     perRoundN: n => `${n} dice per round`, blackOn: 'black die',
     blackCard0: () => 'Remove your lowest die (the one with the fewest pips you have).',
     blackCard1: () => 'Remove your highest die (the one with the most pips you have).',
-    blackCard2: v => `Remove a die with the same value as the black die (${v}).`,
+    blackCard2: v => `Remove a die with the same value as the black die${v ? ` (${v})` : ''}.`,
     blackCard3: () => 'Remove a die of the colour you have most of.',
     blackCard4: () => 'Remove a die of the colour you have fewest of.',
     blackCard5: () => 'Remove 2 dice at random.',
     blackCard6: () => 'Remove two dice with the same value.',
-    blackCard7: v => `Remove a die with a value lower than or equal to the black die (${v}).`,
-    blackCard8: v => `Remove a die with a value higher than or equal to the black die (${v}).`,
+    blackCard7: v => `Remove a die with a value lower than or equal to the black die${v ? ` (${v})` : ''}.`,
+    blackCard8: v => `Remove a die with a value higher than or equal to the black die${v ? ` (${v})` : ''}.`,
     blackTitle: 'Black cards (applied at the end)', blackNone: 'No black dice yet.',
-    blackThisRound: 'This round’s black die:',
+    blackThisRound: 'This round’s black die:', blackNext: 'This round’s black card:', blackNextNote: 'This is the effect of the black die that will be rolled this round.',
     blackBlocked: 'You already have a black die', blackYouHave: 'You already have a black die: you can’t take the group with another one.',
     blackDealerHas: name => `Careful: ${name} is dealing and already has a black die. If you leave them the group with the black die, you lose the level.`,
     bombTitle: 'Bomb!', bombYou: 'Your black card:', bombOf: name => `${name}’s black card:`,
@@ -1957,7 +1959,7 @@ function encodeG() {
     p: G.players.map(p => [p.name, p.bot ? 1 : 0, p.key || '', p.missions.map(m => [TYPES.indexOf(m.t), m.c ?? -1, m.c2 ?? -1, m.n ?? -1, m.s || 0, m.v || 0, m.id || 0, m.al ? 1 : 0]), p.area.map(encDie)]),
     rl: G.roll.map(d => encDie(d) + (d.gone ? 1000 : 0)),
     mn: Array.isArray(G.modNote) ? G.modNote : null,
-    bm: G.bomb ? [G.bomb.queue, G.bomb.step] : null, lb: G.lostBy ?? -1,
+    bm: G.bomb ? [G.bomb.queue, G.bomb.step] : null, lb: G.lostBy ?? -1, nb: G.cfg.black && G.phase !== 'reveal' && G.phase !== 'bomb' ? roundBlack() ?? -1 : -1,
     bg: G.bag || [],
     gr: G.groups,
     tk: G.groups.map((_, i) => G.taken[i] ?? -1),
@@ -2020,10 +2022,11 @@ function decodeG(w) {
     if (Array.isArray(w.bm) && Array.isArray(w.bm[0])) bomb = { queue: w.bm[0].slice(0, n).map(x => int(x, 0, n - 1)), step: int(w.bm[1], 0, n) };
     if (ph === 'bomb' && !bomb) throw new Error('check');
     const lostBy = Number.isInteger(w.lb) && w.lb >= 0 ? int(w.lb, 0, n - 1) : null;
+    const nextBlack = cfg.black && Number.isInteger(w.nb) && w.nb >= 0 ? int(w.nb, 0, BLACK_CARDS - 1) : null;
     const a = int(w.a, 0, n - 1);
     const g = {
       online: true, cfg, mods, greyRule, camp: Number.isInteger(w.cp) && w.cp >= 0 && w.cp < 100 ? w.cp : null, hints: !!w.h, starter: int(w.st, 0, n - 1), C, round: int(w.r, 0, n), active: a, phase: ph,
-      bag, bomb, lostBy, step: int(w.s, 0, n), gid: String(w.id || '').slice(0, 12), players, roll, groups, taken,
+      bag, bomb, lostBy, nextBlack, step: int(w.s, 0, n), gid: String(w.id || '').slice(0, 12), players, roll, groups, taken,
       order: Array.from({ length: n - 1 }, (_, k) => (a + 1 + k) % n),
       log: (w.lg || []).slice(-6).filter(l => Array.isArray(l) && typeof l[0] === 'string' && l.length <= 7 && l.slice(1).every(x => Number.isInteger(x) && x >= 0 && x < 100)), seq: w.q,
       modNote: Array.isArray(w.mn) && w.mn[0] === 'mod' && w.mn.length <= 7 && w.mn.slice(1).every(x => Number.isInteger(x) && x >= 0 && x < 100) ? w.mn : null, results: null, win: null,
@@ -2052,7 +2055,7 @@ const PEERJS_URL = 'https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js';
 // Online relay through Supabase Realtime: works on networks that block direct browser-to-browser links.
 // The publishable key is meant to be public (it only allows what the project's settings allow).
 // Shown next to the connection line, to tell whether everyone has the same version loaded.
-const APP_VERSION = '2026.11.07';
+const APP_VERSION = '2026.11.07b';
 const SUPABASE_URL = 'https://vjphqqtoigpjncmsdudq.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_hUInzKity39UFsFwsFqmSw_HR3HMLE4';
 const SUPABASE_JS = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js';
@@ -2888,10 +2891,15 @@ function actionsHTML() {
 }
 
 const blackNo = k => `<span class="cardno" title="${t('cardNo')}">N${k + 1}</span>`;
+// The black card of the current round, known from the start of the round.
+const roundBlack = () => Array.isArray(G.blackDeck) && G.blackDeck.length ? G.blackDeck[G.round % G.blackDeck.length] : (Number.isInteger(G.nextBlack) ? G.nextBlack : null);
 // Black cards in play: the one rolled this round and the ones players already hold.
 function blackCardsHTML() {
   const rows = [];
-  if (G.phase !== 'reveal' && G.phase !== 'bomb') G.roll.filter(d => d.c === BLACK && !d.gone).forEach(d => rows.push(`<li>${dieHTML(d, { size: 'sm' })}<span><b>${t('blackThisRound')}</b> ${t('blackCard' + d.k, d.v)}</span>${blackNo(d.k)}</li>`));
+  // Before the roll the black card of this round is already known (only the die's value is missing).
+  const next = roundBlack();
+  if (G.phase === 'roll' && next !== null) rows.push(`<li class="next"><span class="die c6 sm" aria-hidden="true"><svg viewBox="0 0 100 100"><rect class="face" x="4" y="4" width="92" height="92" rx="20"/><text x="50" y="66" text-anchor="middle" font-size="52" font-weight="700" fill="#fff">?</text></svg></span><span><b>${t('blackNext')}</b> ${t('blackCard' + next)}<br><small>${t('blackNextNote')}</small></span>${blackNo(next)}</li>`);
+  if (G.phase === 'group' || G.phase === 'choose') G.roll.filter(d => d.c === BLACK && !d.gone).forEach(d => rows.push(`<li>${dieHTML(d, { size: 'sm' })}<span><b>${t('blackThisRound')}</b> ${t('blackCard' + d.k, d.v)}</span>${blackNo(d.k)}</li>`));
   G.players.forEach((p, i) => p.area.filter(d => d.c === BLACK).forEach(d => rows.push(`<li>${dieHTML(d, { size: 'sm' })}<span><b>${name(i)}:</b> ${t('blackCard' + d.k, d.v)}</span>${blackNo(d.k)}</li>`)));
   return `<div class="blackcards"><span class="label">${t('blackTitle')}</span>${rows.length ? `<ul>${rows.join('')}</ul>` : `<p class="note">${t('blackNone')}</p>`}</div>`;
 }
