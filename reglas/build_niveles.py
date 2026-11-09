@@ -337,7 +337,7 @@ def build(lang):
             elif 'black' in comps:
                 cards = f'<figure>{gc.black_card_svg(1)}N2</figure><figure>{gc.black_card_svg(7)}N8</figure><figure>{gc.black_back_svg()}</figure>'
             elif 'purple' in comps:
-                cards = f'<figure>{gc.card_svg(OBJS[24], 25)}25</figure><figure>{gc.card_svg(OBJS[28], 29)}29</figure>'
+                cards = ''.join(f'<figure>{gc.card_svg(o, i + 1)}{i + 1}</figure>' for i, o in enumerate(OBJS) if 'morado' in (o.get('color'), o.get('color2')))
             else:
                 cards = f'<figure>{gc.card_svg(OBJS[0], 1)}1</figure><figure>{gc.card_svg(OBJS[1], 2)}2</figure><figure>{gc.back_svg()}</figure>'
             comp = ''.join(f'<div>• {L["comp"][c]}</div>' for c in comps)

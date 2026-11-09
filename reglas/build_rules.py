@@ -19,6 +19,11 @@ def card(i):
     return gc.card_svg(objs[i - 1], i)
 
 
+def find(**kw):
+    """Number of the first objective card with these fields (numbers change when cards are removed)."""
+    return next(i + 1 for i, o in enumerate(objs) if all(o.get(k) == v for k, v in kw.items()))
+
+
 def die(colour, face, size=26):
     fill = gc.COLORS.get(colour, colour)
     pip = '#3b2c00' if colour == 'amarillo' else '#ffffff'
@@ -118,7 +123,7 @@ ol.steps > li::before {{ content: counter(s); position: absolute; left: 0; top: 
     <tr><td class="n">1</td><td>Grey die</td><td>Grey die variant (campaign levels 11–15)</td></tr>
     <tr><td class="n">4</td><td>Black dice</td><td>Black die variant, the “Bomb” (campaign levels 16–20)</td></tr>
     <tr><td class="n">1</td><td>Cloth bag</td><td>Holds the coloured dice in play</td></tr>
-    <tr><td class="n">123</td><td>Objective cards</td><td>Numbered 1–123, 1 to 5 stars each</td></tr>
+    <tr><td class="n">{len(objs)}</td><td>Objective cards</td><td>Numbered 1–{len(objs)}, 1 to 5 stars each</td></tr>
     <tr><td class="n">7</td><td>Grey cards</td><td>Numbered G1–G7, grey back</td></tr>
     <tr><td class="n">9</td><td>Black cards</td><td>Numbered N1–N9, black back</td></tr>
     <tr><td class="n">4</td><td>Action cards</td><td>Numbered A1–A4: Reroll, +1 / −1, Flip, Remove</td></tr>
@@ -182,10 +187,10 @@ ol.steps > li::before {{ content: counter(s); position: absolute; left: 0; top: 
   <h2><span class="bar"><i style="background:var(--yellow)"></i><i style="background:var(--orange)"></i></span>Objective Cards</h2>
   <p>Each objective card states one condition about <b>all the dice in your area at the end of the game</b>. Its stars (1 to 5) show its difficulty and how many stars it is worth when completed. If you hold several cards, together they form your mission.</p>
   <div class="cards">
-    <figure>{card(1)}No blue dice</figure>
-    <figure>{card(2)}At least 2 blue dice<br>(exactly 2: +1★)</figure>
-    <figure>{card(13)}Exactly 2 orange dice</figure>
-    <figure>{card(122)}Fewer dice showing a 2 than any other player</figure>
+    <figure>{card(find(tipo='ninguno', color='azul'))}No blue dice</figure>
+    <figure>{card(find(tipo='al_menos', color='azul', n=2))}At least 2 blue dice<br>(exactly 2: +1★)</figure>
+    <figure>{card(find(tipo='exactamente', color='naranja', n=2))}Exactly 2 orange dice</figure>
+    <figure>{card(find(tipo='menos_numero_que_nadie', numero=2))}Fewer dice showing a 2 than any other player</figure>
   </div>
   <h3>Reading the symbols</h3>
   <table>
