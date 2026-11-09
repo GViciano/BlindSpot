@@ -251,6 +251,8 @@ button.group:hover { border-color: var(--muted); }
 .blackcards li small { color: var(--muted); font-size: 12px; }
 .blackcards li { display: flex; align-items: center; gap: 8px; font-size: 14px; }
 .group.blocked { opacity: .45; }
+.gblack { margin-top: 8px; padding: 6px 8px; border-radius: 8px; background: var(--d6); color: #fff; font-size: 12.5px; line-height: 1.35; text-align: left; }
+.gblack b { color: #fff; } .gblack .cardno { float: none; color: #b9c0cc; margin-left: 4px; }
 .bomb-pick button[aria-pressed="true"] { outline: 3px solid var(--bad, #c0392b); outline-offset: 2px; }
 .bomb-pick button:disabled { opacity: .35; }
 .cover.intro { text-align: left; max-width: 560px; }
@@ -444,7 +446,7 @@ const I18N = {
     blackCard7: v => `Elimina un dado de valor menor o igual al dado negro${v ? ` (${v})` : ''}.`,
     blackCard8: v => `Elimina un dado de valor mayor o igual al dado negro${v ? ` (${v})` : ''}.`,
     blackTitle: 'Cartas negras (se aplican al final)', blackNone: 'Aún no hay dados negros.',
-    blackThisRound: 'Dado negro de esta ronda:', blackNext: 'Carta negra de esta ronda:', blackNextNote: 'Este es el efecto del dado negro que se va a tirar en esta ronda.',
+    blackThisRound: 'Dado negro de esta ronda:', blackNext: 'Carta negra de esta ronda:', blackInGroup: 'Carta del dado negro:', blackNextNote: 'Este es el efecto del dado negro que se va a tirar en esta ronda.',
     blackBlocked: 'Ya tienes un dado negro', blackYouHave: 'Ya tienes un dado negro: no puedes coger el grupo que lleva otro.',
     blackDealerHas: name => `Ojo: ${name} reparte y ya tiene un dado negro. Si le dejáis el grupo con el dado negro, perdéis el nivel.`,
     bombTitle: '¡Bomba!', bombYou: 'Tu carta negra:', bombOf: name => `Carta negra de ${name}:`,
@@ -749,7 +751,7 @@ const I18N = {
     blackCard7: v => `Remove a die with a value lower than or equal to the black die${v ? ` (${v})` : ''}.`,
     blackCard8: v => `Remove a die with a value higher than or equal to the black die${v ? ` (${v})` : ''}.`,
     blackTitle: 'Black cards (applied at the end)', blackNone: 'No black dice yet.',
-    blackThisRound: 'This round’s black die:', blackNext: 'This round’s black card:', blackNextNote: 'This is the effect of the black die that will be rolled this round.',
+    blackThisRound: 'This round’s black die:', blackNext: 'This round’s black card:', blackInGroup: 'Black die card:', blackNextNote: 'This is the effect of the black die that will be rolled this round.',
     blackBlocked: 'You already have a black die', blackYouHave: 'You already have a black die: you can’t take the group with another one.',
     blackDealerHas: name => `Careful: ${name} is dealing and already has a black die. If you leave them the group with the black die, you lose the level.`,
     bombTitle: 'Bomb!', bombYou: 'Your black card:', bombOf: name => `${name}’s black card:`,
@@ -2067,7 +2069,7 @@ const PEERJS_URL = 'https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js';
 // Online relay through Supabase Realtime: works on networks that block direct browser-to-browser links.
 // The publishable key is meant to be public (it only allows what the project's settings allow).
 // Shown next to the connection line, to tell whether everyone has the same version loaded.
-const APP_VERSION = '2026.11.09';
+const APP_VERSION = '2026.11.09b';
 const SUPABASE_URL = 'https://vjphqqtoigpjncmsdudq.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_hUInzKity39UFsFwsFqmSw_HR3HMLE4';
 const SUPABASE_JS = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js';
@@ -2705,7 +2707,7 @@ function groupsHTML(interactive, me) {
     const blocked = allowed && taken === undefined && !allowed.includes(g);
     const who = taken !== undefined ? t('forPlayer', name(taken)) : blocked ? t('blackBlocked') : (interactive ? t('available') : '');
     const inner = `<div class="ghead"><span class="gl">${LETTERS[g]}</span><span class="gwho">${who}</span></div>
-      <div class="dice">${groupDice(g).map(d => rollDie(d)).join('')}</div>${statsHTML(groupDice(g))}`;
+      <div class="dice">${groupDice(g).map(d => rollDie(d)).join('')}</div>${statsHTML(groupDice(g))}${groupBlackHTML(groupDice(g))}`;
     const cls = `group${taken !== undefined ? ' taken' : ''}${blocked ? ' blocked' : ''}${ui.chosen === g ? ' sel' : ''}`;
     return interactive && taken === undefined && !blocked
       ? `<button type="button" class="${cls}" data-action="pick" data-g="${g}" aria-pressed="${ui.chosen === g}">${inner}</button>`
@@ -2764,6 +2766,7 @@ function stageHTML(V) {
       const ready = free.length === 0 && sizes.every(s => s > 0) && !sending;
       body = `<h2>${t('formGroups', P())}</h2>
         <p class="sub">${t('groupHelp')}</p>
+        ${groupBlackHTML(G.roll)}
         <div class="tray"><span class="label">${t('unassigned', free.length)}</span>
           <div class="dice">${free.length ? free.map((d, k) => dieHTML(d, { button: true, action: 'place', idx: k, roll: animate, size: 'lg' })).join('') : `<span class="empty">${t('allPlaced')}</span>`}</div>
         </div>
@@ -2905,6 +2908,9 @@ function actionsHTML() {
 const blackNo = k => `<span class="cardno" title="${t('cardNo')}">N${k + 1}</span>`;
 // The black card of the current round, known from the start of the round.
 const roundBlack = () => Array.isArray(G.blackDeck) && G.blackDeck.length ? G.blackDeck[G.round % G.blackDeck.length] : (Number.isInteger(G.nextBlack) ? G.nextBlack : null);
+// The black card travelling with the black die of a group, shown on the group itself.
+const groupBlackHTML = dice => dice.filter(d => d.c === BLACK && !d.gone).map(d =>
+  `<div class="gblack"><b>${t('blackInGroup')}</b> ${t('blackCard' + d.k, d.v)} <span class="cardno">N${d.k + 1}</span></div>`).join('');
 // Black cards in play: the one rolled this round and the ones players already hold.
 function blackCardsHTML() {
   const rows = [];
