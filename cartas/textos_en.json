@@ -1,0 +1,615 @@
+{
+ "objectives": [
+  {
+   "id": 1,
+   "text": "No blue dice.",
+   "bonus": ""
+  },
+  {
+   "id": 2,
+   "text": "At least 2 blue dice.",
+   "bonus": "* Get exactly 2 blue dice: +1★ extra."
+  },
+  {
+   "id": 3,
+   "text": "At least 3 blue dice.",
+   "bonus": "* Get exactly 3 blue dice: +1★ extra."
+  },
+  {
+   "id": 4,
+   "text": "At most 1 blue die.",
+   "bonus": "* Get exactly 1 blue die: +1★ extra."
+  },
+  {
+   "id": 5,
+   "text": "Exactly 2 blue dice.",
+   "bonus": ""
+  },
+  {
+   "id": 6,
+   "text": "Exactly 3 blue dice.",
+   "bonus": ""
+  },
+  {
+   "id": 7,
+   "text": "Your blue dice add up to 12 or more.",
+   "bonus": "* Get exactly a total of 12 on your blue dice: +1★ extra."
+  },
+  {
+   "id": 8,
+   "text": "Your blue dice add up to 15 or more.",
+   "bonus": "* Get exactly a total of 15 on your blue dice: +1★ extra."
+  },
+  {
+   "id": 9,
+   "text": "No red dice.",
+   "bonus": ""
+  },
+  {
+   "id": 10,
+   "text": "At least 2 red dice.",
+   "bonus": "* Get exactly 2 red dice: +1★ extra."
+  },
+  {
+   "id": 11,
+   "text": "At least 3 red dice.",
+   "bonus": "* Get exactly 3 red dice: +1★ extra."
+  },
+  {
+   "id": 12,
+   "text": "At most 1 red die.",
+   "bonus": "* Get exactly 1 red die: +1★ extra."
+  },
+  {
+   "id": 13,
+   "text": "Exactly 2 red dice.",
+   "bonus": ""
+  },
+  {
+   "id": 14,
+   "text": "Exactly 3 red dice.",
+   "bonus": ""
+  },
+  {
+   "id": 15,
+   "text": "Your red dice add up to 12 or more.",
+   "bonus": "* Get exactly a total of 12 on your red dice: +1★ extra."
+  },
+  {
+   "id": 16,
+   "text": "Your red dice add up to 15 or more.",
+   "bonus": "* Get exactly a total of 15 on your red dice: +1★ extra."
+  },
+  {
+   "id": 17,
+   "text": "No green dice.",
+   "bonus": ""
+  },
+  {
+   "id": 18,
+   "text": "At least 2 green dice.",
+   "bonus": "* Get exactly 2 green dice: +1★ extra."
+  },
+  {
+   "id": 19,
+   "text": "At least 3 green dice.",
+   "bonus": "* Get exactly 3 green dice: +1★ extra."
+  },
+  {
+   "id": 20,
+   "text": "At most 1 green die.",
+   "bonus": "* Get exactly 1 green die: +1★ extra."
+  },
+  {
+   "id": 21,
+   "text": "Exactly 2 green dice.",
+   "bonus": ""
+  },
+  {
+   "id": 22,
+   "text": "Exactly 3 green dice.",
+   "bonus": ""
+  },
+  {
+   "id": 23,
+   "text": "Your green dice add up to 12 or more.",
+   "bonus": "* Get exactly a total of 12 on your green dice: +1★ extra."
+  },
+  {
+   "id": 24,
+   "text": "Your green dice add up to 15 or more.",
+   "bonus": "* Get exactly a total of 15 on your green dice: +1★ extra."
+  },
+  {
+   "id": 25,
+   "text": "No yellow dice.",
+   "bonus": ""
+  },
+  {
+   "id": 26,
+   "text": "2 yellow dice.",
+   "bonus": "* Get exactly 2 yellow dice: +1★ extra."
+  },
+  {
+   "id": 27,
+   "text": "3 yellow dice.",
+   "bonus": "* Get exactly 3 yellow dice: +1★ extra."
+  },
+  {
+   "id": 28,
+   "text": "At most 1 yellow die.",
+   "bonus": "* Get exactly 1 yellow die: +1★ extra."
+  },
+  {
+   "id": 29,
+   "text": "Exactly 2 yellow dice.",
+   "bonus": ""
+  },
+  {
+   "id": 30,
+   "text": "Exactly 3 yellow dice.",
+   "bonus": ""
+  },
+  {
+   "id": 31,
+   "text": "Your yellow dice add up to 12 or more.",
+   "bonus": "* Get exactly a total of 12 on your yellow dice: +1★ extra."
+  },
+  {
+   "id": 32,
+   "text": "Your yellow dice add up to 15 or more.",
+   "bonus": "* Get exactly a total of 15 on your yellow dice: +1★ extra."
+  },
+  {
+   "id": 33,
+   "text": "Blue total > red total.",
+   "bonus": ""
+  },
+  {
+   "id": 34,
+   "text": "More red dice than blue dice.",
+   "bonus": ""
+  },
+  {
+   "id": 35,
+   "text": "Red total > green total.",
+   "bonus": ""
+  },
+  {
+   "id": 36,
+   "text": "More green dice than red dice.",
+   "bonus": ""
+  },
+  {
+   "id": 37,
+   "text": "Green total > blue total.",
+   "bonus": ""
+  },
+  {
+   "id": 38,
+   "text": "More blue dice than green dice.",
+   "bonus": ""
+  },
+  {
+   "id": 39,
+   "text": "Yellow total > blue total.",
+   "bonus": ""
+  },
+  {
+   "id": 40,
+   "text": "More blue dice than yellow dice.",
+   "bonus": ""
+  },
+  {
+   "id": 41,
+   "text": "At least one die of each colour.",
+   "bonus": ""
+  },
+  {
+   "id": 42,
+   "text": "Dice of exactly 3 different colours.",
+   "bonus": ""
+  },
+  {
+   "id": 43,
+   "text": "Dice of exactly 2 different colours.",
+   "bonus": ""
+  },
+  {
+   "id": 44,
+   "text": "All your dice of a single colour.",
+   "bonus": ""
+  },
+  {
+   "id": 45,
+   "text": "6 dice in total.",
+   "bonus": "* Get exactly 6 dice in total: +1★ extra."
+  },
+  {
+   "id": 46,
+   "text": "At most 5 dice in total.",
+   "bonus": "* Get exactly 5 dice in total: +1★ extra."
+  },
+  {
+   "id": 47,
+   "text": "Exactly 4 green dice.",
+   "bonus": ""
+  },
+  {
+   "id": 48,
+   "text": "Your blue dice add up to 18 or more.",
+   "bonus": "* Get exactly a total of 18 on your blue dice: +1★ extra."
+  },
+  {
+   "id": 49,
+   "text": "No dice showing an even number.",
+   "bonus": ""
+  },
+  {
+   "id": 50,
+   "text": "No dice showing an odd number.",
+   "bonus": ""
+  },
+  {
+   "id": 51,
+   "text": "Exactly 2 dice showing an even number.",
+   "bonus": ""
+  },
+  {
+   "id": 52,
+   "text": "Exactly 3 dice showing an even number.",
+   "bonus": ""
+  },
+  {
+   "id": 53,
+   "text": "Exactly 2 dice showing an odd number.",
+   "bonus": ""
+  },
+  {
+   "id": 54,
+   "text": "Exactly 4 dice showing an odd number.",
+   "bonus": ""
+  },
+  {
+   "id": 55,
+   "text": "More dice showing even numbers than odd numbers.",
+   "bonus": ""
+  },
+  {
+   "id": 56,
+   "text": "More dice showing odd numbers than even numbers.",
+   "bonus": ""
+  },
+  {
+   "id": 57,
+   "text": "Exactly 2 dice showing the same number (no number appears more than 2 times).",
+   "bonus": ""
+  },
+  {
+   "id": 58,
+   "text": "Exactly 3 dice showing the same number (no number appears more than 3 times).",
+   "bonus": ""
+  },
+  {
+   "id": 59,
+   "text": "At least 3 dice showing the same number.",
+   "bonus": "* Get exactly 3 dice showing the same number: +1★ extra."
+  },
+  {
+   "id": 60,
+   "text": "At least 4 dice showing the same number.",
+   "bonus": "* Get exactly 4 dice showing the same number: +1★ extra."
+  },
+  {
+   "id": 61,
+   "text": "At least 5 dice showing the same number.",
+   "bonus": "* Get exactly 5 dice showing the same number: +1★ extra."
+  },
+  {
+   "id": 62,
+   "text": "No die higher than 5.",
+   "bonus": ""
+  },
+  {
+   "id": 63,
+   "text": "No die higher than 4.",
+   "bonus": ""
+  },
+  {
+   "id": 64,
+   "text": "No die higher than 3.",
+   "bonus": ""
+  },
+  {
+   "id": 65,
+   "text": "No die lower than 2.",
+   "bonus": ""
+  },
+  {
+   "id": 66,
+   "text": "No die lower than 3.",
+   "bonus": ""
+  },
+  {
+   "id": 67,
+   "text": "No die lower than 4.",
+   "bonus": ""
+  },
+  {
+   "id": 68,
+   "text": "No die showing a 6.",
+   "bonus": ""
+  },
+  {
+   "id": 69,
+   "text": "No die showing a 1.",
+   "bonus": ""
+  },
+  {
+   "id": 70,
+   "text": "No die showing a 3.",
+   "bonus": ""
+  },
+  {
+   "id": 71,
+   "text": "No die showing a 2.",
+   "bonus": ""
+  },
+  {
+   "id": 72,
+   "text": "No die showing a 4.",
+   "bonus": ""
+  },
+  {
+   "id": 73,
+   "text": "No die showing a 5.",
+   "bonus": ""
+  },
+  {
+   "id": 74,
+   "text": "At least 2 dice showing a 6.",
+   "bonus": "* Get exactly 2 dice showing a 6: +1★ extra."
+  },
+  {
+   "id": 75,
+   "text": "At least 2 dice showing a 1.",
+   "bonus": "* Get exactly 2 dice showing a 1: +1★ extra."
+  },
+  {
+   "id": 76,
+   "text": "At least 3 dice showing a 5.",
+   "bonus": "* Get exactly 3 dice showing a 5: +1★ extra."
+  },
+  {
+   "id": 77,
+   "text": "At least 3 dice showing a 4.",
+   "bonus": "* Get exactly 3 dice showing a 4: +1★ extra."
+  },
+  {
+   "id": 78,
+   "text": "Your dice add up to 20 or less in total.",
+   "bonus": "* Get exactly a total of 20: +1★ extra."
+  },
+  {
+   "id": 79,
+   "text": "Your dice add up to 15 or less in total.",
+   "bonus": "* Get exactly a total of 15: +1★ extra."
+  },
+  {
+   "id": 80,
+   "text": "Your dice add up to 15 or more in total.",
+   "bonus": "* Get exactly a total of 15: +1★ extra."
+  },
+  {
+   "id": 81,
+   "text": "Your dice add up to 20 or more in total.",
+   "bonus": "* Get exactly a total of 20: +1★ extra."
+  },
+  {
+   "id": 82,
+   "text": "Your dice add up to 25 or more in total.",
+   "bonus": "* Get exactly a total of 25: +1★ extra."
+  },
+  {
+   "id": 83,
+   "text": "Your dice add up to 30 or more in total.",
+   "bonus": "* Get exactly a total of 30: +1★ extra."
+  },
+  {
+   "id": 84,
+   "text": "Your dice add up to an even number in total.",
+   "bonus": ""
+  },
+  {
+   "id": 85,
+   "text": "A straight of 3: any 3 numbers in a row, starting from any number (for example 4-5-6).",
+   "bonus": ""
+  },
+  {
+   "id": 86,
+   "text": "A straight of 4: any 4 numbers in a row, starting from any number (for example 3-4-5-6).",
+   "bonus": ""
+  },
+  {
+   "id": 87,
+   "text": "A straight of 5: any 5 numbers in a row, starting from any number (for example 2-3-4-5-6).",
+   "bonus": ""
+  },
+  {
+   "id": 88,
+   "text": "A straight of 6: any 6 numbers in a row, starting from any number (for example 1-2-3-4-5-6).",
+   "bonus": ""
+  },
+  {
+   "id": 89,
+   "text": "A straight of 3 in one colour: 3 numbers in a row on dice of a single colour.",
+   "bonus": ""
+  },
+  {
+   "id": 90,
+   "text": "A straight of 4 in one colour: 4 numbers in a row on dice of a single colour.",
+   "bonus": ""
+  },
+  {
+   "id": 91,
+   "text": "Two pairs: two different numbers that each appear at least twice.",
+   "bonus": ""
+  },
+  {
+   "id": 92,
+   "text": "A full house: one number at least three times and another at least twice.",
+   "bonus": ""
+  },
+  {
+   "id": 93,
+   "text": "Have more dice than any other player.",
+   "bonus": ""
+  },
+  {
+   "id": 94,
+   "text": "Have fewer dice than any other player.",
+   "bonus": ""
+  },
+  {
+   "id": 95,
+   "text": "Have your dice add up to more points than any other player’s.",
+   "bonus": ""
+  },
+  {
+   "id": 96,
+   "text": "Have your dice add up to fewer points than any other player’s.",
+   "bonus": ""
+  },
+  {
+   "id": 97,
+   "text": "Have your blue dice add up to more points than any other player’s.",
+   "bonus": ""
+  },
+  {
+   "id": 98,
+   "text": "Have your red dice add up to more points than any other player’s.",
+   "bonus": ""
+  },
+  {
+   "id": 99,
+   "text": "Have your green dice add up to more points than any other player’s.",
+   "bonus": ""
+  },
+  {
+   "id": 100,
+   "text": "Have your yellow dice add up to more points than any other player’s.",
+   "bonus": ""
+  },
+  {
+   "id": 101,
+   "text": "Have your blue dice add up to fewer points than any other player’s.",
+   "bonus": ""
+  },
+  {
+   "id": 102,
+   "text": "Have your red dice add up to fewer points than any other player’s.",
+   "bonus": ""
+  },
+  {
+   "id": 103,
+   "text": "Have your green dice add up to fewer points than any other player’s.",
+   "bonus": ""
+  },
+  {
+   "id": 104,
+   "text": "Have your yellow dice add up to fewer points than any other player’s.",
+   "bonus": ""
+  },
+  {
+   "id": 105,
+   "text": "Have more blue dice than any other player.",
+   "bonus": ""
+  },
+  {
+   "id": 106,
+   "text": "Have more red dice than any other player.",
+   "bonus": ""
+  },
+  {
+   "id": 107,
+   "text": "Have more green dice than any other player.",
+   "bonus": ""
+  },
+  {
+   "id": 108,
+   "text": "Have more yellow dice than any other player.",
+   "bonus": ""
+  },
+  {
+   "id": 109,
+   "text": "Have fewer blue dice than any other player.",
+   "bonus": ""
+  },
+  {
+   "id": 110,
+   "text": "Have fewer yellow dice than any other player.",
+   "bonus": ""
+  },
+  {
+   "id": 111,
+   "text": "Have dice of more different colours than any other player.",
+   "bonus": ""
+  },
+  {
+   "id": 112,
+   "text": "Have more dice showing a 6 than any other player.",
+   "bonus": ""
+  },
+  {
+   "id": 113,
+   "text": "Have more dice showing a 1 than any other player.",
+   "bonus": ""
+  },
+  {
+   "id": 114,
+   "text": "Have more dice showing a 3 than any other player.",
+   "bonus": ""
+  },
+  {
+   "id": 115,
+   "text": "Have fewer dice showing a 5 than any other player.",
+   "bonus": ""
+  },
+  {
+   "id": 116,
+   "text": "Have fewer dice showing a 2 than any other player.",
+   "bonus": ""
+  },
+  {
+   "id": 117,
+   "text": "Have fewer dice showing a 4 than any other player.",
+   "bonus": ""
+  }
+ ],
+ "grey": [
+  "The player with the grey die must have at least 1 die of each colour in play.",
+  "The player with the grey die must total at least 15 (grey die included).",
+  "The player with the grey die can’t have another die showing the same number as the grey die.",
+  "The player with the grey die can have at most 6 dice (grey die included).",
+  "The player with the grey die must have at least one other die showing the same number as the grey die.",
+  "The player with the grey die can’t have more than 3 dice of a single colour.",
+  "The player with the grey die can’t total more than 15 (grey die included)."
+ ],
+ "black": [
+  "Remove your lowest die (the one with the fewest pips you have).",
+  "Remove your highest die (the one with the most pips you have).",
+  "Remove a die with the same value as the black die.",
+  "Remove a die of the colour you have most of.",
+  "Remove a die of the colour you have fewest of.",
+  "Remove 2 dice at random.",
+  "Remove two dice with the same value.",
+  "Remove a die with a value lower than or equal to the black die.",
+  "Remove a die with a value higher than or equal to the black die."
+ ],
+ "actions": [
+  "Reroll a die.",
+  "Add or subtract 1 to a die (never below 1 or above 6).",
+  "Flip a die to its opposite face (1↔6, 2↔5, 3↔4).",
+  "Remove a die: it goes back into the bag."
+ ]
+}

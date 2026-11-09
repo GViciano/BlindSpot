@@ -34,9 +34,9 @@ def die(colour, face, size=26):
 COVER_DICE = ''.join(
     f'<span class="cd" style="left:{x}%;top:{y}%;transform:rotate({r}deg)">{die(c, f, int(s * 1.7))}</span>'
     for x, y, r, c, f, s in [
-        (8, 14, -14, 'azul', 5, 64), (26, 6, 9, 'naranja', 3, 52), (72, 9, -8, 'verde', 6, 58),
-        (86, 24, 16, 'morado', 2, 48), (14, 66, 12, 'amarillo', 4, 50), (80, 70, -18, 'azul', 1, 60),
-        (62, 80, 7, 'naranja', 6, 44), (32, 82, -6, 'verde', 2, 40), (90, 52, 4, '#8b93a1', 3, 38),
+        (8, 14, -14, 'azul', 5, 64), (26, 6, 9, 'rojo', 3, 52), (72, 9, -8, 'verde', 6, 58),
+        (86, 24, 16, 'verde', 2, 48), (14, 66, 12, 'amarillo', 4, 50), (80, 70, -18, 'azul', 1, 60),
+        (62, 80, 7, 'rojo', 6, 44), (32, 82, -6, 'verde', 2, 40), (90, 52, 4, '#8b93a1', 3, 38),
         (4, 42, -4, '#1c1e23', 5, 40)])
 
 BOMB = ''.join(gc.black_card_svg(k) for k in (0, 2, 7))
@@ -47,7 +47,7 @@ html = f"""<!doctype html>
 @page {{ size: A4; margin: 18mm 17mm 20mm; @bottom-center {{ content: counter(page); font: 600 9pt 'Inter', sans-serif; color: #8a94a6; }} }}
 @page cover {{ margin: 0; @bottom-center {{ content: none; }} }}
 :root {{ --ink: #18202c; --muted: #5d6778; --line: #d9dee6; --blue: #2f6fdb; --orange: #ee8420; --green: #2a9a58;
-  --purple: #8a4fd1; --yellow: #f1c232; --paper: #fdfcf7; --tint: #f2f5fa; }}
+  --purple: #d7263d; --red: #d7263d; --yellow: #f1c232; --paper: #fdfcf7; --tint: #f2f5fa; }}
 * {{ box-sizing: border-box; }}
 html {{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }}
 body {{ margin: 0; font: 400 10pt/1.5 'Inter', 'DejaVu Sans', sans-serif; color: var(--ink); background: #fff; }}
@@ -119,7 +119,7 @@ ol.steps > li::before {{ content: counter(s); position: absolute; left: 0; top: 
   <h2><span class="bar"><i style="background:var(--purple)"></i><i style="background:var(--yellow)"></i></span>Components</h2>
   <table>
     <tr><th>Qty</th><th>Component</th><th>Notes</th></tr>
-    <tr><td class="n">75</td><td>Coloured dice</td><td>15 each in blue, orange, green, purple and yellow</td></tr>
+    <tr><td class="n">60</td><td>Coloured dice</td><td>15 each in blue, red, green and yellow</td></tr>
     <tr><td class="n">1</td><td>Grey die</td><td>Grey die variant (campaign levels 11–15)</td></tr>
     <tr><td class="n">4</td><td>Black dice</td><td>Black die variant, the “Bomb” (campaign levels 16–20)</td></tr>
     <tr><td class="n">1</td><td>Cloth bag</td><td>Holds the coloured dice in play</td></tr>
@@ -138,7 +138,7 @@ ol.steps > li::before {{ content: counter(s); position: absolute; left: 0; top: 
   <h2><span class="bar"><i style="background:var(--green)"></i><i style="background:var(--blue)"></i></span>Setup</h2>
   <p>These steps describe a free game. When you play the campaign, the level you are playing fixes the colours, cards, dice and stars to win (see <i>Campaign</i>).</p>
   <ol class="steps">
-    <li><b>Choose the colours.</b> With 3 colours, play with blue, orange and green. With 4, add purple; with 5, add yellow.</li>
+    <li><b>Choose the colours.</b> With 3 colours, play with blue, red and green. With 4, add yellow.</li>
     <li><b>Fill the bag.</b> Place 15 dice of each colour in play into the bag. Return the other dice to the box.</li>
     <li><b>Agree on the mission.</b> Decide how many objectives each player receives (1 to 3) and which star values may come up. Then decide what the team needs to win: either <i>every objective</i>, or a total number of stars (see <i>End of the Game</i>).</li>
     <li><b>Deal the objective cards.</b> Shuffle the objective cards that fit your game and deal the agreed number to each player, face down. Leave out cards that show a colour not in play.</li>
@@ -189,7 +189,7 @@ ol.steps > li::before {{ content: counter(s); position: absolute; left: 0; top: 
   <div class="cards">
     <figure>{card(find(tipo='ninguno', color='azul'))}No blue dice</figure>
     <figure>{card(find(tipo='al_menos', color='azul', n=2))}At least 2 blue dice<br>(exactly 2: +1★)</figure>
-    <figure>{card(find(tipo='exactamente', color='naranja', n=2))}Exactly 2 orange dice</figure>
+    <figure>{card(find(tipo='exactamente', color='rojo', n=2))}Exactly 2 red dice</figure>
     <figure>{card(find(tipo='menos_numero_que_nadie', numero=2))}Fewer dice showing a 2 than any other player</figure>
   </div>
   <h3>Reading the symbols</h3>
@@ -257,7 +257,7 @@ ol.steps > li::before {{ content: counter(s); position: absolute; left: 0; top: 
     <tr><td class="n">A3 Flip</td><td>Turn the die to its opposite face: 1 ↔ 6, 2 ↔ 5, 3 ↔ 4.</td></tr>
     <tr><td class="n">A4 Remove</td><td>Put the die back into the bag.</td></tr>
   </table>
-  <div class="box tip"><b class="t">Tip</b>Announce each action clearly: who you are, which die, whose die it was and its value before and after (“I flip Bruno's orange die: from 5 to 2”). Agree on it as a team: a used action is gone for everyone.</div>
+  <div class="box tip"><b class="t">Tip</b>Announce each action clearly: who you are, which die, whose die it was and its value before and after (“I flip Bruno's red die: from 5 to 2”). Agree on it as a team: a used action is gone for everyone.</div>
 </section>
 
 <section class="page">
@@ -337,7 +337,7 @@ ol.steps > li::before {{ content: counter(s); position: absolute; left: 0; top: 
   <table>
     <tr><th>Setting</th><th>Options</th></tr>
     <tr><td>Players</td><td>3 or 4</td></tr>
-    <tr><td>Colours</td><td>3, 4 or 5</td></tr>
+    <tr><td>Colours</td><td>3 or 4</td></tr>
     <tr><td>Objectives per player</td><td>1, 2 or 3</td></tr>
     <tr><td>Difficulty</td><td>Any combination of 1★ to 5★ cards</td></tr>
     <tr><td>To win</td><td>Every objective, or a team star total</td></tr>

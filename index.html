@@ -26,7 +26,7 @@
   --bad: #c43b3b;
   --bad-bg: #fbe5e4;
   --focus: #2f6fdb;
-  --d0: #2f6fdb; --d1: #ee8420; --d2: #2a9a58; --d3: #8a4fd1; --d4: #f1c232; --d5: #8b93a1; --d6: #1c1e23; --grey-card: #e6e8ec;
+  --d0: #2f6fdb; --d1: #d7263d; --d2: #2a9a58; --d3: #f1c232; --d4: #f1c232; --hi: #ee8420; --d5: #8b93a1; --d6: #1c1e23; --grey-card: #e6e8ec;
   --pip: #ffffff; --pip-dark: #3b2c00;
   --font-display: "Dela Gothic One", "Arial Black", Impact, sans-serif;
   --font-body: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -38,7 +38,7 @@
     --card: #232b38; --card-back-a: #0b0f15; --card-back-b: #151b25;
     --accent: #e7ebf1; --accent-ink: #10141b;
     --ok: #4cc27d; --ok-bg: #173325; --bad: #ef6b6b; --bad-bg: #3a1c1e; --focus: #7aa7ff;
-    --d0: #4682ec; --d1: #f39236; --d2: #36ad68; --d3: #9b63e0; --d4: #f2c94c; --d5: #9aa2b0; --d6: #050607; --grey-card: #2b323d;
+    --d0: #4682ec; --d1: #ec4a5e; --d2: #36ad68; --d3: #f2c94c; --d4: #f2c94c; --hi: #f39236; --d5: #9aa2b0; --d6: #050607; --grey-card: #2b323d;
     color-scheme: dark;
   }
 }
@@ -47,7 +47,7 @@
   --card: #232b38; --card-back-a: #0b0f15; --card-back-b: #151b25;
   --accent: #e7ebf1; --accent-ink: #10141b;
   --ok: #4cc27d; --ok-bg: #173325; --bad: #ef6b6b; --bad-bg: #3a1c1e; --focus: #7aa7ff;
-  --d0: #4682ec; --d1: #f39236; --d2: #36ad68; --d3: #9b63e0; --d4: #f2c94c; --d5: #9aa2b0; --d6: #050607; --grey-card: #2b323d;
+  --d0: #4682ec; --d1: #ec4a5e; --d2: #36ad68; --d3: #f2c94c; --d4: #f2c94c; --hi: #f39236; --d5: #9aa2b0; --d6: #050607; --grey-card: #2b323d;
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
@@ -60,7 +60,7 @@ button { font: inherit; color: inherit; }
 /* Header */
 .top { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding-block: 4px 16px; }
 .logo { font-family: var(--font-display); font-size: 22px; letter-spacing: .02em; display: flex; align-items: center; gap: 2px; margin: 0; }
-.logo .dot { width: .42em; height: .42em; border-radius: 50%; background: var(--d1); display: inline-block; margin: 0 .08em; transform: translateY(.05em); }
+.logo .dot { width: .42em; height: .42em; border-radius: 50%; background: var(--hi); display: inline-block; margin: 0 .08em; transform: translateY(.05em); }
 .status { color: var(--muted); font-variant-numeric: tabular-nums; }
 .top .spacer { flex: 1; }
 .btn { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 8px 16px; cursor: pointer; font-weight: 700; }
@@ -74,7 +74,7 @@ button { font: inherit; color: inherit; }
 /* Setup */
 .hero { display: grid; gap: 10px; padding-block: 24px 28px; }
 .hero h1 { font-family: var(--font-display); font-weight: 400; font-size: clamp(40px, 9vw, 84px); line-height: .95; margin: 0; letter-spacing: .01em; display: flex; flex-wrap: wrap; align-items: center; }
-.hero h1 .dot { width: .38em; height: .38em; border-radius: 50%; background: var(--d1); display: inline-block; margin: 0 .06em; }
+.hero h1 .dot { width: .38em; height: .38em; border-radius: 50%; background: var(--hi); display: inline-block; margin: 0 .06em; }
 .hero p { margin: 0; font-size: clamp(17px, 2.4vw, 21px); }
 .hero p span { white-space: nowrap; } /* the tagline breaks only between sentences */
 .hero .meta { color: var(--muted); font-size: 14px; letter-spacing: .06em; text-transform: uppercase; }
@@ -152,7 +152,7 @@ button { font: inherit; color: inherit; }
 .die .face { stroke: rgba(0, 0, 0, .18); stroke-width: 2; }
 .die.c0 .face { fill: var(--d0); } .die.c1 .face { fill: var(--d1); } .die.c2 .face { fill: var(--d2); } .die.c3 .face { fill: var(--d3); } .die.c4 .face { fill: var(--d4); } .die.c5 .face { fill: var(--d5); } .die.c6 .face { fill: var(--d6); stroke: #7d8594; }
 .die .pip { fill: var(--pip); }
-.die.c4 .pip { fill: var(--pip-dark); }
+.die.c3 .pip, .die.c4 .pip { fill: var(--pip-dark); }
 .die.sm { width: 24px; height: 24px; }
 .die.lg { width: 44px; height: 44px; }
 button.die { cursor: pointer; border-radius: 10px; transition: transform .12s; }
@@ -223,7 +223,7 @@ button.group:hover { border-color: var(--muted); }
 .inline input.short { flex: 0 1 140px; text-transform: uppercase; letter-spacing: .12em; font-weight: 700; }
 .err { color: var(--bad); font-size: 14px; margin: 0; }
 .info { border-radius: 10px; padding: 10px 12px; background: var(--surface-2); font-size: 14px; margin: 0; }
-.stars { color: var(--d1); letter-spacing: .05em; font-size: 13px; white-space: nowrap; }
+.stars { color: var(--hi); letter-spacing: .05em; font-size: 13px; white-space: nowrap; }
 .home-top { display: flex; justify-content: flex-end; }
 .tabs.lang button { padding: 6px 12px; font-size: 13px; }
 .stats .stats-all { color: var(--ink); font-weight: 700; }
@@ -234,7 +234,7 @@ button.group:hover { border-color: var(--muted); }
 .bonus { font-size: 12px; color: var(--muted); margin-top: -4px; }
 .bonus.hit { color: var(--ok); font-weight: 700; }
 .goal { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 10px; background: var(--surface-2); border: 1px solid var(--line); font-size: 14px; }
-.goal-big { font-family: var(--font-display); font-size: 22px; color: var(--d1); white-space: nowrap; }
+.goal-big { font-family: var(--font-display); font-size: 22px; color: var(--hi); white-space: nowrap; }
 .order { display: grid; gap: 6px; }
 .order-list { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; font-size: 14px; }
 .order-list .now { font-weight: 700; padding: 2px 8px; border-radius: 6px; background: var(--ink); color: var(--surface); }
@@ -269,7 +269,7 @@ button.group:hover { border-color: var(--muted); }
 .levelbox .label { color: inherit; opacity: .75; }
 .levelbox b { font-family: var(--font-display); font-weight: 400; font-size: 18px; }
 .levelbox span:last-child { font-size: 14px; }
-.camp-done { font-family: var(--font-display); font-size: 20px; color: var(--d1); margin: 0; }
+.camp-done { font-family: var(--font-display); font-size: 20px; color: var(--hi); margin: 0; }
 .mods { display: grid; gap: 6px; padding: 10px 12px; border-radius: 10px; border: 1px dashed var(--line); }
 .mods .note { margin: 0; }
 .acts { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
@@ -280,7 +280,7 @@ button.group:hover { border-color: var(--muted); }
 .act-ctl .btn { padding: 5px 12px; font-size: 13px; }
 .act-used { font-size: 13px; color: var(--muted); }
 .linkbtn { border: 0; background: none; padding: 0; color: var(--ink); text-decoration: underline; cursor: pointer; font: inherit; }
-button.die.target { outline: 2px dashed var(--d1); outline-offset: 2px; cursor: crosshair; }
+button.die.target { outline: 2px dashed var(--hi); outline-offset: 2px; cursor: crosshair; }
 .mods-left > div { display: flex; flex-wrap: wrap; gap: 6px 12px; font-size: 14px; font-weight: 700; }
 .mods-left .used { color: var(--muted); text-decoration: line-through; font-weight: 400; }
 .tag.off { color: var(--bad); border-color: var(--bad); background: transparent; }
@@ -298,12 +298,13 @@ button.die.target { outline: 2px dashed var(--d1); outline-offset: 2px; cursor: 
 
 const TYPES = ['noColor', 'exact', 'atLeast', 'atMost', 'sumGreater', 'countMore', 'exactColours', 'allColours', 'sumAtLeast', 'atMostTotal', 'atLeastTotal',
   'noEven', 'noOdd', 'exactEven', 'exactOdd', 'moreEven', 'moreOdd', 'repeatExact', 'repeatAtLeast', 'maxValue', 'minValue', 'noNumber', 'atLeastNumber', 'sumAllMax', 'sumAllMin', 'sumAllEven', 'straight', 'colourStraight', 'twoPairs', 'fullHouse',
-  'mostDice', 'fewestDice', 'mostPoints', 'fewestPoints', 'mostColourPoints', 'fewestColourPoints', 'mostColourDice', 'mostColours', 'mostNumber', 'fewestNumber'];
+  'mostDice', 'fewestDice', 'mostPoints', 'fewestPoints', 'mostColourPoints', 'fewestColourPoints', 'mostColourDice', 'mostColours', 'mostNumber', 'fewestNumber', 'fewestColourDice'];
 const BAG_PER_COLOUR = 15;                       // dice of each colour in the bag
 const rollCount = P => P * 2 - 1;                  // dice drawn from the bag each round
 const totalDrawn = P => P * rollCount(P);          // one round per player
 // Fewest colours whose bag lasts the whole game.
-const minColours = P => [3, 4, 5].find(C => C * BAG_PER_COLOUR >= totalDrawn(P)) || 5;
+const MAX_COLOURS = 4; // blue, red, green, yellow
+const minColours = P => [3, 4].find(C => C * BAG_PER_COLOUR >= totalDrawn(P)) || MAX_COLOURS;
 const LETTERS = 'ABCDE';
 const STORE_KEY = 'blindspots-v2';
 const MAX_PLAYERS = 4; // the game is for 3 or 4 players
@@ -330,8 +331,8 @@ const LANG_KEY = 'blindspots-lang';
 let LANG = (() => { const l = lsGet(LANG_KEY); return l === 'en' || l === 'es' ? l : 'es'; })();
 
 const COLOR_NAMES = {
-  es: [{ sing: 'azul', pl: 'azules' }, { sing: 'naranja', pl: 'naranjas' }, { sing: 'verde', pl: 'verdes' }, { sing: 'morado', pl: 'morados' }, { sing: 'amarillo', pl: 'amarillos' }, { sing: 'gris', pl: 'grises' }, { sing: 'negro', pl: 'negros' }],
-  en: [{ sing: 'blue', pl: 'blue' }, { sing: 'orange', pl: 'orange' }, { sing: 'green', pl: 'green' }, { sing: 'purple', pl: 'purple' }, { sing: 'yellow', pl: 'yellow' }, { sing: 'grey', pl: 'grey' }, { sing: 'black', pl: 'black' }],
+  es: [{ sing: 'azul', pl: 'azules' }, { sing: 'rojo', pl: 'rojos' }, { sing: 'verde', pl: 'verdes' }, { sing: 'amarillo', pl: 'amarillos' }, { sing: '—', pl: '—' }, { sing: 'gris', pl: 'grises' }, { sing: 'negro', pl: 'negros' }],
+  en: [{ sing: 'blue', pl: 'blue' }, { sing: 'red', pl: 'red' }, { sing: 'green', pl: 'green' }, { sing: 'yellow', pl: 'yellow' }, { sing: '—', pl: '—' }, { sing: 'grey', pl: 'grey' }, { sing: 'black', pl: 'black' }],
 };
 // The optional grey die: colour index 5. It counts as a die (amount, sum, numbers) but not as a colour in play.
 const GREY = 5;
@@ -608,7 +609,7 @@ const I18N = {
       diceTotal: n => `${n} dados en total`, sameNumber: n => `${n} dados con el mismo número`,
       withNumber: (n, v) => `${n} ${plural(n, 'dado', 'dados')} con un ${v}`,
       colourSum: (c, n) => `una suma de ${n} en tus dados ${c.pl}`, totalSum: n => `una suma total de ${n}`,
-      straight: n => `Una escalera de ${n}: ${n} números seguidos, como ${Array.from({ length: n }, (_, i) => i + 1).join('-')}.`,
+      straight: n => `Una escalera de ${n}: ${n} números seguidos cualesquiera, empezando por el que sea (por ejemplo ${Array.from({ length: n }, (_, i) => i + 7 - n).join('-')}).`,
       colourStraight: n => `Una escalera de ${n} del mismo color: ${n} números seguidos en dados de un solo color.`,
       twoPairs: 'Dos parejas: dos números distintos que salgan al menos 2 veces cada uno.',
       fullHouse: 'Un full: un número que salga al menos 3 veces y otro que salga al menos 2.',
@@ -623,6 +624,7 @@ const I18N = {
       mostColourPoints: c => `Que tus dados ${c.pl} sumen más puntos que los de cualquier otro jugador.`,
       fewestColourPoints: c => `Que tus dados ${c.pl} sumen menos puntos que los de cualquier otro jugador.`,
       mostColourDice: c => `Ten más dados ${c.pl} que cualquier otro jugador.`,
+      fewestColourDice: c => `Ten menos dados ${c.pl} que cualquier otro jugador.`,
       mostColours: 'Ten dados de más colores distintos que cualquier otro jugador.',
       mostNumber: v => `Ten más dados con un ${v} que cualquier otro jugador.`,
       fewestNumber: v => `Ten menos dados con un ${v} que cualquier otro jugador.`,
@@ -630,6 +632,7 @@ const I18N = {
       rankPoints: (a, b, most) => `Sumas ${a}; de los demás, el que ${most ? 'más' : 'menos'} suma ${b}.`,
       rankColourPoints: (c, a, b, most) => `Tus ${c.pl} suman ${a}; de los demás, el que ${most ? 'más' : 'menos'} suma ${b}.`,
       rankColourDice: (c, a, b) => `Tienes ${a} ${a === 1 ? c.sing : c.pl}; de los demás, el que más tiene ${b}.`,
+      rankColourDiceFew: (c, a, b) => `Tienes ${a} ${a === 1 ? c.sing : c.pl}; de los demás, el que menos tiene ${b}.`,
       rankColours: (a, b) => `Tienes ${a} ${plural(a, 'color', 'colores')}; de los demás, el que más tiene ${b}.`,
       rankNumber: (v, a, b) => `Tienes ${a} ${plural(a, 'dado', 'dados')} con un ${v}; de los demás, el que más tiene ${b}.`,
       rankNumberFew: (v, a, b) => `Tienes ${a} ${plural(a, 'dado', 'dados')} con un ${v}; de los demás, el que menos tiene ${b}.`,
@@ -641,7 +644,7 @@ const I18N = {
       <h3>Objetivo</h3>
       <p>El equipo gana si al final todos han cumplido su misión. Si falla una sola, el equipo pierde y puede volver a intentarlo.</p>
       <h3>Misiones</h3>
-      <p>Cada misión tiene uno o varios objetivos: condiciones sobre todos los dados que acumulas en la partida. Por ejemplo: «Ningún dado azul», «Exactamente 3 dados verdes», «Suma azul &gt; suma naranja» (solo cuentan los valores) o «Dados de exactamente 3 colores distintos» (solo cuenta cuántos colores tienes).</p>
+      <p>Cada misión tiene uno o varios objetivos: condiciones sobre todos los dados que acumulas en la partida. Por ejemplo: «Ningún dado azul», «Exactamente 3 dados verdes», «Suma azul &gt; suma roja» (solo cuentan los valores) o «Dados de exactamente 3 colores distintos» (solo cuenta cuántos colores tienes).</p>
       <h3>Una ronda</h3>
       <ul>
         <li>Quien reparte saca al azar de la bolsa (jugadores × 2) − 1 dados y los tira. La bolsa empieza con 15 dados de cada color en juego, y los dados repartidos ya no vuelven a ella.</li>
@@ -654,7 +657,7 @@ const I18N = {
       <p>Se puede hablar y sugerir («creo que ese grupo te va mejor», «ese dado puede ser peligroso para alguien»), pero no revelar la misión de nadie.</p>
       <h3>Ajustes de la partida</h3>
       <ul>
-        <li>Colores: con 3 se juega con azul, naranja y verde; con 4 entra el morado y con 5 el amarillo.</li>
+        <li>Colores: con 3 se juega con azul, rojo y verde; con 4 entra el amarillo.</li>
         <li>Objetivos por jugador: la misión de cada jugador tiene de 1 a 3 objetivos y hay que cumplirlos todos.</li>
         <li>Dificultad: cada objetivo tiene de 1 a 5 estrellas. Se eligen las dificultades que se quieran y los objetivos se reparten al azar entre los que las tienen.</li>
         <li>Estrellas del equipo para ganar: con «Todas» hay que cumplir todos los objetivos. Con un número, se suman las estrellas de los objetivos que cumple cada jugador y el equipo gana si llega a esa cifra entre todos.</li>
@@ -904,7 +907,7 @@ const I18N = {
       diceTotal: n => `${n} dice in total`, sameNumber: n => `${n} dice showing the same number`,
       withNumber: (n, v) => `${n} ${plural(n, 'die', 'dice')} showing a ${v}`,
       colourSum: (c, n) => `a total of ${n} on your ${c.pl} dice`, totalSum: n => `a total of ${n}`,
-      straight: n => `A straight of ${n}: ${n} numbers in a row, like ${Array.from({ length: n }, (_, i) => i + 1).join('-')}.`,
+      straight: n => `A straight of ${n}: any ${n} numbers in a row, starting from any number (for example ${Array.from({ length: n }, (_, i) => i + 7 - n).join('-')}).`,
       colourStraight: n => `A straight of ${n} in one colour: ${n} numbers in a row on dice of a single colour.`,
       twoPairs: 'Two pairs: two different numbers that each appear at least twice.',
       fullHouse: 'A full house: one number at least three times and another at least twice.',
@@ -919,6 +922,7 @@ const I18N = {
       mostColourPoints: c => `Have your ${c.pl} dice add up to more points than any other player’s.`,
       fewestColourPoints: c => `Have your ${c.pl} dice add up to fewer points than any other player’s.`,
       mostColourDice: c => `Have more ${c.pl} dice than any other player.`,
+      fewestColourDice: c => `Have fewer ${c.pl} dice than any other player.`,
       mostColours: 'Have dice of more different colours than any other player.',
       mostNumber: v => `Have more dice showing a ${v} than any other player.`,
       fewestNumber: v => `Have fewer dice showing a ${v} than any other player.`,
@@ -926,6 +930,7 @@ const I18N = {
       rankPoints: (a, b, most) => `Your total is ${a}; among the others, the ${most ? 'highest' : 'lowest'} is ${b}.`,
       rankColourPoints: (c, a, b, most) => `Your ${c.pl} dice add up to ${a}; among the others, the ${most ? 'highest' : 'lowest'} is ${b}.`,
       rankColourDice: (c, a, b) => `You have ${a} ${c.pl}; among the others, the most is ${b}.`,
+      rankColourDiceFew: (c, a, b) => `You have ${a} ${c.pl}; among the others, the fewest is ${b}.`,
       rankColours: (a, b) => `You have ${a} ${plural(a, 'colour', 'colours')}; among the others, the most is ${b}.`,
       rankNumber: (v, a, b) => `You have ${a} ${plural(a, 'die', 'dice')} showing a ${v}; among the others, the most is ${b}.`,
       rankNumberFew: (v, a, b) => `You have ${a} ${plural(a, 'die', 'dice')} showing a ${v}; among the others, the fewest is ${b}.`,
@@ -936,7 +941,7 @@ const I18N = {
       <h3>Goal</h3>
       <p>The team wins if, at the end, everyone has completed their mission. If even one fails, the team loses and can try again.</p>
       <h3>Missions</h3>
-      <p>Each mission has one or more objectives: conditions on all the dice you collect during the game. For example: “No blue dice”, “Exactly 3 green dice”, “Blue total &gt; orange total” (only the values count) or “Dice of exactly 3 different colours” (only the number of colours counts).</p>
+      <p>Each mission has one or more objectives: conditions on all the dice you collect during the game. For example: “No blue dice”, “Exactly 3 green dice”, “Blue total &gt; red total” (only the values count) or “Dice of exactly 3 different colours” (only the number of colours counts).</p>
       <h3>A round</h3>
       <ul>
         <li>The dealer draws (players × 2) − 1 dice at random from the bag and rolls them. The bag starts with 15 dice of each colour in play, and dealt dice never go back in.</li>
@@ -949,7 +954,7 @@ const I18N = {
       <p>You can talk and make suggestions (“I think that group suits you better”, “that die could be dangerous for someone”), but you can’t reveal anyone’s mission.</p>
       <h3>Game settings</h3>
       <ul>
-        <li>Colours: with 3 you play with blue, orange and green; 4 adds purple and 5 adds yellow.</li>
+        <li>Colours: with 3 you play with blue, red and green; 4 adds yellow.</li>
         <li>Objectives per player: each player’s mission has 1 to 3 objectives, and all of them must be completed.</li>
         <li>Difficulty: each objective has 1 to 5 stars. Pick any difficulties you like and objectives are dealt at random from those.</li>
         <li>Team stars to win: with “All”, every objective must be completed. With a number, the stars of the objectives each player completes are added up, and the team wins if it reaches that number between everyone.</li>
@@ -986,6 +991,8 @@ const cn = c => cw(c) + cname(c).sing;
 const cp = c => ({ sing: cw(c) + cname(c).sing, pl: cw(c) + cname(c).pl, capSing: cw(c) + cap(cname(c).sing) });
 
 // "At least" / "at most" objectives also give 1 extra star when the amount is hit exactly.
+// Objectives that can be worded «Al menos …» (decir_al_menos in objetivos.js).
+const AL_TYPES = ['atLeast', 'atLeastNumber', 'repeatAtLeast'];
 const BONUS_TYPES = ['atLeast', 'atMost', 'atLeastTotal', 'atMostTotal', 'repeatAtLeast', 'atLeastNumber', 'sumAtLeast', 'sumAllMin', 'sumAllMax'];
 function exactHit(m, st) {
   switch (m.t) {
@@ -1019,14 +1026,14 @@ function earnedStars(m, st, C) {
 // Objectives that compare a player with everyone else. `st.others` holds the other
 // players' stats; the player must be strictly first (a tie does not count).
 const MOST = { mostDice: 1, mostPoints: 1, mostColourPoints: 1, mostColourDice: 1, mostColours: 1, mostNumber: 1 };
-const FEWEST = { fewestDice: 1, fewestPoints: 1, fewestColourPoints: 1, fewestNumber: 1 };
+const FEWEST = { fewestDice: 1, fewestPoints: 1, fewestColourPoints: 1, fewestNumber: 1, fewestColourDice: 1 };
 const isRank = m => !!(MOST[m.t] || FEWEST[m.t]);
 function rankValue(m, s) {
   switch (m.t) {
     case 'mostDice': case 'fewestDice': return s.total;
     case 'mostPoints': case 'fewestPoints': return s.all;
     case 'mostColourPoints': case 'fewestColourPoints': return s.sum[m.c];
-    case 'mostColourDice': return s.cnt[m.c];
+    case 'mostColourDice': case 'fewestColourDice': return s.cnt[m.c];
     case 'mostColours': return s.distinct;
     case 'mostNumber': case 'fewestNumber': return s.val[m.v];
   }
@@ -1046,6 +1053,7 @@ function rankDetail(m, st) {
     case 'mostPoints': case 'fewestPoints': return tm('rankPoints', r.mine, r.best, most);
     case 'mostColourPoints': case 'fewestColourPoints': return tm('rankColourPoints', cname(m.c), r.mine, r.best, most);
     case 'mostColourDice': return tm('rankColourDice', cname(m.c), r.mine, r.best);
+    case 'fewestColourDice': return tm('rankColourDiceFew', cname(m.c), r.mine, r.best);
     case 'mostColours': return tm('rankColours', r.mine, r.best);
     case 'mostNumber': return tm('rankNumber', m.v, r.mine, r.best);
     case 'fewestNumber': return tm('rankNumberFew', m.v, r.mine, r.best);
@@ -1109,7 +1117,7 @@ function missionText(m) {
     case 'moreEven': return tm('moreEven');
     case 'moreOdd': return tm('moreOdd');
     case 'repeatExact': return tm('repeatExact', m.n);
-    case 'repeatAtLeast': return tm('repeatAtLeast', m.n);
+    case 'repeatAtLeast': return m.al ? tm('atLeastSay', tm('repeatAtLeast', m.n).replace(/\.$/, '')) : tm('repeatAtLeast', m.n);
     case 'maxValue': return tm('maxValue', m.n);
     case 'minValue': return tm('minValue', m.n);
     case 'noNumber': return tm('noNumber', m.v);
@@ -1128,6 +1136,7 @@ function missionText(m) {
     case 'mostColourPoints': return tm('mostColourPoints', cp(m.c));
     case 'fewestColourPoints': return tm('fewestColourPoints', cp(m.c));
     case 'mostColourDice': return tm('mostColourDice', cp(m.c));
+    case 'fewestColourDice': return tm('fewestColourDice', cp(m.c));
     case 'mostColours': return tm('mostColours');
     case 'mostNumber': return tm('mostNumber', m.v);
     case 'fewestNumber': return tm('fewestNumber', m.v);
@@ -1256,7 +1265,7 @@ const TIPO = {
   mas_dados_que_nadie: { t: 'mostDice' }, menos_dados_que_nadie: { t: 'fewestDice' },
   mas_puntos_que_nadie: { t: 'mostPoints' }, menos_puntos_que_nadie: { t: 'fewestPoints' },
   mas_puntos_color_que_nadie: { t: 'mostColourPoints', c: 1 }, menos_puntos_color_que_nadie: { t: 'fewestColourPoints', c: 1 },
-  mas_dados_color_que_nadie: { t: 'mostColourDice', c: 1 }, mas_colores_que_nadie: { t: 'mostColours' },
+  mas_dados_color_que_nadie: { t: 'mostColourDice', c: 1 }, menos_dados_color_que_nadie: { t: 'fewestColourDice', c: 1 }, mas_colores_que_nadie: { t: 'mostColours' },
   mas_numero_que_nadie: { t: 'mostNumber', v: 1 }, menos_numero_que_nadie: { t: 'fewestNumber', v: 1 },
 };
 
@@ -1273,7 +1282,8 @@ function loadCatalogue() {
     if (spec.c) { m.c = col(e.color); if (m.c < 0) { bad.push(i + 1); return; } }
     if (spec.c2) { m.c2 = col(e.color2); if (m.c2 < 0 || m.c2 === m.c) { bad.push(i + 1); return; } }
     if (spec.n) { m.n = Number(e.n); if (!Number.isInteger(m.n) || m.n < 0 || m.n > 99) { bad.push(i + 1); return; } }
-    if (e.decir_al_menos === true && (m.t === 'atLeast' || m.t === 'atLeastNumber')) m.al = 1;
+    if (e.decir_al_menos === true && AL_TYPES.includes(m.t)) m.al = 1;
+    if (e.min_colores === 4) m.minC = 4;
     if (spec.v) { m.v = Number(e.numero); if (!Number.isInteger(m.v) || m.v < 1 || m.v > 6) { bad.push(i + 1); return; } }
     list.push(m);
   });
@@ -1290,7 +1300,8 @@ const starList = mask => [1, 2, 3, 4, 5].filter(k => mask & (1 << (k - 1)));
 function pool(C, stars) {
   return CATALOGUE.list.filter(m => (stars & (1 << (m.s - 1)))
     && mcolours(m).every(c => c < C)
-    && !(m.t === 'exactColours' && m.n > C));
+    && !(m.t === 'exactColours' && m.n > C)
+    && !(m.minC && C < m.minC));
 }
 
 /* ---------- Campaign (campana.js) ---------- */
@@ -1302,7 +1313,7 @@ function loadCampaign() {
   // A value given per number of players: { 3: 10, 4: 13 }. Returns {} when it is a single number or missing.
   const byPlayers = v => {
     const out = {};
-    if (v && typeof v === 'object' && !Array.isArray(v)) for (const k of [3, 4, 5]) if (Number.isInteger(v[k]) && v[k] > 0) out[k] = v[k];
+    if (v && typeof v === 'object' && !Array.isArray(v)) for (const k of [3, 4]) if (Number.isInteger(v[k]) && v[k] > 0) out[k] = v[k];
     return out;
   };
   return raw.filter(l => l && typeof l === 'object').map(l => {
@@ -1311,7 +1322,7 @@ function loadCampaign() {
     const perPlayer = Number.isInteger(l.ganar_por_jugador) && l.ganar_por_jugador > 0;
     return {
       name: txt(l.nombre), text: txt(l.texto),
-      C: [3, 4, 5].includes(l.colores) ? l.colores : 3,
+      C: [3, 4].includes(l.colores) ? l.colores : 3,
       per: cards.length || ([1, 2, 3].includes(l.objetivos) ? l.objetivos : 1),
       cards: cards.length ? cards : null,
       stars: starsArr.length ? starsArr.reduce((m, k) => m | (1 << (k - 1)), 0) : ALL_STARS,
@@ -1384,6 +1395,7 @@ function bounds(ms, C, P) {
   if ((has('noEven') && (has('exactEven') || has('moreEven'))) || (has('noOdd') && (has('exactOdd') || has('moreOdd')))) return null;
   if (has('moreEven') && has('moreOdd')) return null;
   if ((has('mostDice') && has('fewestDice')) || (has('mostPoints') && has('fewestPoints'))) return null;
+  if (ms.some(a => a.t === 'mostColourDice' && ms.some(b => b.t === 'fewestColourDice' && b.c === a.c))) return null;
   if (ms.some(a => a.t === 'mostColourPoints' && ms.some(b => b.t === 'fewestColourPoints' && b.c === a.c))) return null;
   if (ms.some(a => a.t === 'mostNumber' && ms.some(b => b.t === 'fewestNumber' && b.v === a.v))) return null;
   const run = Math.max(0, ...ms.filter(m => m.t === 'straight' || m.t === 'colourStraight').map(m => m.n));
@@ -1463,7 +1475,7 @@ const cfgWire = c => [c.C, c.per, c.stars, c.need || 0, c.grey ? 1 : 0, c.mods ?
 function cfgFromWire(cf) {
   if (!Array.isArray(cf)) return null;
   const ok = (v, lo, hi) => Number.isInteger(v) && v >= lo && v <= hi;
-  if (!(ok(cf[0], 3, 5) && ok(cf[1], 1, 3) && ok(cf[2], 1, ALL_STARS))) return null;
+  if (!(ok(cf[0], 3, MAX_COLOURS) && ok(cf[1], 1, 3) && ok(cf[2], 1, ALL_STARS))) return null;
   const cards = Array.isArray(cf[7]) ? cf[7].filter(k => ok(k, 1, 5)).slice(0, 3) : [];
   return { C: cf[0], per: cf[1], stars: cf[2], need: ok(cf[3], 0, MAX_NEED) ? cf[3] : 0, grey: cf[4] === 1,
     mods: cf[5] === 1, bag: ok(cf[6], 1, 30) ? cf[6] : 0, cards: cards.length ? cards : null,
@@ -1972,7 +1984,7 @@ function encodeG() {
 function decodeG(w) {
   try {
     const int = (x, lo, hi) => { if (!Number.isInteger(x) || x < lo || x > hi) throw new Error(`${JSON.stringify(x)} ∉ ${lo}–${hi}`); return x; };
-    const C = int(w.C, 3, 5);
+    const C = int(w.C, 3, MAX_COLOURS);
     const cf = Array.isArray(w.cf) ? w.cf : [];
     const cfg = cfgFromWire([C, ...cf.slice(1)]);
     if (!cfg) throw new Error('check');
@@ -2003,7 +2015,7 @@ function decodeG(w) {
         if (m[4] > 0) o.s = int(m[4], 1, 5);
         if (m[5] > 0) o.v = int(m[5], 1, 6);
         if (Number.isInteger(m[6]) && m[6] > 0 && m[6] < 1000) o.id = m[6];
-        if (m[7] === 1 && (t === 'atLeast' || t === 'atLeastNumber')) o.al = 1;
+        if (m[7] === 1 && AL_TYPES.includes(t)) o.al = 1;
         if (/^(noNumber|atLeastNumber)$/.test(t) && o.v === undefined) throw new Error('check');
         if (/^(noColor|exact|atLeast|atMost|sumGreater|countMore|sumAtLeast)$/.test(t) && o.c === undefined) throw new Error('check');
         if (/^(sumGreater|countMore)$/.test(t) && o.c2 === undefined) throw new Error('check');
@@ -2055,7 +2067,7 @@ const PEERJS_URL = 'https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js';
 // Online relay through Supabase Realtime: works on networks that block direct browser-to-browser links.
 // The publishable key is meant to be public (it only allows what the project's settings allow).
 // Shown next to the connection line, to tell whether everyone has the same version loaded.
-const APP_VERSION = '2026.11.07c';
+const APP_VERSION = '2026.11.09';
 const SUPABASE_URL = 'https://vjphqqtoigpjncmsdudq.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_hUInzKity39UFsFwsFqmSw_HR3HMLE4';
 const SUPABASE_JS = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js';
@@ -2425,7 +2437,7 @@ function cleanLob(l) {
   if (!l || typeof l !== 'object') return d;
   const ok = (v, lo, hi) => Number.isInteger(v) && v >= lo && v <= hi;
   const out = {
-    n: ok(l.n, 3, MAX_PLAYERS) ? l.n : d.n, C: ok(l.C, 3, 5) ? l.C : d.C, per: ok(l.per, 1, 3) ? l.per : d.per,
+    n: ok(l.n, 3, MAX_PLAYERS) ? l.n : d.n, C: ok(l.C, 3, MAX_COLOURS) ? l.C : d.C, per: ok(l.per, 1, 3) ? l.per : d.per,
     stars: ok(l.stars, 1, ALL_STARS) ? l.stars : d.stars, need: ok(l.need, 0, MAX_NEED) ? l.need : 0, grey: l.grey === true, camp: l.camp === true, campLevel: ok(l.campLevel, 0, 99) ? l.campLevel : 0, h: l.h !== false,
   };
   return out;
@@ -3040,7 +3052,7 @@ function settingsHTML(pre, cfg, players) {
     : `<p class="note">${t('poolNote', avail, players * cfg.per, CATALOGUE.bad.length)}</p>`;
   const minC = minColours(players);
   const colours = `<div class="field"><span class="label">${t('colours')}</span>
-    <div class="seg" role="group" aria-label="${t('colours')}">${[3, 4, 5].map(v => `<button type="button" data-action="${pre}-colors" data-n="${v}" aria-pressed="${Math.max(cfg.C, minC) === v}" ${v < minC ? 'disabled' : ''}>${v}</button>`).join('')}</div>
+    <div class="seg" role="group" aria-label="${t('colours')}">${[3, 4].map(v => `<button type="button" data-action="${pre}-colors" data-n="${v}" aria-pressed="${Math.max(cfg.C, minC) === v}" ${v < minC ? 'disabled' : ''}>${v}</button>`).join('')}</div>
     ${minC > 3 ? `<p class="note">${t('coloursNote', players, minC)}</p>` : ''}</div>`;
   return colours
     + seg(t('perPlayer'), 'per', [1, 2, 3], cfg.per)
@@ -3362,6 +3374,7 @@ function start(data) {
     if (!Number.isInteger(S.stars) || S.stars < 1 || S.stars > ALL_STARS) S.stars = ALL_STARS;
     if (!Number.isInteger(S.need) || S.need < 0 || S.need > MAX_NEED) S.need = 0;
     if (!Number.isInteger(S.count) || S.count < 3 || S.count > MAX_PLAYERS) S.count = MAX_PLAYERS;
+    if (!Number.isInteger(S.colors) || S.colors < 3 || S.colors > MAX_COLOURS) S.colors = 3;
     S.grey = S.grey === true;
     S.camp = S.camp === true;
     if (!Number.isInteger(S.campLevel) || S.campLevel < 0) S.campLevel = 0;

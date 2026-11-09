@@ -1,10 +1,11 @@
 # Cartas de objetivos
 
-`cartas.pdf` tiene una carta por cada objetivo de `objetivos.js`, en tamaño póquer (63,5 × 88,9 mm), 9 por hoja A4, una hoja de reversos las 7 cartas grises del dado gris (G1–G7) con sus reversos grises las 9 cartas negras del dado negro (N1–N9) con sus reversos negros y, al final, las 4 cartas de acción (A1–A4) con sus reversos. Las cartas no llevan texto: solo dados de colores, caras de dado, números y símbolos, así que sirven en cualquier idioma.
+`cartas.pdf` tiene una carta por cada objetivo de `objetivos.js`, con su texto en inglés tal como aparece en la app, en tamaño póquer (63,5 × 88,9 mm), 9 por hoja A4, una hoja de reversos las 7 cartas grises del dado gris (G1–G7) con sus reversos grises las 9 cartas negras del dado negro (N1–N9) con sus reversos negros y, al final, las 4 cartas de acción (A1–A4) con sus reversos. Las cartas no llevan texto: solo dados de colores, caras de dado, números y símbolos, así que sirven en cualquier idioma.
 
 Para regenerarlo después de cambiar `objetivos.js`:
 
 ```bash
+node cartas/textos_app.js           # copia los textos de la app (inglés) y rehace listado.md
 python3 cartas/generar_cartas.py   # crea cartas/cartas.html
 node cartas/imprimir_pdf.js        # crea cartas/cartas.pdf (necesita Playwright)
 ```

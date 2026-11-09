@@ -20,7 +20,7 @@ LEVELS = json.loads(subprocess.run(
     ['node', '-e', 'global.window={};require(process.argv[1]);process.stdout.write(JSON.stringify(window.BLINDSPOTS_CAMPANA))',
      str(ROOT / 'campana.js')], capture_output=True, text=True, check=True).stdout)
 OBJS = gc.load_objectives()
-COLS = ['azul', 'naranja', 'verde', 'morado', 'amarillo']
+COLS = ['azul', 'rojo', 'verde', 'amarillo']
 
 
 def piles(C):
@@ -28,7 +28,7 @@ def piles(C):
     out = {}
     for i, o in enumerate(OBJS):
         cs = [COLS.index(o[k]) for k in ('color', 'color2') if o.get(k)]
-        if any(c >= C for c in cs) or (o['tipo'] == 'colores_exactos' and o['n'] > C):
+        if any(c >= C for c in cs) or (o['tipo'] == 'colores_exactos' and o['n'] > C) or o.get('min_colores', 0) > C:
             continue
         out.setdefault(o['estrellas'], []).append(i + 1)
     return out
@@ -53,7 +53,7 @@ T = {
                 'Antes de cada mundo hay una hoja con sus novedades. Leedla en voz alta antes de empezar el primer nivel del mundo.',
                 'Las reglas básicas están en el reglamento. Este libro solo dice qué cambia en cada nivel.'],
         'piles_t': 'Montones de cartas de misión',
-        'piles_p': 'Separad las cartas de misión en montones por estrellas. Con 3 colores no se usan las cartas que muestran morado o amarillo (ni la de «5 colores distintos»); con 4 colores, las que muestran amarillo. Estos son los números de carta de cada montón:',
+        'piles_p': 'Separad las cartas de misión en montones por estrellas. Con 3 colores no se usan las cartas que muestran amarillo ni las que llevan la marca «4» abajo a la izquierda (solo para 4 colores); con 4 colores se usan todas. Estos son los números de carta de cada montón:',
         'piles_c': lambda C: f'Con {C} colores',
         'stars_n': lambda s, n: f'{s}★ · {n} cartas',
         'world': 'MUNDO', 'level': 'NIVEL', 'of': 'de',
@@ -99,7 +99,7 @@ T = {
             18: 'Cuidado con el último grupo: si quien reparte ya tiene un dado negro, no puede quedarse otro.',
             19: 'Al final, cada uno aplica su carta negra a sus propios dados y elige cuál quita.',
             20: 'Tres cartas por jugador: repartid los dados negros con cabeza.',
-            21: 'Entra el morado: las cartas pueden pedir dados morados.',
+            21: 'Entra el amarillo: las cartas pueden pedir dados amarillos.',
             22: 'Con 4 colores hay más variedad en la bolsa y es más difícil juntar un color.',
             23: 'Una carta de 4★ por jugador: ayudad primero a quien tenga la más difícil.',
             24: 'Tres cartas por jugador: hablad mucho y planificad las rondas.',
@@ -108,7 +108,7 @@ T = {
         'names': lambda i, l: l.get('nombre') or (f'Primeros pasos {i + 1}' if i < 5 else f'Acciones {i - 4}'),
         'worlds': [
             ('Primeros pasos', 'El juego básico',
-             ['En este mundo aprendéis el juego básico. No hay reglas especiales: solo dados de 3 colores (azul, naranja y verde) y cartas de misión.',
+             ['En este mundo aprendéis el juego básico. No hay reglas especiales: solo dados de 3 colores (azul, rojo y verde) y cartas de misión.',
               'Cada ronda, quien reparte saca dados de la bolsa, los tira y forma tantos grupos como jugadores. Empezando por su izquierda, cada jugador elige un grupo; quien reparte se queda el último.',
               'Al final se descubren las cartas. Sumad las estrellas de las cartas cumplidas (más las extra): si llegáis a las estrellas del nivel, lo superáis.'],
              []),
@@ -128,16 +128,16 @@ T = {
               'Cada jugador solo puede acabar con UN dado negro: si ya tienes uno, no puedes coger un grupo que lleve otro. Cuidado con quien reparte: si le queda un grupo con un dado negro y ya tiene uno, el equipo pierde el nivel en el acto.',
               'Al final de la partida explotan las bombas: quien tiene un dado negro aplica su carta a sus propios dados y elige cuál quita. Si ningún dado cumple la carta, no pasa nada. Las cartas negras no se repiten hasta que han salido todas.'],
              ['black']),
-            ('Cuatro colores', 'Novedad: dados morados',
-             ['Entra el cuarto color: el morado. Meted también dados morados en la bolsa.',
-              'Ahora también salen cartas de misión con dados morados. Con más colores es más difícil reunir muchos dados de un mismo color.',
+            ('Cuatro colores', 'Novedad: dados amarillos',
+             ['Entra el cuarto color: el amarillo. Meted también dados amarillos en la bolsa.',
+              'Ahora también salen cartas de misión con dados amarillos y las marcadas con «4», que solo se usan con 4 colores. Con más colores es más difícil reunir muchos dados de un mismo color.',
               'No hay acciones, ni dado gris, ni dados negros: solo el juego básico con 4 colores y misiones más exigentes.'],
-             ['purple']),
+             ['yellow']),
         ],
-        'colour_names': ['azul', 'naranja', 'verde', 'morado', 'amarillo'],
+        'colour_names': ['azul', 'rojo', 'verde', 'amarillo'],
         'new_components': 'Componentes de este mundo',
         'comp': {'action': '4 cartas de acción (A1–A4)', 'grey': '1 dado gris y 7 cartas grises (G1–G7)',
-                 'black': '4 dados negros y 9 cartas negras (N1–N9)', 'purple': 'Dados morados'},
+                 'black': '4 dados negros y 9 cartas negras (N1–N9)', 'yellow': 'Dados amarillos'},
         'action_names': ['Relanzar', '+1 / −1', 'Invertir', 'Eliminar'],
     },
     'en': {
@@ -149,7 +149,7 @@ T = {
                 'Before each world there is a page with what is new in it. Read it aloud before playing the first level of that world.',
                 'The basic rules are in the rulebook. This book only tells you what changes in each level.'],
         'piles_t': 'Mission card piles',
-        'piles_p': 'Sort the mission cards into piles by stars. With 3 colours, leave out the cards that show purple or yellow (and “5 different colours”); with 4 colours, the cards that show yellow. These are the card numbers in each pile:',
+        'piles_p': 'Sort the mission cards into piles by stars. With 3 colours, leave out the cards that show yellow and those marked “4” in the bottom left corner (4 colours only); with 4 colours, use them all. These are the card numbers in each pile:',
         'piles_c': lambda C: f'With {C} colours',
         'stars_n': lambda s, n: f'{s}★ · {n} cards',
         'world': 'WORLD', 'level': 'LEVEL', 'of': 'of',
@@ -195,7 +195,7 @@ T = {
             18: 'Watch the last group: if the dealer already has a black die, they can’t keep another.',
             19: 'At the end, everyone applies their black card to their own dice and chooses which to remove.',
             20: 'Three cards per player: share out the black dice wisely.',
-            21: 'Purple joins the game: cards may ask for purple dice.',
+            21: 'Yellow joins the game: cards may ask for yellow dice.',
             22: 'With 4 colours the bag is more varied and gathering one colour is harder.',
             23: 'One 4★ card per player: help whoever has the hardest one first.',
             24: 'Three cards per player: talk a lot and plan the rounds.',
@@ -205,7 +205,7 @@ T = {
                                else f'Bomb {i - 14}' if i < 20 else f'Four Colours {i - 19}'),
         'worlds': [
             ('First Steps', 'The basic game',
-             ['In this world you learn the basic game. There are no special rules: just dice in 3 colours (blue, orange and green) and mission cards.',
+             ['In this world you learn the basic game. There are no special rules: just dice in 3 colours (blue, red and green) and mission cards.',
               'Each round, the dealer draws dice from the bag, rolls them and forms one group per player. Starting on their left, each player picks a group; the dealer keeps the last one.',
               'At the end, reveal the cards. Add up the stars of the completed cards (plus bonus stars): if you reach the level’s stars, you beat it.'],
              []),
@@ -225,16 +225,16 @@ T = {
               'Each player may end up with only ONE black die: if you already have one, you can’t take a group that has another. Watch the dealer: if they are left a group with a black die and already have one, the team loses the level at once.',
               'At the end of the game the bombs go off: whoever has a black die applies its card to their own dice and chooses which to remove. If no die fits the card, nothing happens. Black cards don’t repeat until all have come out.'],
              ['black']),
-            ('Four Colours', 'New: purple dice',
-             ['The fourth colour joins in: purple. Put purple dice into the bag as well.',
-              'Mission cards with purple dice now come up too. With more colours, gathering many dice of one colour is harder.',
+            ('Four Colours', 'New: yellow dice',
+             ['The fourth colour joins in: yellow. Put yellow dice into the bag as well.',
+              'Mission cards with yellow dice now come up too, as well as the cards marked “4”, used only with 4 colours. With more colours, gathering many dice of one colour is harder.',
               'No actions, grey die or black dice: just the basic game with 4 colours and tougher missions.'],
-             ['purple']),
+             ['yellow']),
         ],
-        'colour_names': ['blue', 'orange', 'green', 'purple', 'yellow'],
+        'colour_names': ['blue', 'red', 'green', 'yellow'],
         'new_components': 'Components for this world',
         'comp': {'action': '4 action cards (A1–A4)', 'grey': '1 grey die and 7 grey cards (G1–G7)',
-                 'black': '4 black dice and 9 black cards (N1–N9)', 'purple': 'Purple dice'},
+                 'black': '4 black dice and 9 black cards (N1–N9)', 'yellow': 'Yellow dice'},
         'action_names': ['Reroll', '+1 / −1', 'Flip', 'Remove'],
     },
 }
@@ -302,11 +302,11 @@ ol.steps > li::before { content: counter(s); position: absolute; left: 0; top: 0
 .sw { display: inline-flex; align-items: center; gap: 4px; margin-right: 8px; white-space: nowrap; }
 """
 
-WORLD_COLOURS = ['#2f6fdb', '#1d7a6a', '#6f7785', '#15171b', '#8a4fd1']
+WORLD_COLOURS = ['#2f6fdb', '#1d7a6a', '#6f7785', '#15171b', '#b8860b']
 COVER_DICE = ''.join(
     f'<span class="cd" style="left:{x}%;top:{y}%;transform:rotate({r}deg)">{die(c, f, s)}</span>'
-    for x, y, r, c, f, s in [(8, 12, -14, 'azul', 5, 100), (30, 6, 9, 'naranja', 3, 84), (72, 9, -8, 'verde', 6, 96),
-                             (86, 26, 16, 'morado', 2, 80), (12, 68, 12, 'amarillo', 4, 84), (78, 70, -18, 'azul', 1, 96),
+    for x, y, r, c, f, s in [(8, 12, -14, 'azul', 5, 100), (30, 6, 9, 'rojo', 3, 84), (72, 9, -8, 'verde', 6, 96),
+                             (86, 26, 16, 'verde', 2, 80), (12, 68, 12, 'amarillo', 4, 84), (78, 70, -18, 'azul', 1, 96),
                              (56, 82, 7, '#1c1e23', 6, 74), (30, 84, -6, '#8b93a1', 2, 66)])
 
 
@@ -336,8 +336,8 @@ def build(lang):
                 cards = f'<figure>{gc.grey_card_svg(0)}G1</figure><figure>{gc.grey_card_svg(4)}G5</figure><figure>{gc.grey_back_svg()}</figure>'
             elif 'black' in comps:
                 cards = f'<figure>{gc.black_card_svg(1)}N2</figure><figure>{gc.black_card_svg(7)}N8</figure><figure>{gc.black_back_svg()}</figure>'
-            elif 'purple' in comps:
-                cards = ''.join(f'<figure>{gc.card_svg(o, i + 1)}{i + 1}</figure>' for i, o in enumerate(OBJS) if 'morado' in (o.get('color'), o.get('color2')))
+            elif 'yellow' in comps:
+                cards = ''.join(f'<figure>{gc.card_svg(o, i + 1)}{i + 1}</figure>' for i, o in enumerate(OBJS) if o.get('min_colores') == 4 or (o.get('color') == 'amarillo' and o['tipo'] in ('al_menos', 'exactamente')) and o.get('n') == 2)
             else:
                 cards = f'<figure>{gc.card_svg(OBJS[0], 1)}1</figure><figure>{gc.card_svg(OBJS[1], 2)}2</figure><figure>{gc.back_svg()}</figure>'
             comp = ''.join(f'<div>• {L["comp"][c]}</div>' for c in comps)

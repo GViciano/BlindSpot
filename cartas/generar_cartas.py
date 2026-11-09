@@ -11,7 +11,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 OUT = Path(__file__).resolve().parent / 'cartas.html'
 
-COLORS = {'azul': '#2f6fdb', 'naranja': '#ee8420', 'verde': '#2a9a58', 'morado': '#8a4fd1', 'amarillo': '#f1c232'}
+COLORS = {'azul': '#2f6fdb', 'rojo': '#d7263d', 'verde': '#2a9a58', 'amarillo': '#f1c232'}
 ORDER = list(COLORS)
 INK = '#18202c'
 MUTED = '#8a94a6'
@@ -71,6 +71,11 @@ class Row:
                            dict(values=values, size=size, colour=colour, pip=pip, overlap=overlap, fill_any=fill_any)))
         return self
 
+    def qfaces(self, labels, size=10):
+        """White dice with a label instead of pips (a straight starting anywhere: ?, +1, +2…)."""
+        self.items.append(('qfaces', len(labels) * size + (len(labels) - 1) * 0.8, dict(labels=labels, size=size)))
+        return self
+
     def width(self):
         return sum(w for _, w, _ in self.items) + self.gap * (len(self.items) - 1)
 
@@ -97,6 +102,13 @@ class Row:
                              f'text-anchor="middle" font-weight="700" fill="{o["colour"]}" font-family="{FONT}">{o["s"]}</text>')
             elif kind == 'wheel':
                 parts.append(wheel_svg(x + w / 2, cy, w / 2, o['centre']))
+            elif kind == 'qfaces':
+                sz, xx = o['size'], x
+                for lab in o['labels']:
+                    parts.append(die_svg(xx, cy - sz / 2, sz, '#ffffff', None, None, stroke=INK))
+                    fs = sz * (0.5 if len(lab) == 1 else 0.38)
+                    parts.append(f'<text x="{xx + sz / 2:.2f}" y="{cy + fs * 0.36:.2f}" font-size="{fs:.2f}" text-anchor="middle" font-weight="700" fill="{INK}" font-family="{FONT}">{lab}</text>')
+                    xx += sz + 0.8
             elif kind == 'faces':
                 s, xx = o['size'], x
                 for v in o['values']:
@@ -132,7 +144,7 @@ def any_die_svg(x, y, size, face=None):
     _any_id[0] += 1
     cid = f'anyclip{_any_id[0]}'
     h = size / 2
-    quads = [(0, 0, 'azul'), (h, 0, 'naranja'), (0, h, 'verde'), (h, h, 'morado')]
+    quads = [(0, 0, 'azul'), (h, 0, 'rojo'), (0, h, 'verde'), (h, h, 'amarillo')]
     out = (f'<clipPath id="{cid}"><rect x="{x:.2f}" y="{y:.2f}" width="{size:.2f}" height="{size:.2f}" rx="{size * 0.2:.2f}"/></clipPath>'
            f'<g clip-path="url(#{cid})">' +
            ''.join(f'<rect x="{x + dx:.2f}" y="{y + dy:.2f}" width="{h:.2f}" height="{h:.2f}" fill="{COLORS[c]}" opacity="0.55"/>' for dx, dy, c in quads) +
@@ -159,8 +171,8 @@ def wheel_svg(cx, cy, r, centre):
 
 def ban(cx, cy, r):
     """Red 'not allowed' sign drawn over a glyph."""
-    return (f'<circle cx="{cx:.2f}" cy="{cy:.2f}" r="{r:.2f}" fill="none" stroke="{RED}" stroke-width="1.6"/>'
-            f'<line x1="{cx - r * 0.7:.2f}" y1="{cy + r * 0.7:.2f}" x2="{cx + r * 0.7:.2f}" y2="{cy - r * 0.7:.2f}" stroke="{RED}" stroke-width="1.6"/>')
+    return (f'<circle cx="{cx:.2f}" cy="{cy:.2f}" r="{r:.2f}" fill="none" stroke="{INK}" stroke-width="1.6"/>'
+            f'<line x1="{cx - r * 0.7:.2f}" y1="{cy + r * 0.7:.2f}" x2="{cx + r * 0.7:.2f}" y2="{cy - r * 0.7:.2f}" stroke="{INK}" stroke-width="1.6"/>')
 
 
 EVEN, ODD = [2, 4, 6], [1, 3, 5]
@@ -211,7 +223,7 @@ def card_content(o):
     if t == 'repetidos_exactos':
         return (Row().text(f'={n}', 16).text('×', 10).svg(cy - 9) + Row().faces([5] * n, 10, overlap=0).svg(cy + 9)), None
     if t == 'repetidos_al_menos':
-        return (Row().text(str(n), 16).text('×', 10).svg(cy - 9) + Row().faces([5] * n, 10, overlap=0).svg(cy + 9)), n
+        return (Row().text(f'≥{n}' if o.get('decir_al_menos') else str(n), 16).text('×', 10).svg(cy - 9) + Row().faces([5] * n, 10, overlap=0).svg(cy + 9)), n
     if t == 'valor_maximo':
         return Row().any_die(15).text('≤', 16).faces([n], 15).svg(cy), None
     if t == 'valor_minimo':
@@ -227,8 +239,8 @@ def card_content(o):
     if t == 'suma_total_par':
         return (Row().text('Σ', 14).any_die(14).text('=', 14).svg(cy - 9) + Row().faces(EVEN, 9).text('…', 10).svg(cy + 9)), None
     if t == 'escalera':
-        size = 8.6 if n >= 6 else 9.5
-        return Row().faces(list(range(1, n + 1)), size).svg(cy), None
+        size = 8.4 if n >= 6 else 9.5 if n == 5 else 11
+        return Row().qfaces(['?'] + [f'+{k}' for k in range(1, n)], size).svg(cy), None
     if t == 'escalera_color':
         size = 9.5
         return (Row().wheel(12, '1').svg(cy - 10)
@@ -245,6 +257,7 @@ def card_content(o):
             'mas_puntos_color_que_nadie': ('▲', lambda r: r.text('Σ', 14).die(c, 16)),
             'menos_puntos_color_que_nadie': ('▼', lambda r: r.text('Σ', 14).die(c, 16)),
             'mas_dados_color_que_nadie': ('▲', lambda r: r.text('#', 14).die(c, 16)),
+            'menos_dados_color_que_nadie': ('▼', lambda r: r.text('#', 14).die(c, 16)),
             'mas_colores_que_nadie': ('▲', lambda r: r.wheel(20)),
             'mas_numero_que_nadie': ('▲', lambda r: r.text('#', 14).faces([v], 16)),
             'menos_numero_que_nadie': ('▼', lambda r: r.text('#', 14).faces([v], 16))}
@@ -263,9 +276,55 @@ def stars_svg(s, y):
         f'fill="{GOLD if i < s else "#d9dde4"}">★</text>' for i in range(5))
 
 
+TEXTS_FILE = Path(__file__).resolve().parent / 'textos_en.json'
+TEXTS = json.loads(TEXTS_FILE.read_text()) if TEXTS_FILE.exists() else None
+
+
+def wrap(text, size, width):
+    """Breaks text into lines that fit `width` mm at font `size` (DejaVu Sans, about 0.55 em a character)."""
+    per = max(8, int(width / (size * 0.55)))
+    lines, cur = [], ''
+    for w in text.split():
+        if cur and len(cur) + 1 + len(w) > per:
+            lines.append(cur)
+            cur = w
+        else:
+            cur = f'{cur} {w}'.strip()
+    return lines + ([cur] if cur else [])
+
+
+def text_block(text, y0, y1, colour=INK, size=3.4):
+    """Centred lines of text between y0 and y1 (smaller if it does not fit)."""
+    lines = wrap(text, size, CARD_W - 12)
+    while len(lines) * size * 1.25 > y1 - y0 and size > 2.3:
+        size -= 0.2
+        lines = wrap(text, size, CARD_W - 12)
+    lh = size * 1.25
+    top = y0 + (y1 - y0 - len(lines) * lh) / 2 + size
+    return ''.join(f'<text x="{CARD_W / 2}" y="{top + i * lh:.2f}" font-size="{size:.2f}" text-anchor="middle" fill="{colour}" font-family="{FONT}">{esc(l)}</text>'
+                   for i, l in enumerate(lines))
+
+
+def esc(t):
+    return t.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+
+
+def four_colours_mark():
+    """Top-left corner: this card is only used in 4-colour games."""
+    y = CARD_H - 11.4
+    out = ''.join(f'<rect x="{6 + (i % 2) * 2.6:.2f}" y="{y + (i // 2) * 2.6:.2f}" width="2.2" height="2.2" rx="0.5" fill="{COLORS[c]}"/>' for i, c in enumerate(ORDER))
+    return out + f'<text x="12" y="{y + 4.4:.2f}" font-size="3.2" font-weight="700" fill="{INK}" font-family="{FONT}">4</text>'
+
+
 def card_svg(o, idx):
     mid, bonus = card_content(o)
     s = o['estrellas']
+    en = TEXTS['objectives'][idx - 1]['text'] if TEXTS and idx - 1 < len(TEXTS['objectives']) else ''
+    if en:  # leave room under the picture for the English text
+        mid = f'<g transform="translate(0,-7)">{mid}</g>'
+        mid += text_block(en, CARD_H / 2 + 13, CARD_H - (23 if bonus is not None else 11))
+    if o.get('min_colores') == 4:
+        mid += four_colours_mark()
     parts = [
         f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {CARD_W} {CARD_H}" width="{CARD_W}mm" height="{CARD_H}mm">',
         f'<rect x="0.6" y="0.6" width="{CARD_W - 1.2}" height="{CARD_H - 1.2}" rx="3.2" fill="#fdfcf7" stroke="#c9cfd8" stroke-width="0.3"/>',
@@ -283,7 +342,8 @@ def card_svg(o, idx):
 
 
 def back_svg():
-    dots = ''.join(f'<rect x="{12 + i * 8.4:.2f}" y="{CARD_H / 2 + 8:.2f}" width="6" height="6" rx="1.3" fill="{COLORS[c]}"/>'
+    x0 = (CARD_W - (len(ORDER) * 6 + (len(ORDER) - 1) * 2.4)) / 2
+    dots = ''.join(f'<rect x="{x0 + i * 8.4:.2f}" y="{CARD_H / 2 + 8:.2f}" width="6" height="6" rx="1.3" fill="{COLORS[c]}"/>'
                    for i, c in enumerate(ORDER))
     return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {CARD_W} {CARD_H}" width="{CARD_W}mm" height="{CARD_H}mm">'
             f'<rect x="0.6" y="0.6" width="{CARD_W - 1.2}" height="{CARD_H - 1.2}" rx="3.2" fill="#263247" stroke="#c9cfd8" stroke-width="0.3"/>'
@@ -307,7 +367,7 @@ def check(cx, cy, r):
 
 def grey_rule_content(rule):
     """Middle of a grey card: what the player holding the grey die must do."""
-    cy = CARD_H / 2 + 8
+    cy = CARD_H / 2 + 3
     if rule == 0:
         return Row().wheel(26, '✓').svg(cy)
     if rule == 1:
@@ -338,6 +398,7 @@ def grey_card_svg(rule):
         die_svg(CARD_W / 2 - 9, 9, 18, GREY_DIE),
         f'<text x="{CARD_W / 2}" y="34" font-size="9" text-anchor="middle" font-weight="700" fill="{INK}" font-family="{FONT}">▼</text>',
         grey_rule_content(rule),
+        text_block(TEXTS['grey'][rule], CARD_H - 24, CARD_H - 8) if TEXTS else '',
         f'<text x="{CARD_W - 6}" y="{CARD_H - 5.2}" font-size="2.6" text-anchor="end" fill="#9aa2ae" font-family="{FONT}">G{rule + 1}</text>',
         '</svg>'])
 
@@ -365,7 +426,7 @@ def cross(cx, cy, r):
 
 def black_rule_content(k):
     """Middle of a black card: which of the holder's dice is removed at the end."""
-    cy = CARD_H / 2 + 8
+    cy = CARD_H / 2 + 3
     if k in (0, 1):  # lowest / highest of your dice
         faces = [2, 4, 6]
         r = Row(2.5)
@@ -394,6 +455,7 @@ def black_card_svg(k):
         die_svg(CARD_W / 2 - 9, 9, 18, BLACK_DIE, stroke='#7d8594'),
         f'<text x="{CARD_W / 2}" y="34" font-size="9" text-anchor="middle" font-weight="700" fill="{INK}" font-family="{FONT}">▼</text>',
         black_rule_content(k),
+        text_block(TEXTS['black'][k], CARD_H - 24, CARD_H - 8) if TEXTS else '',
         f'<text x="{CARD_W - 6}" y="{CARD_H - 5.2}" font-size="2.6" text-anchor="end" fill="#8a909a" font-family="{FONT}">N{k + 1}</text>',
         '</svg>'])
 
@@ -420,7 +482,7 @@ def bolt(cx, cy, h, fill):
 
 def action_content(kind):
     """Middle of an action card: what the action does to any visible die."""
-    cy = CARD_H / 2 + 8
+    cy = CARD_H / 2 + 3
     if kind == 0:  # reroll: the die with a circular arrow around it
         r = 15
         out = any_die_svg(CARD_W / 2 - 8, cy - 8, 16, 5)
@@ -450,6 +512,7 @@ def action_card_svg(kind):
         # one use per player and level: a single bolt
         f'<circle cx="{CARD_W / 2}" cy="18" r="9" fill="{ACTION_INK}"/>', bolt(CARD_W / 2, 18, 12, '#ffffff'),
         action_content(kind),
+        text_block(TEXTS['actions'][kind], CARD_H - 24, CARD_H - 8) if TEXTS else '',
         f'<text x="{CARD_W - 6}" y="{CARD_H - 5.2}" font-size="2.6" text-anchor="end" fill="#6f9c92" font-family="{FONT}">A{kind + 1}</text>',
         '</svg>'])
 

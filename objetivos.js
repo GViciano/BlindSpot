@@ -2,14 +2,16 @@
 //
 // El juego elige al azar entre los objetivos de esta lista que encajen con la
 // partida: el rango de estrellas elegido y los colores en juego (un objetivo con
-// morado o amarillo no sale en una partida de 3 colores).
+// amarillo no sale en una partida de 3 colores).
+//
+// min_colores: 4 = el objetivo solo sale en partidas de 4 colores.
 //
 // Cada objetivo es una línea con:
 //   estrellas: dificultad, de 1 a 5.
 //   tipo:      qué hay que conseguir (lista abajo).
 //   color, color2, n, numero: los datos que pida ese tipo.
 //
-// Colores: 'azul', 'naranja', 'verde', 'morado', 'amarillo'.
+// Colores: 'azul', 'rojo', 'verde', 'amarillo'.
 //
 // Tipos:
 //   ninguno            Ningún dado de `color`.
@@ -55,6 +57,7 @@
 //   mas_puntos_color_que_nadie     Que tus dados de `color` sumen más que los de cualquier otro.
 //   menos_puntos_color_que_nadie   Que tus dados de `color` sumen menos que los de cualquier otro.
 //   mas_dados_color_que_nadie      Más dados de `color` que cualquier otro jugador.
+//   menos_dados_color_que_nadie    Menos dados de `color` que cualquier otro jugador.
 //   mas_colores_que_nadie          Dados de más colores distintos que cualquier otro.
 //   mas_numero_que_nadie           Más dados con el número `numero` que cualquier otro.
 //   menos_numero_que_nadie         Menos dados con el número `numero` que cualquier otro.
@@ -72,14 +75,14 @@ window.BLINDSPOTS_OBJETIVOS = [
   { estrellas: 4, tipo: 'exactamente', color: 'azul', n: 3 },
   { estrellas: 3, tipo: 'suma_al_menos', color: 'azul', n: 12 },
   { estrellas: 4, tipo: 'suma_al_menos', color: 'azul', n: 15 },
-  { estrellas: 2, tipo: 'ninguno', color: 'naranja' },
-  { estrellas: 1, tipo: 'al_menos', color: 'naranja', n: 2, decir_al_menos: true },
-  { estrellas: 2, tipo: 'al_menos', color: 'naranja', n: 3, decir_al_menos: true },
-  { estrellas: 2, tipo: 'como_maximo', color: 'naranja', n: 1 },
-  { estrellas: 3, tipo: 'exactamente', color: 'naranja', n: 2 },
-  { estrellas: 4, tipo: 'exactamente', color: 'naranja', n: 3 },
-  { estrellas: 3, tipo: 'suma_al_menos', color: 'naranja', n: 12 },
-  { estrellas: 4, tipo: 'suma_al_menos', color: 'naranja', n: 15 },
+  { estrellas: 2, tipo: 'ninguno', color: 'rojo' },
+  { estrellas: 1, tipo: 'al_menos', color: 'rojo', n: 2, decir_al_menos: true },
+  { estrellas: 2, tipo: 'al_menos', color: 'rojo', n: 3, decir_al_menos: true },
+  { estrellas: 2, tipo: 'como_maximo', color: 'rojo', n: 1 },
+  { estrellas: 3, tipo: 'exactamente', color: 'rojo', n: 2 },
+  { estrellas: 4, tipo: 'exactamente', color: 'rojo', n: 3 },
+  { estrellas: 3, tipo: 'suma_al_menos', color: 'rojo', n: 12 },
+  { estrellas: 4, tipo: 'suma_al_menos', color: 'rojo', n: 15 },
   { estrellas: 2, tipo: 'ninguno', color: 'verde' },
   { estrellas: 1, tipo: 'al_menos', color: 'verde', n: 2, decir_al_menos: true },
   { estrellas: 2, tipo: 'al_menos', color: 'verde', n: 3, decir_al_menos: true },
@@ -96,16 +99,16 @@ window.BLINDSPOTS_OBJETIVOS = [
   { estrellas: 4, tipo: 'exactamente', color: 'amarillo', n: 3 },
   { estrellas: 3, tipo: 'suma_al_menos', color: 'amarillo', n: 12 },
   { estrellas: 4, tipo: 'suma_al_menos', color: 'amarillo', n: 15 },
-  { estrellas: 2, tipo: 'suma_mayor', color: 'azul', color2: 'naranja' },
-  { estrellas: 2, tipo: 'mas_dados', color: 'naranja', color2: 'azul' },
-  { estrellas: 2, tipo: 'suma_mayor', color: 'naranja', color2: 'verde' },
-  { estrellas: 2, tipo: 'mas_dados', color: 'verde', color2: 'naranja' },
+  { estrellas: 2, tipo: 'suma_mayor', color: 'azul', color2: 'rojo' },
+  { estrellas: 2, tipo: 'mas_dados', color: 'rojo', color2: 'azul' },
+  { estrellas: 2, tipo: 'suma_mayor', color: 'rojo', color2: 'verde' },
+  { estrellas: 2, tipo: 'mas_dados', color: 'verde', color2: 'rojo' },
   { estrellas: 2, tipo: 'suma_mayor', color: 'verde', color2: 'azul' },
   { estrellas: 2, tipo: 'mas_dados', color: 'azul', color2: 'verde' },
   { estrellas: 2, tipo: 'suma_mayor', color: 'amarillo', color2: 'azul' },
   { estrellas: 2, tipo: 'mas_dados', color: 'azul', color2: 'amarillo' },
-  { estrellas: 2, tipo: 'todos_colores' },
-  { estrellas: 2, tipo: 'colores_exactos', n: 3 },
+  { estrellas: 3, tipo: 'todos_colores', min_colores: 4 },
+  { estrellas: 2, tipo: 'colores_exactos', n: 3, min_colores: 4 },
   { estrellas: 4, tipo: 'colores_exactos', n: 2 },
   { estrellas: 5, tipo: 'colores_exactos', n: 1 },
   { estrellas: 3, tipo: 'total_al_menos', n: 6 },
@@ -124,9 +127,9 @@ window.BLINDSPOTS_OBJETIVOS = [
   { estrellas: 2, tipo: 'mas_impares' },
   { estrellas: 3, tipo: 'repetidos_exactos', n: 2 },
   { estrellas: 4, tipo: 'repetidos_exactos', n: 3 },
-  { estrellas: 2, tipo: 'repetidos_al_menos', n: 3 },
-  { estrellas: 3, tipo: 'repetidos_al_menos', n: 4 },
-  { estrellas: 5, tipo: 'repetidos_al_menos', n: 5 },
+  { estrellas: 2, tipo: 'repetidos_al_menos', n: 3, decir_al_menos: true },
+  { estrellas: 3, tipo: 'repetidos_al_menos', n: 4, decir_al_menos: true },
+  { estrellas: 5, tipo: 'repetidos_al_menos', n: 5, decir_al_menos: true },
   { estrellas: 2, tipo: 'valor_maximo', n: 5 },
   { estrellas: 3, tipo: 'valor_maximo', n: 4 },
   { estrellas: 4, tipo: 'valor_maximo', n: 3 },
@@ -136,12 +139,15 @@ window.BLINDSPOTS_OBJETIVOS = [
   { estrellas: 1, tipo: 'sin_numero', numero: 6 },
   { estrellas: 1, tipo: 'sin_numero', numero: 1 },
   { estrellas: 1, tipo: 'sin_numero', numero: 3 },
+  { estrellas: 1, tipo: 'sin_numero', numero: 2 },
+  { estrellas: 1, tipo: 'sin_numero', numero: 4 },
+  { estrellas: 1, tipo: 'sin_numero', numero: 5 },
   { estrellas: 2, tipo: 'numero_al_menos', numero: 6, n: 2, decir_al_menos: true },
-  { estrellas: 2, tipo: 'numero_al_menos', numero: 1, n: 2 },
-  { estrellas: 3, tipo: 'numero_al_menos', numero: 6, n: 3 },
-  { estrellas: 3, tipo: 'numero_al_menos', numero: 4, n: 3 },
-  { estrellas: 3, tipo: 'suma_total_maxima', n: 20 },
-  { estrellas: 4, tipo: 'suma_total_maxima', n: 15 },
+  { estrellas: 2, tipo: 'numero_al_menos', numero: 1, n: 2, decir_al_menos: true },
+  { estrellas: 3, tipo: 'numero_al_menos', numero: 5, n: 3, decir_al_menos: true },
+  { estrellas: 3, tipo: 'numero_al_menos', numero: 4, n: 3, decir_al_menos: true },
+  { estrellas: 1, tipo: 'suma_total_maxima', n: 20 },
+  { estrellas: 2, tipo: 'suma_total_maxima', n: 15 },
   { estrellas: 2, tipo: 'suma_total_minima', n: 15 },
   { estrellas: 3, tipo: 'suma_total_minima', n: 20 },
   { estrellas: 4, tipo: 'suma_total_minima', n: 25 },
@@ -164,21 +170,24 @@ window.BLINDSPOTS_OBJETIVOS = [
   { estrellas: 3, tipo: 'mas_puntos_que_nadie' },
   { estrellas: 3, tipo: 'menos_puntos_que_nadie' },
   { estrellas: 3, tipo: 'mas_puntos_color_que_nadie', color: 'azul' },
-  { estrellas: 3, tipo: 'mas_puntos_color_que_nadie', color: 'naranja' },
+  { estrellas: 3, tipo: 'mas_puntos_color_que_nadie', color: 'rojo' },
   { estrellas: 3, tipo: 'mas_puntos_color_que_nadie', color: 'verde' },
-  { estrellas: 3, tipo: 'mas_puntos_color_que_nadie', color: 'morado' },
   { estrellas: 3, tipo: 'mas_puntos_color_que_nadie', color: 'amarillo' },
   { estrellas: 3, tipo: 'menos_puntos_color_que_nadie', color: 'azul' },
+  { estrellas: 3, tipo: 'menos_puntos_color_que_nadie', color: 'rojo' },
   { estrellas: 3, tipo: 'menos_puntos_color_que_nadie', color: 'verde' },
   { estrellas: 3, tipo: 'menos_puntos_color_que_nadie', color: 'amarillo' },
-  { estrellas: 2, tipo: 'mas_dados_color_que_nadie', color: 'naranja' },
+  { estrellas: 2, tipo: 'mas_dados_color_que_nadie', color: 'azul' },
+  { estrellas: 2, tipo: 'mas_dados_color_que_nadie', color: 'rojo' },
   { estrellas: 2, tipo: 'mas_dados_color_que_nadie', color: 'verde' },
-  { estrellas: 2, tipo: 'mas_dados_color_que_nadie', color: 'morado' },
+  { estrellas: 2, tipo: 'mas_dados_color_que_nadie', color: 'amarillo' },
+  { estrellas: 2, tipo: 'menos_dados_color_que_nadie', color: 'azul' },
+  { estrellas: 2, tipo: 'menos_dados_color_que_nadie', color: 'amarillo' },
   { estrellas: 3, tipo: 'mas_colores_que_nadie' },
   { estrellas: 3, tipo: 'mas_numero_que_nadie', numero: 6 },
   { estrellas: 3, tipo: 'mas_numero_que_nadie', numero: 1 },
   { estrellas: 3, tipo: 'mas_numero_que_nadie', numero: 3 },
-  { estrellas: 3, tipo: 'mas_numero_que_nadie', numero: 5 },
+  { estrellas: 3, tipo: 'menos_numero_que_nadie', numero: 5 },
   { estrellas: 3, tipo: 'menos_numero_que_nadie', numero: 2 },
   { estrellas: 3, tipo: 'menos_numero_que_nadie', numero: 4 },
 ];
