@@ -1,6 +1,6 @@
 # Cartas de objetivos
 
-`cartas.pdf` tiene una carta por cada objetivo de `objetivos.js`, con su texto en inglés tal como aparece en la app, en tamaño póquer (63,5 × 88,9 mm), 9 por hoja A4, una hoja de reversos las 7 cartas grises del dado gris (G1–G7) con sus reversos grises las 9 cartas negras del dado negro (N1–N9) con sus reversos negros y, al final, las 4 cartas de acción (A1–A4) con sus reversos. Las cartas no llevan texto: solo dados de colores, caras de dado, números y símbolos, así que sirven en cualquier idioma.
+`cartas.pdf` tiene una carta por cada objetivo de `objetivos.js`, con su texto en inglés tal como aparece en la app, en tamaño póquer (63,5 × 88,9 mm), 9 por hoja A4, una hoja de reversos, las 7 cartas grises del dado gris (G1–G7) con sus reversos grises, las 9 cartas negras del dado negro (N1–N9) con sus reversos negros y, al final, las 4 cartas de acción (A1–A4) con sus reversos. Los dibujos (dados de colores, caras de dado, números y símbolos) se entienden en cualquier idioma; debajo llevan el texto en inglés de la app. Las cartas marcadas con «4» abajo a la izquierda solo se usan en partidas de 4 colores.
 
 Para regenerarlo después de cambiar `objetivos.js`:
 
