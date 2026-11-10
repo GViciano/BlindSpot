@@ -129,6 +129,7 @@ button { font: inherit; color: inherit; }
 .mcard .label { font-size: 11px; }
 .mod-last { margin: 8px 0 0; padding: 8px 10px; border-radius: 8px; background: var(--surface-2, #eef1f5); font-size: 14px; }
 .ver { color: var(--muted); font-size: 11px; opacity: .8; }
+.app-ver { text-align: center; color: var(--muted); font-size: 11px; opacity: .75; padding: 18px 0 10px; }
 .cardno { float: right; margin-left: 8px; font-size: 10px; font-weight: 600; color: var(--muted); letter-spacing: .02em; font-variant-numeric: tabular-nums; }
 .blackcards li .cardno, .sub .cardno { float: none; margin-left: auto; }
 .sub .cardno { margin-left: 6px; }
@@ -2116,7 +2117,7 @@ const PEERJS_URL = 'https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js';
 // Online relay through Supabase Realtime: works on networks that block direct browser-to-browser links.
 // The publishable key is meant to be public (it only allows what the project's settings allow).
 // Shown next to the connection line, to tell whether everyone has the same version loaded.
-const APP_VERSION = '2026.11.11';
+const APP_VERSION = '2026.11.11b';
 const SUPABASE_URL = 'https://vjphqqtoigpjncmsdudq.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_hUInzKity39UFsFwsFqmSw_HR3HMLE4';
 const SUPABASE_JS = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js';
@@ -3269,7 +3270,7 @@ function render() {
   if (G) { syncUiKey(); html = gameHTML(); }
   else if (ON.role) html = waitingRoomHTML();
   else html = homeHTML();
-  $app.innerHTML = html + (ui.rules ? rulesHTML() : '');
+  $app.innerHTML = html + `<footer class="app-ver">BlindSpots · v${APP_VERSION}</footer>` + (ui.rules ? rulesHTML() : '');
   animate = false;
   if (focusId) {
     const el = document.getElementById(focusId);
