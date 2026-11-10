@@ -24,6 +24,10 @@ create table if not exists public.partidas (
   dispositivo text check (dispositivo in ('movil', 'ordenador')),
   web         text check (char_length(web) <= 60),
   version     text check (char_length(version) <= 20),
+  hora_local  text check (char_length(hora_local) <= 20),         -- hora del dispositivo, p. ej. 2026-11-10 18:32:05
+  empezada    timestamptz,                                         -- hora de inicio de la partida
+  terminada   timestamptz,                                         -- hora de fin (solo en las filas 'fin')
+  duracion_min numeric(6,1) check (duracion_min between 0 and 9999),
   -- País (código de 2 letras) que Supabase deduce de la conexión; la IP no se guarda.
   pais        text default (current_setting('request.headers', true)::json ->> 'cf-ipcountry')
 );
@@ -38,3 +42,22 @@ create policy "la web puede registrar partidas" on public.partidas
 
 grant insert on public.partidas to anon;
 revoke select, update, delete on public.partidas from anon, authenticated;
+
+-- Una línea por partida: hora de inicio y de fin, duración y resultado.
+-- (Las partidas sin hora de fin se abandonaron antes de terminar.)
+create or replace view public.partidas_resumen with (security_invoker = true) as
+select
+  i.partida,
+  i.hora_local        as hora_local_inicio,
+  f.hora_local        as hora_local_fin,
+  coalesce(i.empezada, i.creada) as empezada,
+  f.terminada,
+  f.duracion_min,
+  i.modo, i.jugadores, i.humanos, i.colores, i.nivel, i.objetivos, i.necesarias,
+  f.resultado, f.estrellas,
+  i.pais, i.zona, i.idioma, i.dispositivo, i.version
+from public.partidas i
+left join public.partidas f on f.partida = i.partida and f.tipo = 'fin'
+where i.tipo = 'inicio';
+
+revoke all on public.partidas_resumen from anon, authenticated;

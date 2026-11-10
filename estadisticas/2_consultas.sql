@@ -1,6 +1,23 @@
 -- BlindSpots · consultas para ver las estadísticas.
 -- En Supabase → SQL Editor, pega la consulta que quieras y pulsa Run.
 
+-- Cada partida en una línea: hora de inicio, hora de fin (hora local del dispositivo), duración y resultado.
+select hora_local_inicio, hora_local_fin, duracion_min, nivel, jugadores, humanos, resultado, estrellas, pais
+from public.partidas_resumen
+order by empezada desc
+limit 100;
+
+-- Duración media de las partidas terminadas, en minutos.
+select round(avg(duracion_min), 1) as minutos_de_media, count(*) as partidas_terminadas
+from public.partidas_resumen
+where duracion_min is not null;
+
+-- A qué horas se juega (hora local del dispositivo).
+select substr(hora_local_inicio, 12, 2) as hora, count(*) as partidas
+from public.partidas_resumen
+where hora_local_inicio is not null
+group by 1 order by 1;
+
 -- Resumen general.
 select
   count(*) filter (where tipo = 'inicio')                         as partidas_empezadas,

@@ -1557,6 +1557,7 @@ function startLevel() {
   G.players.forEach((p, i) => { p.missions = r.missions[i]; p.area = []; });
   Object.assign(G, { modNote: null, greyRule: G.cfg.grey ? ri(GREY_RULES) : null, greyRes: null, bag: Array(G.C).fill(G.cfg.bag || BAG_PER_COLOUR), mods: G.cfg.mods ? dealActions(P()) : null, blackDeck: G.cfg.black ? drawBlackCards(P()) : null, bomb: null, lostBy: null, gid: rid(6), round: 0, active: G.starter, phase: 'roll', roll: [], groups: [], order: [], step: 0, taken: {}, results: null, win: null, log: [] });
   log(['start']);
+  G.startedAt = Date.now();
   stat('inicio');
   if (G.camp !== null && G.camp !== undefined) log(['level', G.camp]);
   log(['first', G.starter]);
@@ -1634,6 +1635,8 @@ function starsInPlay() { return G.players.reduce((a, p) => a + p.missions.reduce
    page once with ?nostats (useful for the owner's own test games). */
 const STATS_OFF_KEY = 'blindspots-nostats';
 try { if (/[?&#]nostats\b/.test(location.href)) localStorage.setItem(STATS_OFF_KEY, '1'); if (/[?&#]stats\b/.test(location.href)) localStorage.removeItem(STATS_OFF_KEY); } catch (e) { /* no storage */ }
+// 2026-11-10 18:32:05 in the device's own time zone.
+const localTime = d => { const z = n => String(n).padStart(2, '0'); return `${d.getFullYear()}-${z(d.getMonth() + 1)}-${z(d.getDate())} ${z(d.getHours())}:${z(d.getMinutes())}:${z(d.getSeconds())}`; };
 function stat(kind) {
   try {
     if (!G || (G.online && ON.role !== 'host')) return;
@@ -1651,6 +1654,11 @@ function stat(kind) {
       zona: (Intl.DateTimeFormat().resolvedOptions().timeZone || '').slice(0, 60), idioma: (navigator.language || '').slice(0, 20),
       dispositivo: /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? 'movil' : 'ordenador',
       web: location.hostname.slice(0, 60), version: APP_VERSION,
+      // Times: the device's local clock (as text) and the start / end of the game (UTC).
+      hora_local: localTime(new Date()),
+      empezada: G.startedAt ? new Date(G.startedAt).toISOString() : null,
+      terminada: kind === 'fin' ? new Date().toISOString() : null,
+      duracion_min: kind === 'fin' && G.startedAt ? Math.round((Date.now() - G.startedAt) / 6e4 * 10) / 10 : null,
     };
     fetch(`${SUPABASE_URL}/rest/v1/partidas`, {
       method: 'POST', keepalive: true,
@@ -2106,7 +2114,7 @@ const PEERJS_URL = 'https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js';
 // Online relay through Supabase Realtime: works on networks that block direct browser-to-browser links.
 // The publishable key is meant to be public (it only allows what the project's settings allow).
 // Shown next to the connection line, to tell whether everyone has the same version loaded.
-const APP_VERSION = '2026.11.10';
+const APP_VERSION = '2026.11.10b';
 const SUPABASE_URL = 'https://vjphqqtoigpjncmsdudq.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_hUInzKity39UFsFwsFqmSw_HR3HMLE4';
 const SUPABASE_JS = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js';
