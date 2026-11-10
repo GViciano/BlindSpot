@@ -669,7 +669,8 @@ const I18N = {
         <li>Dado negro (Bomba, niveles 16–20 de la campaña): cada ronda se tira además un dado negro, que trae una carta negra. Cada jugador solo puede acabar con un dado negro: quien ya tiene uno no puede coger un grupo con otro, y si a quien reparte le toca un segundo dado negro, el nivel se pierde. Al final, quien tiene un dado negro aplica su carta a sus propios dados (elimina uno o dos). El dado negro cuenta como dado, para la suma y para los números, pero no como color.</li>
       </ul>
       <h3>En esta versión</h3>
-      <p>En un dispositivo, la web pide pasarlo antes de cada decisión y solo entonces muestra las misiones de los demás. Online, cada jugador ve las misiones de los demás en su pantalla y puede elegir su idioma. Los bots reparten pensando en las misiones que ven y, al elegir, cogen el grupo que menos perjudica al resto.</p>`,
+      <p>En un dispositivo, la web pide pasarlo antes de cada decisión y solo entonces muestra las misiones de los demás. Online, cada jugador ve las misiones de los demás en su pantalla y puede elegir su idioma. Los bots reparten pensando en las misiones que ven y, al elegir, cogen el grupo que menos perjudica al resto.</p>
+      <p>Para saber cuánto se juega, la web guarda estadísticas anónimas de cada partida (número de jugadores, nivel, resultado y país o zona horaria). No se guarda ningún nombre, dirección IP ni dato personal.</p>`,
   },
   en: {
     htmlLang: 'en',
@@ -966,7 +967,8 @@ const I18N = {
         <li>Black die (Bomb, campaign levels 16–20): every round a black die is rolled as well, with a black card. Each player can end up with only one black die: if you already have one you can’t take a group with another, and if the dealer gets a second black die the level is lost. At the end, whoever has a black die applies its card to their own dice (removing one or two). The black die counts as a die, for sums and for numbers, but not as a colour.</li>
       </ul>
       <h3>In this version</h3>
-      <p>On one device, the page asks you to pass it before each decision and only then shows the others’ missions. Online, each player sees the others’ missions on their own screen and can pick their own language. Bots deal based on the missions they can see and, when choosing, take the group that hurts the others least.</p>`,
+      <p>On one device, the page asks you to pass it before each decision and only then shows the others’ missions. Online, each player sees the others’ missions on their own screen and can pick their own language. Bots deal based on the missions they can see and, when choosing, take the group that hurts the others least.</p>
+      <p>To know how much the game is played, the page keeps anonymous statistics for each game (number of players, level, result and country or time zone). No names, IP addresses or personal data are stored.</p>`,
   },
 };
 
@@ -1555,6 +1557,7 @@ function startLevel() {
   G.players.forEach((p, i) => { p.missions = r.missions[i]; p.area = []; });
   Object.assign(G, { modNote: null, greyRule: G.cfg.grey ? ri(GREY_RULES) : null, greyRes: null, bag: Array(G.C).fill(G.cfg.bag || BAG_PER_COLOUR), mods: G.cfg.mods ? dealActions(P()) : null, blackDeck: G.cfg.black ? drawBlackCards(P()) : null, bomb: null, lostBy: null, gid: rid(6), round: 0, active: G.starter, phase: 'roll', roll: [], groups: [], order: [], step: 0, taken: {}, results: null, win: null, log: [] });
   log(['start']);
+  stat('inicio');
   if (G.camp !== null && G.camp !== undefined) log(['level', G.camp]);
   log(['first', G.starter]);
   if (!G.online) resetViewer();
@@ -1624,6 +1627,39 @@ function finishRound() {
 
 // Team stars needed to win: `need` 0 means every objective must be met.
 function starsInPlay() { return G.players.reduce((a, p) => a + p.missions.reduce((b, m) => b + (m.s || 1), 0), 0); }
+/* ---------- Anonymous statistics ----------
+   One row per game start and per game end in the Supabase table «partidas» (see estadisticas/).
+   Only the device running the game sends it (local games, or the host online). No names, no IP:
+   the country is added by the database from the request. A device can opt out by opening the
+   page once with ?nostats (useful for the owner's own test games). */
+const STATS_OFF_KEY = 'blindspots-nostats';
+try { if (/[?&#]nostats\b/.test(location.href)) localStorage.setItem(STATS_OFF_KEY, '1'); if (/[?&#]stats\b/.test(location.href)) localStorage.removeItem(STATS_OFF_KEY); } catch (e) { /* no storage */ }
+function stat(kind) {
+  try {
+    if (!G || (G.online && ON.role !== 'host')) return;
+    if (localStorage.getItem(STATS_OFF_KEY) === '1') return;
+    if (location.protocol === 'file:' || /^(localhost|127\.|0\.0\.0\.0)/.test(location.hostname)) return;
+    const camp = G.camp !== null && G.camp !== undefined;
+    const row = {
+      tipo: kind, partida: String(G.gid || ''), modo: G.online ? 'online' : 'local',
+      conexion: G.online ? ((ON.room && ON.room.transport) || ON.transport || '') : null,
+      jugadores: P(), humanos: G.players.filter(p => !p.bot).length, colores: G.C,
+      nivel: camp ? G.camp + 1 : null, objetivos: G.players[0] ? G.players[0].missions.length : null,
+      necesarias: teamNeed() || null,
+      resultado: kind === 'fin' ? (G.win ? 'victoria' : 'derrota') : null,
+      estrellas: kind === 'fin' ? (G.earned ?? null) : null,
+      zona: (Intl.DateTimeFormat().resolvedOptions().timeZone || '').slice(0, 60), idioma: (navigator.language || '').slice(0, 20),
+      dispositivo: /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? 'movil' : 'ordenador',
+      web: location.hostname.slice(0, 60), version: APP_VERSION,
+    };
+    fetch(`${SUPABASE_URL}/rest/v1/partidas`, {
+      method: 'POST', keepalive: true,
+      headers: { apikey: SUPABASE_KEY, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+      body: JSON.stringify(row),
+    }).catch(() => { /* statistics never get in the way of the game */ });
+  } catch (e) { /* idem */ }
+}
+
 function teamNeed() { const n = G.cfg.need || 0; return n ? Math.min(n, starsInPlay()) : 0; }
 
 function computeResults() {
@@ -1720,6 +1756,7 @@ function reveal() {
   G.phase = 'reveal';
   G.cover = null;
   log([G.win ? 'win' : 'lose']);
+  stat('fin');
 }
 
 function validGroups(gs) {
@@ -2069,7 +2106,7 @@ const PEERJS_URL = 'https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js';
 // Online relay through Supabase Realtime: works on networks that block direct browser-to-browser links.
 // The publishable key is meant to be public (it only allows what the project's settings allow).
 // Shown next to the connection line, to tell whether everyone has the same version loaded.
-const APP_VERSION = '2026.11.09b';
+const APP_VERSION = '2026.11.10';
 const SUPABASE_URL = 'https://vjphqqtoigpjncmsdudq.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_hUInzKity39UFsFwsFqmSw_HR3HMLE4';
 const SUPABASE_JS = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js';
