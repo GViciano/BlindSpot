@@ -131,7 +131,7 @@ T = {
             ('Cuatro colores', 'Novedad: dados amarillos',
              ['Entra el cuarto color: el amarillo. Meted también dados amarillos en la bolsa.',
               'Ahora también salen cartas de misión con dados amarillos y las marcadas con «4», que solo se usan con 4 colores. Con más colores es más difícil reunir muchos dados de un mismo color.',
-              'No hay acciones, ni dado gris, ni dados negros: solo el juego básico con 4 colores y misiones más exigentes.'],
+              'Siguen las acciones especiales, como desde el nivel 6; no hay dado gris ni dados negros. Las misiones son más exigentes.'],
              ['yellow']),
         ],
         'colour_names': ['azul', 'rojo', 'verde', 'amarillo'],
@@ -228,7 +228,7 @@ T = {
             ('Four Colours', 'New: yellow dice',
              ['The fourth colour joins in: yellow. Put yellow dice into the bag as well.',
               'Mission cards with yellow dice now come up too, as well as the cards marked “4”, used only with 4 colours. With more colours, gathering many dice of one colour is harder.',
-              'No actions, grey die or black dice: just the basic game with 4 colours and tougher missions.'],
+              'Special actions are still used, as from level 6 on; there is no grey die and no black dice. Missions are tougher.'],
              ['yellow']),
         ],
         'colour_names': ['blue', 'red', 'green', 'yellow'],
@@ -295,7 +295,8 @@ ol.steps > li::before { content: counter(s); position: absolute; left: 0; top: 0
 .done { display: flex; gap: 22px; align-items: center; font-size: 10pt; border-top: 1.5px dashed var(--line); padding-top: 10px; }
 .done .bx { display: inline-block; width: 15px; height: 15px; border: 2px solid var(--ink); border-radius: 3px; vertical-align: -3px; margin-right: 6px; }
 .done .line { flex: 1; border-bottom: 1px solid var(--ink); height: 14px; }
-.lvp { font-size: 10.5pt; }
+.lvp { font-size: 10pt; line-height: 1.42; }
+.lvp table.facts td { padding: 4px 10px; } .lvp ol.steps > li { margin-bottom: 5px; } .lvp .goal, .lvp .tip { padding: 8px 12px; margin-bottom: 9px; }
 .notes { margin: 4px 0 14px; } .notes b { font-size: 9pt; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
 .notes .nl { border-bottom: 1px solid var(--line); height: 22px; }
 .dsvg { display: inline-block; vertical-align: middle; }
@@ -379,7 +380,7 @@ def build(lang):
                    f'<div class="goal"><b class="t">{L["goal_t"]}</b>{goal}</div>'
                    f'<div class="tip"><b class="t">{L["remember"]}</b>{L["tips"][i + 1]}</div>'
                    f'<div class="nums">{L["numbers_t"]} ({L["piles_c"](C).lower()}):<br>{nums}</div>'
-                   f'<div class="notes"><b>{L["notes"]}</b>' + '<div class="nl"></div>' * 3 + '</div>'
+                   f'<div class="notes"><b>{L["notes"]}</b>' + '<div class="nl"></div>' * 2 + '</div>'
                    f'<div class="done"><span><span class="bx"></span>{L["done"]} {L["with3"]}</span><span><span class="bx"></span>{L["done"]} {L["with4"]}</span>'
                    f'<span>{L["date"]}:</span><span class="line"></span></div></section>')
     out.append('</body></html>')

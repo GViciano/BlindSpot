@@ -149,7 +149,7 @@ Cada ronda sale una junto al dado negro; la ven todos. Al final, quien tiene el 
 | N3 | Elimina un dado del mismo valor que el dado negro. |
 | N4 | Elimina un dado del color que más tengas. |
 | N5 | Elimina un dado del color que menos tengas. |
-| N6 | Elimina 2 dados al azar. |
+| N6 | Elimina los 2 dados que quieras (de los tuyos). |
 | N7 | Elimina dos dados del mismo valor. |
 | N8 | Elimina un dado de valor menor o igual al dado negro. |
 | N9 | Elimina un dado de valor mayor o igual al dado negro. |

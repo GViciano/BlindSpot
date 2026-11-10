@@ -9,7 +9,7 @@
 //   dados:           dados de cada color en la bolsa, según el número de jugadores: { 3: 6, 4: 10 }.
 //   ganar:           estrellas que tiene que sumar el equipo para pasar el nivel, según el número
 //                    de jugadores: { 3: 10, 4: 13 }. Si no se pone, hay que cumplir todos los objetivos.
-//   modificadores:   true = acciones especiales: relanzar un dado, sumarle o restarle 1, invertirlo
+//   modificadores:   true = acciones especiales (desde el nivel 6, en todos los niveles): relanzar un dado, sumarle o restarle 1, invertirlo
 //                    (cara opuesta) y eliminarlo (vuelve a la bolsa). Con 3 jugadores salen 3 de las 4
 //                    al azar; con 4 jugadores, las 4. Cada jugador puede usar una en todo el nivel, en
 //                    cualquier momento y sobre cualquier dado a la vista; la acción usada ya no está
@@ -84,19 +84,19 @@ window.BLINDSPOTS_CAMPANA = [
   { colores: 3, cartas: [3, 3], dados: DADOS, ganar: { 3: 15, 4: 20 }, modificadores: true },
   { colores: 3, cartas: [4, 3], dados: DADOS, ganar: { 3: 18, 4: 25 }, modificadores: true },
   { colores: 3, cartas: [4, 4], dados: DADOS, ganar: { 3: 12, 4: 16 }, modificadores: true },
-  { nombre: 'Gris 1', colores: 3, cartas: [3],    dados: DADOS, ganar: { 3: 6, 4: 8 },   dado_gris: true, intro: INTRO_GRIS },
-  { nombre: 'Gris 2', colores: 3, cartas: [1, 3], dados: DADOS, ganar: { 3: 10, 4: 13 }, dado_gris: true },
-  { nombre: 'Gris 3', colores: 3, cartas: [2, 3], dados: DADOS, ganar: { 3: 12, 4: 16 }, dado_gris: true },
-  { nombre: 'Gris 4', colores: 3, cartas: [3, 3], dados: DADOS, ganar: { 3: 14, 4: 19 }, dado_gris: true },
-  { nombre: 'Gris 5', colores: 3, cartas: [5],    dados: DADOS, ganar: { 3: 10, 4: 13 }, dado_gris: true },
-  { nombre: 'Bomba 1', colores: 3, cartas: [4],       dados: DADOS_BOMBA, dados_por_ronda: POR_RONDA_BOMBA, ganar: { 3: 8, 4: 12 },  dado_negro: true, intro: INTRO_BOMBA },
-  { nombre: 'Bomba 2', colores: 3, cartas: [2, 3],    dados: DADOS_BOMBA, dados_por_ronda: POR_RONDA_BOMBA, ganar: { 3: 12, 4: 17 }, dado_negro: true },
-  { nombre: 'Bomba 3', colores: 3, cartas: [1, 2, 3], dados: DADOS_BOMBA, dados_por_ronda: POR_RONDA_BOMBA, ganar: { 3: 15, 4: 20 }, dado_negro: true },
-  { nombre: 'Bomba 4', colores: 3, cartas: [3, 4],    dados: DADOS_BOMBA, dados_por_ronda: POR_RONDA_BOMBA, ganar: { 3: 18, 4: 24 }, dado_negro: true },
-  { nombre: 'Bomba 5', colores: 3, cartas: [2, 2, 3], dados: DADOS_BOMBA, dados_por_ronda: POR_RONDA_BOMBA, ganar: { 3: 20, 4: 26 }, dado_negro: true },
-  { nombre: '4 colores 1', colores: 4, cartas: [2, 3],    dados: DADOS, ganar: { 3: 13, 4: 17 } },
-  { nombre: '4 colores 2', colores: 4, cartas: [3, 3],    dados: DADOS, ganar: { 3: 15, 4: 20 } },
-  { nombre: '4 colores 3', colores: 4, cartas: [3, 4],    dados: DADOS, ganar: { 3: 21, 4: 24 } },
-  { nombre: '4 colores 4', colores: 4, cartas: [2, 2, 3], dados: DADOS, ganar: { 3: 19, 4: 23 } },
-  { nombre: '4 colores 5', colores: 4, cartas: [3, 3, 3], dados: DADOS, ganar: { 3: 24, 4: 33 } },
+  { nombre: 'Gris 1', colores: 3, cartas: [3],    dados: DADOS, ganar: { 3: 6, 4: 8, modificadores: true },   dado_gris: true, intro: INTRO_GRIS, modificadores: true },
+  { nombre: 'Gris 2', colores: 3, cartas: [1, 3], dados: DADOS, ganar: { 3: 10, 4: 13, modificadores: true }, dado_gris: true, modificadores: true },
+  { nombre: 'Gris 3', colores: 3, cartas: [2, 3], dados: DADOS, ganar: { 3: 12, 4: 16, modificadores: true }, dado_gris: true, modificadores: true },
+  { nombre: 'Gris 4', colores: 3, cartas: [3, 3], dados: DADOS, ganar: { 3: 14, 4: 19, modificadores: true }, dado_gris: true, modificadores: true },
+  { nombre: 'Gris 5', colores: 3, cartas: [5],    dados: DADOS, ganar: { 3: 10, 4: 13, modificadores: true }, dado_gris: true, modificadores: true },
+  { nombre: 'Bomba 1', colores: 3, cartas: [4],       dados: DADOS_BOMBA, dados_por_ronda: POR_RONDA_BOMBA, ganar: { 3: 8, 4: 12, modificadores: true },  dado_negro: true, intro: INTRO_BOMBA, modificadores: true },
+  { nombre: 'Bomba 2', colores: 3, cartas: [2, 3],    dados: DADOS_BOMBA, dados_por_ronda: POR_RONDA_BOMBA, ganar: { 3: 12, 4: 17, modificadores: true }, dado_negro: true, modificadores: true },
+  { nombre: 'Bomba 3', colores: 3, cartas: [1, 2, 3], dados: DADOS_BOMBA, dados_por_ronda: POR_RONDA_BOMBA, ganar: { 3: 15, 4: 20, modificadores: true }, dado_negro: true, modificadores: true },
+  { nombre: 'Bomba 4', colores: 3, cartas: [3, 4],    dados: DADOS_BOMBA, dados_por_ronda: POR_RONDA_BOMBA, ganar: { 3: 18, 4: 24, modificadores: true }, dado_negro: true, modificadores: true },
+  { nombre: 'Bomba 5', colores: 3, cartas: [2, 2, 3], dados: DADOS_BOMBA, dados_por_ronda: POR_RONDA_BOMBA, ganar: { 3: 20, 4: 26, modificadores: true }, dado_negro: true, modificadores: true },
+  { nombre: '4 colores 1', colores: 4, cartas: [2, 3],    dados: DADOS, ganar: { 3: 13, 4: 17 }, modificadores: true },
+  { nombre: '4 colores 2', colores: 4, cartas: [3, 3],    dados: DADOS, ganar: { 3: 15, 4: 20 }, modificadores: true },
+  { nombre: '4 colores 3', colores: 4, cartas: [3, 4],    dados: DADOS, ganar: { 3: 21, 4: 24 }, modificadores: true },
+  { nombre: '4 colores 4', colores: 4, cartas: [2, 2, 3], dados: DADOS, ganar: { 3: 19, 4: 23 }, modificadores: true },
+  { nombre: '4 colores 5', colores: 4, cartas: [3, 3, 3], dados: DADOS, ganar: { 3: 24, 4: 33 }, modificadores: true },
 ];

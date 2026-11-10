@@ -441,7 +441,7 @@ const I18N = {
     blackCard2: v => `Elimina un dado del mismo valor que el dado negro${v ? ` (${v})` : ''}.`,
     blackCard3: () => 'Elimina un dado del color que más tengas.',
     blackCard4: () => 'Elimina un dado del color que menos tengas.',
-    blackCard5: () => 'Elimina 2 dados al azar.',
+    blackCard5: () => 'Elimina los 2 dados que quieras (de los tuyos).',
     blackCard6: () => 'Elimina dos dados del mismo valor.',
     blackCard7: v => `Elimina un dado de valor menor o igual al dado negro${v ? ` (${v})` : ''}.`,
     blackCard8: v => `Elimina un dado de valor mayor o igual al dado negro${v ? ` (${v})` : ''}.`,
@@ -450,7 +450,7 @@ const I18N = {
     blackBlocked: 'Ya tienes un dado negro', blackYouHave: 'Ya tienes un dado negro: no puedes coger el grupo que lleva otro.',
     blackDealerHas: name => `Ojo: ${name} reparte y ya tiene un dado negro. Si le dejáis el grupo con el dado negro, perdéis el nivel.`,
     bombTitle: '¡Bomba!', bombYou: 'Tu carta negra:', bombOf: name => `Carta negra de ${name}:`,
-    bombPick1: 'Elige qué dado tuyo se elimina.', bombPick2: 'Elige dos dados tuyos del mismo valor.',
+    bombPick1: 'Elige qué dado tuyo se elimina.', bombPick2: 'Elige dos dados tuyos del mismo valor.', bombPick2any: 'Elige los dos dados tuyos que quieras quitar.',
     bombConfirm: n => n ? 'Eliminar' : 'Elige un dado', bombWait: name => `${name} elige qué dado elimina…`,
     blackLostText: name => `${name} ha recibido un segundo dado negro: el nivel se pierde automáticamente.`,
     coverBomb: 'Te toca aplicar tu carta negra.',
@@ -747,7 +747,7 @@ const I18N = {
     blackCard2: v => `Remove a die with the same value as the black die${v ? ` (${v})` : ''}.`,
     blackCard3: () => 'Remove a die of the colour you have most of.',
     blackCard4: () => 'Remove a die of the colour you have fewest of.',
-    blackCard5: () => 'Remove 2 dice at random.',
+    blackCard5: () => 'Remove any 2 of your dice (your choice).',
     blackCard6: () => 'Remove two dice with the same value.',
     blackCard7: v => `Remove a die with a value lower than or equal to the black die${v ? ` (${v})` : ''}.`,
     blackCard8: v => `Remove a die with a value higher than or equal to the black die${v ? ` (${v})` : ''}.`,
@@ -756,7 +756,7 @@ const I18N = {
     blackBlocked: 'You already have a black die', blackYouHave: 'You already have a black die: you can’t take the group with another one.',
     blackDealerHas: name => `Careful: ${name} is dealing and already has a black die. If you leave them the group with the black die, you lose the level.`,
     bombTitle: 'Bomb!', bombYou: 'Your black card:', bombOf: name => `${name}’s black card:`,
-    bombPick1: 'Choose which of your dice is removed.', bombPick2: 'Choose two of your dice with the same value.',
+    bombPick1: 'Choose which of your dice is removed.', bombPick2: 'Choose two of your dice with the same value.', bombPick2any: 'Choose any two of your dice to remove.',
     bombConfirm: n => n ? 'Remove' : 'Choose a die', bombWait: name => `${name} is choosing which die to remove…`,
     blackLostText: name => `${name} got a second black die: the level is lost automatically.`,
     coverBomb: 'It’s your turn to apply your black card.',
@@ -1718,8 +1718,9 @@ function bombInfo(p) {
   else if (k === 7) options = idx.filter(i => area[i].v <= bv);
   else if (k === 8) options = idx.filter(i => area[i].v >= bv);
   else if (k === 6) options = idx.filter(i => idx.filter(j => area[j].v === area[i].v).length >= 2);
-  const auto = k === 5 || options.length === 0 || (k === 6 && options.length < 2);
-  return { k, bv, options, need: k === 6 ? 2 : 1, auto };
+  // N6 (k 5): any two of your dice, chosen by you; with 2 or fewer, they all go without asking.
+  const auto = options.length === 0 || (k === 6 && options.length < 2) || (k === 5 && options.length <= 2);
+  return { k, bv, options, need: k === 5 || k === 6 ? 2 : 1, auto };
 }
 // Removes the chosen dice; checks they are allowed by the card.
 function applyBomb(p, picks) {
@@ -1728,7 +1729,7 @@ function applyBomb(p, picks) {
   const area = G.players[p].area;
   let chosen;
   if (info.auto) {
-    chosen = info.k === 5 ? shuffle(info.options.slice()).slice(0, 2) : [];
+    chosen = info.k === 5 ? info.options.slice() : [];
   } else {
     if (!Array.isArray(picks) || picks.length !== info.need || new Set(picks).size !== picks.length) return false;
     if (!picks.every(i => info.options.includes(i))) return false;
@@ -1746,7 +1747,7 @@ function botBomb(p) {
   if (!info || info.auto) return applyBomb(p, null);
   const area = G.players[p].area, sets = [];
   if (info.need === 1) info.options.forEach(i => sets.push([i]));
-  else info.options.forEach(i => info.options.forEach(j => { if (j > i && area[i].v === area[j].v) sets.push([i, j]); }));
+  else info.options.forEach(i => info.options.forEach(j => { if (j > i && (info.k !== 6 || area[i].v === area[j].v)) sets.push([i, j]); }));
   let best = sets[0], bestC = Infinity;
   for (const set of sets) {
     const saved = G.players[p].area;
@@ -2115,7 +2116,7 @@ const PEERJS_URL = 'https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js';
 // Online relay through Supabase Realtime: works on networks that block direct browser-to-browser links.
 // The publishable key is meant to be public (it only allows what the project's settings allow).
 // Shown next to the connection line, to tell whether everyone has the same version loaded.
-const APP_VERSION = '2026.11.10c';
+const APP_VERSION = '2026.11.11';
 const SUPABASE_URL = 'https://vjphqqtoigpjncmsdudq.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_hUInzKity39UFsFwsFqmSw_HR3HMLE4';
 const SUPABASE_JS = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js';
@@ -2864,11 +2865,11 @@ function stageHTML(V) {
     if (mine && info) {
       const sel = Array.isArray(ui.bombSel) ? ui.bombSel : [];
       const area = G.players[a].area;
-      const okPair = info.need === 1 || (sel.length === 2 && area[sel[0]].v === area[sel[1]].v);
+      const okPair = info.need === 1 || (sel.length === 2 && (info.k !== 6 || area[sel[0]].v === area[sel[1]].v));
       const ready = sel.length === info.need && okPair && !sending;
       body = `<h2>${t('bombTitle')}</h2>
         <p class="sub">${t('bombYou')} <b>${t('blackCard' + info.k, info.bv)}</b> ${blackNo(info.k)}</p>
-        <p class="sub">${t(info.need === 2 ? 'bombPick2' : 'bombPick1')}</p>
+        <p class="sub">${t(info.k === 5 ? 'bombPick2any' : info.need === 2 ? 'bombPick2' : 'bombPick1')}</p>
         <div class="dice bomb-pick">${area.map((d, i) => d.c === BLACK ? dieHTML(d, { size: 'lg' })
           : dieHTML(d, { size: 'lg', button: true, action: 'bomb-die', data: `data-i="${i}" aria-pressed="${sel.includes(i)}"`, disabled: !info.options.includes(i) || sending })).join('')}</div>
         <div class="actions"><button type="button" class="btn primary" data-action="bomb-ok" ${ready ? '' : 'disabled'}>${sending ? t('sending') : t('bombConfirm', sel.length)}</button></div>`;

@@ -298,7 +298,7 @@ ol.steps > li::before {{ content: counter(s); position: absolute; left: 0; top: 
     <tr><td class="n">N3</td><td>A die with the same value as the black die</td></tr>
     <tr><td class="n">N4</td><td>A die of the colour you have most of</td></tr>
     <tr><td class="n">N5</td><td>A die of the colour you have fewest of</td></tr>
-    <tr><td class="n">N6</td><td>2 dice at random: the player to your left picks them without looking</td></tr>
+    <tr><td class="n">N6</td><td>Any 2 of your dice, your choice</td></tr>
     <tr><td class="n">N7</td><td>Two dice with the same value</td></tr>
     <tr><td class="n">N8</td><td>A die with a value lower than or equal to the black die</td></tr>
     <tr><td class="n">N9</td><td>A die with a value higher than or equal to the black die</td></tr>
@@ -318,17 +318,17 @@ ol.steps > li::before {{ content: counter(s); position: absolute; left: 0; top: 
       (5, 'First Steps 5', 3, '3', '6 / 10', '9 / 12', 'Basic game'), (6, 'Actions 1', 3, '3 + 1', '6 / 10', '10 / 13', 'Special actions'),
       (7, 'Actions 2', 3, '3 + 2', '6 / 10', '13 / 18', 'Special actions'), (8, 'Actions 3', 3, '3 + 3', '6 / 10', '15 / 20', 'Special actions'),
       (9, 'Actions 4', 3, '4 + 3', '6 / 10', '18 / 25', 'Special actions'), (10, 'Actions 5', 3, '4 + 4', '6 / 10', '12 / 16', 'Special actions'),
-      (11, 'Grey 1', 3, '3', '6 / 10', '6 / 8', 'Grey die'), (12, 'Grey 2', 3, '1 + 3', '6 / 10', '10 / 13', 'Grey die'),
-      (13, 'Grey 3', 3, '2 + 3', '6 / 10', '12 / 16', 'Grey die'), (14, 'Grey 4', 3, '3 + 3', '6 / 10', '14 / 19', 'Grey die'),
-      (15, 'Grey 5', 3, '5', '6 / 10', '10 / 13', 'Grey die'), (16, 'Bomb 1', 3, '4', '6 / 11', '8 / 12', 'Black die'),
-      (17, 'Bomb 2', 3, '2 + 3', '6 / 11', '12 / 17', 'Black die'), (18, 'Bomb 3', 3, '1 + 2 + 3', '6 / 11', '15 / 20', 'Black die'),
-      (19, 'Bomb 4', 3, '3 + 4', '6 / 11', '18 / 24', 'Black die'), (20, 'Bomb 5', 3, '2 + 2 + 3', '6 / 11', '20 / 26', 'Black die'),
-      (21, 'Four Colours 1', 4, '2 + 3', '6 / 10', '13 / 17', 'Basic game'), (22, 'Four Colours 2', 4, '3 + 3', '6 / 10', '15 / 20', 'Basic game'),
-      (23, 'Four Colours 3', 4, '3 + 4', '6 / 10', '21 / 24', 'Basic game'), (24, 'Four Colours 4', 4, '2 + 2 + 3', '6 / 10', '19 / 23', 'Basic game'),
-      (25, 'Four Colours 5', 4, '3 + 3 + 3', '6 / 10', '24 / 33', 'Basic game')])}
+      (11, 'Grey 1', 3, '3', '6 / 10', '6 / 8', 'Grey die + actions'), (12, 'Grey 2', 3, '1 + 3', '6 / 10', '10 / 13', 'Grey die + actions'),
+      (13, 'Grey 3', 3, '2 + 3', '6 / 10', '12 / 16', 'Grey die + actions'), (14, 'Grey 4', 3, '3 + 3', '6 / 10', '14 / 19', 'Grey die + actions'),
+      (15, 'Grey 5', 3, '5', '6 / 10', '10 / 13', 'Grey die + actions'), (16, 'Bomb 1', 3, '4', '6 / 11', '8 / 12', 'Black die + actions'),
+      (17, 'Bomb 2', 3, '2 + 3', '6 / 11', '12 / 17', 'Black die + actions'), (18, 'Bomb 3', 3, '1 + 2 + 3', '6 / 11', '15 / 20', 'Black die + actions'),
+      (19, 'Bomb 4', 3, '3 + 4', '6 / 11', '18 / 24', 'Black die + actions'), (20, 'Bomb 5', 3, '2 + 2 + 3', '6 / 11', '20 / 26', 'Black die + actions'),
+      (21, 'Four Colours 1', 4, '2 + 3', '6 / 10', '13 / 17', 'Special actions'), (22, 'Four Colours 2', 4, '3 + 3', '6 / 10', '15 / 20', 'Special actions'),
+      (23, 'Four Colours 3', 4, '3 + 4', '6 / 10', '21 / 24', 'Special actions'), (24, 'Four Colours 4', 4, '2 + 2 + 3', '6 / 10', '19 / 23', 'Special actions'),
+      (25, 'Four Colours 5', 4, '3 + 3 + 3', '6 / 10', '24 / 33', 'Special actions')])}
   </table>
   <p class="small">In the Bomb levels (16–20), the dealer draws 6 coloured dice per round with 3 players and 8 with 4, plus one black die.</p>
-  <div class="box tip"><b class="t">New rules along the way</b>Before levels 6, 11 and 16, read the matching section of <i>Variants</i> aloud: special actions, the grey die and the black die. Each new world adds one idea; the levels within a world grow harder.</div>
+  <div class="box tip"><b class="t">New rules along the way</b>Before levels 6, 11 and 16, read the matching section of <i>Variants</i> aloud: special actions, the grey die and the black die. From level 6 on, special actions are used in every level. Each new world adds one idea; the levels within a world grow harder.</div>
 </section>
 
 <section>

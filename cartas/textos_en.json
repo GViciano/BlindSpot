@@ -601,7 +601,7 @@
   "Remove a die with the same value as the black die.",
   "Remove a die of the colour you have most of.",
   "Remove a die of the colour you have fewest of.",
-  "Remove 2 dice at random.",
+  "Remove any 2 of your dice (your choice).",
   "Remove two dice with the same value.",
   "Remove a die with a value lower than or equal to the black die.",
   "Remove a die with a value higher than or equal to the black die."

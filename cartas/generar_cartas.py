@@ -437,8 +437,8 @@ def black_rule_content(k):
         return Row(3).die(BLACK_DIE, 14, face=4).text('=', 13).any_die(14, face=4, crossed=True).svg(cy)
     if k in (3, 4):  # colour you have most / fewest of
         return Row(4).any_die(15, crossed=True).wheel(13, '▲' if k == 3 else '▼').svg(cy)
-    if k == 5:  # two at random
-        return Row(3).any_die(14, crossed=True).any_die(14, crossed=True).text('?', 15).svg(cy)
+    if k == 5:  # any two of your dice, your choice
+        return Row(3).text('2', 16).text('×', 10).any_die(15, crossed=True).svg(cy)
     if k == 6:  # two dice with the same value
         return Row(3).any_die(14, face=3, crossed=True).text('=', 13).any_die(14, face=3, crossed=True).svg(cy)
     if k in (7, 8):  # value ≤ / ≥ the black die
