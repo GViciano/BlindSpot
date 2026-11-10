@@ -2,7 +2,8 @@
 -- En Supabase → SQL Editor, pega la consulta que quieras y pulsa Run.
 
 -- Cada partida en una línea: hora de inicio, hora de fin (hora local del dispositivo), duración y resultado.
-select hora_local_inicio, hora_local_fin, duracion_min, nivel, jugadores, humanos, resultado, estrellas, pais
+select hora_local_inicio, hora_local_fin, duracion_min, array_to_string(nombres, ', ') as jugadores_nombres,
+       nivel, jugadores, humanos, resultado, estrellas, pais
 from public.partidas_resumen
 order by empezada desc
 limit 100;
@@ -63,3 +64,9 @@ group by 1, 2, 3 order by partidas desc;
 
 -- Las últimas 50 filas, tal cual.
 select * from public.partidas order by creada desc limit 50;
+
+-- Quién juega más: partidas por nombre de jugador (sin bots).
+select nombre, count(*) as partidas
+from public.partidas, unnest(nombres) as nombre
+where tipo = 'inicio' and nombre not like '% (bot)'
+group by nombre order by partidas desc;

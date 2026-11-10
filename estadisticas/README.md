@@ -1,11 +1,11 @@
 # Estadísticas de partidas
 
-La web guarda en Supabase una fila anónima cada vez que empieza y cada vez que termina una partida:
-modo (en un dispositivo u online), número de jugadores y cuántos son personas, colores, nivel de
+La web guarda en Supabase una fila cada vez que empieza y cada vez que termina una partida:
+los nombres de los jugadores (los bots, marcados con «(bot)»), modo (en un dispositivo u online), número de jugadores y cuántos son personas, colores, nivel de
 campaña, cartas por jugador, estrellas necesarias y conseguidas, resultado, país (lo añade Supabase a
 partir de la conexión, sin guardar la IP), zona horaria, idioma, móvil u ordenador y versión de la web. También la hora de inicio y de fin de
 cada partida (hora local del dispositivo) y su duración en minutos.
-No se guarda ningún nombre ni dato personal.
+No se guarda la dirección IP ni ningún otro dato personal.
 
 En las partidas online solo envía datos el anfitrión, para no contar la misma partida varias veces.
 Las partidas abiertas en `localhost` no se cuentan.
@@ -21,6 +21,9 @@ Desde ese momento, cada partida queda registrada en la tabla `partidas`.
 Si ya habías creado la tabla antes de que se añadieran las horas, ejecuta también
 [`3_anadir_horas.sql`](3_anadir_horas.sql) (igual que el anterior). Hasta que lo hagas, Supabase
 rechazará las filas nuevas.
+
+Y si la creaste antes de que se añadieran los nombres, ejecuta también
+[`4_anadir_nombres.sql`](4_anadir_nombres.sql).
 
 ## Ver las estadísticas
 

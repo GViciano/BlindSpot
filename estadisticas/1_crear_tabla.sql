@@ -13,6 +13,7 @@ create table if not exists public.partidas (
   conexion    text check (char_length(conexion) <= 20),           -- online: supa (servidor) o p2p (directa)
   jugadores   smallint check (jugadores between 3 and 5),
   humanos     smallint check (humanos between 0 and 5),
+  nombres     text[] check (cardinality(nombres) <= 5),             -- nombres de los jugadores; los bots, con «(bot)»
   colores     smallint check (colores between 3 and 5),
   nivel       smallint check (nivel between 1 and 99),            -- nivel de campaña (vacío = partida libre)
   objetivos   smallint check (objetivos between 0 and 5),         -- cartas de misión por jugador
@@ -55,7 +56,8 @@ select
   f.duracion_min,
   i.modo, i.jugadores, i.humanos, i.colores, i.nivel, i.objetivos, i.necesarias,
   f.resultado, f.estrellas,
-  i.pais, i.zona, i.idioma, i.dispositivo, i.version
+  i.pais, i.zona, i.idioma, i.dispositivo, i.version,
+  i.nombres
 from public.partidas i
 left join public.partidas f on f.partida = i.partida and f.tipo = 'fin'
 where i.tipo = 'inicio';

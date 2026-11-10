@@ -670,7 +670,7 @@ const I18N = {
       </ul>
       <h3>En esta versión</h3>
       <p>En un dispositivo, la web pide pasarlo antes de cada decisión y solo entonces muestra las misiones de los demás. Online, cada jugador ve las misiones de los demás en su pantalla y puede elegir su idioma. Los bots reparten pensando en las misiones que ven y, al elegir, cogen el grupo que menos perjudica al resto.</p>
-      <p>Para saber cuánto se juega, la web guarda estadísticas anónimas de cada partida (número de jugadores, nivel, resultado y país o zona horaria). No se guarda ningún nombre, dirección IP ni dato personal.</p>`,
+      <p>Para saber cuánto se juega, la web guarda estadísticas de cada partida: los nombres que ponéis en la partida, número de jugadores, nivel, resultado, horas de inicio y fin, y país o zona horaria. No se guarda la dirección IP ni ningún otro dato personal.</p>`,
   },
   en: {
     htmlLang: 'en',
@@ -968,7 +968,7 @@ const I18N = {
       </ul>
       <h3>In this version</h3>
       <p>On one device, the page asks you to pass it before each decision and only then shows the others’ missions. Online, each player sees the others’ missions on their own screen and can pick their own language. Bots deal based on the missions they can see and, when choosing, take the group that hurts the others least.</p>
-      <p>To know how much the game is played, the page keeps anonymous statistics for each game (number of players, level, result and country or time zone). No names, IP addresses or personal data are stored.</p>`,
+      <p>To know how much the game is played, the page keeps statistics for each game: the names you enter in the game, number of players, level, result, start and end times, and country or time zone. No IP addresses or other personal data are stored.</p>`,
   },
 };
 
@@ -1647,6 +1647,7 @@ function stat(kind) {
       tipo: kind, partida: String(G.gid || ''), modo: G.online ? 'online' : 'local',
       conexion: G.online ? ((ON.room && ON.room.transport) || ON.transport || '') : null,
       jugadores: P(), humanos: G.players.filter(p => !p.bot).length, colores: G.C,
+      nombres: G.players.map(p => (cleanName(p.name) || '?') + (p.bot ? ' (bot)' : '')),
       nivel: camp ? G.camp + 1 : null, objetivos: G.players[0] ? G.players[0].missions.length : null,
       necesarias: teamNeed() || null,
       resultado: kind === 'fin' ? (G.win ? 'victoria' : 'derrota') : null,
@@ -2114,7 +2115,7 @@ const PEERJS_URL = 'https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js';
 // Online relay through Supabase Realtime: works on networks that block direct browser-to-browser links.
 // The publishable key is meant to be public (it only allows what the project's settings allow).
 // Shown next to the connection line, to tell whether everyone has the same version loaded.
-const APP_VERSION = '2026.11.10b';
+const APP_VERSION = '2026.11.10c';
 const SUPABASE_URL = 'https://vjphqqtoigpjncmsdudq.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_hUInzKity39UFsFwsFqmSw_HR3HMLE4';
 const SUPABASE_JS = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js';
