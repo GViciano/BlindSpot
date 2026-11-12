@@ -405,7 +405,7 @@ const I18N = {
     act_reroll: 'Relanzar', act_pm: '+/− 1', act_flip: 'Invertir dado', act_remove: 'Eliminar dado',
     mod_reroll: 'Relanzar', mod_plus: '+1', mod_minus: '−1', mod_flip: 'Invertir', mod_remove: 'Eliminar',
     modNote: 'En cualquier momento puedes usar una acción sobre cualquier dado: de la tirada o de la zona de cualquier jugador. Invertir pone la cara opuesta (un 5 pasa a 2) y eliminar devuelve el dado a la bolsa. Cuando la uses, ya no estará disponible para nadie más.',
-    modHint: 'Ahora toca el dado: de la tirada o de la zona de cualquier jugador.',
+    modHint: 'Ahora toca el dado: de la tirada o de la zona de cualquier jugador. Los dados gris y negro no se pueden eliminar.',
     modCancel: 'Cancelar', modUsedBy: name => `Usada por ${name}`, modYouUsed: 'Ya has usado tu acción en este nivel.',
     logModRemove: (name, colour, v) => `${name} elimina un dado ${colour} (${v}) y vuelve a la bolsa.`,
     modLast: 'Última acción:', modWhereTable: 'de la mesa', modWhereOwn: 'suyo', modWhereOf: name => `de ${name}`,
@@ -711,7 +711,7 @@ const I18N = {
     act_reroll: 'Reroll', act_pm: '+/− 1', act_flip: 'Flip die', act_remove: 'Remove die',
     mod_reroll: 'Reroll', mod_plus: '+1', mod_minus: '−1', mod_flip: 'Flip', mod_remove: 'Remove',
     modNote: 'At any time you can use one action on any die: in the roll or in any player’s area. Flip turns it to the opposite face (a 5 becomes a 2) and remove puts the die back in the bag. Once you use it, nobody else can.',
-    modHint: 'Now tap the die: in the roll or in any player’s area.',
+    modHint: 'Now tap the die: in the roll or in any player’s area. The grey and black dice can’t be removed.',
     modCancel: 'Cancel', modUsedBy: name => `Used by ${name}`, modYouUsed: 'You have already used your action this level.',
     logModRemove: (name, colour, v) => `${name} removes a ${colour} die (${v}) and puts it back in the bag.`,
     modLast: 'Last action:', modWhereTable: 'on the table', modWhereOwn: 'of their own', modWhereOf: name => `of ${name}’s`,
@@ -1029,7 +1029,7 @@ function earnedStars(m, st, C) {
 }
 
 // Objectives that compare a player with everyone else. `st.others` holds the other
-// players' stats; the player must be strictly first (a tie does not count).
+// players' stats; the player must be strictly first (a tie does not count, except a tie at 0 for «fewest»).
 const MOST = { mostDice: 1, mostPoints: 1, mostColourPoints: 1, mostColourDice: 1, mostColours: 1, mostNumber: 1 };
 const FEWEST = { fewestDice: 1, fewestPoints: 1, fewestColourPoints: 1, fewestNumber: 1, fewestColourDice: 1 };
 const isRank = m => !!(MOST[m.t] || FEWEST[m.t]);
@@ -1049,7 +1049,8 @@ function rank(m, st) {
   const mine = rankValue(m, st), vals = (st.others || []).map(o => rankValue(m, o));
   if (!vals.length) return { mine, best: 0, ok: true };
   const best = MOST[m.t] ? Math.max(...vals) : Math.min(...vals);
-  return { mine, best, ok: MOST[m.t] ? mine > best : mine < best };
+  // «Fewest»: strictly fewer than everyone, or none at all even if others have none either (a tie at 0 counts).
+  return { mine, best, ok: MOST[m.t] ? mine > best : mine < best || (mine === 0 && best === 0) };
 }
 function rankDetail(m, st) {
   const r = rank(m, st), most = !!MOST[m.t];
@@ -1214,7 +1215,9 @@ function checkMission(m, st, C) {
 function missionDist(m, st, C, roundsLeft) {
   const w = roundsLeft === 0 ? 3 : 1;
   if (isRank(m)) {
-    const r = rank(m, st), gap = MOST[m.t] ? r.best - r.mine + 1 : r.mine - r.best + 1;
+    const r = rank(m, st);
+    if (r.ok) return 0;
+    const gap = MOST[m.t] ? r.best - r.mine + 1 : r.mine - r.best + 1;
     const scale = /Points/.test(m.t) ? 3 : 1;
     return gap > 0 ? gap / scale * w : 0;
   }
@@ -1824,13 +1827,14 @@ function applyMod(seat, kind, target) {
   if (G.mods.used[action] !== undefined || Object.values(G.mods.used).includes(seat)) return false;
   const d = modTarget(target);
   if (!d) return false;
+  if (kind === 'remove' && (d.c === GREY || d.c === BLACK)) return false; // grey and black dice stay
   const old = d.v;
   if (kind === 'reroll') d.v = 1 + ri(6);
   else if (kind === 'plus') { if (d.v >= 6) return false; d.v += 1; }
   else if (kind === 'minus') { if (d.v <= 1) return false; d.v -= 1; }
   else if (kind === 'flip') d.v = 7 - d.v;
   else if (kind === 'remove') {
-    if (d.c !== GREY && d.c !== BLACK && Array.isArray(G.bag) && G.bag[d.c] !== undefined) G.bag[d.c]++;
+    if (Array.isArray(G.bag) && G.bag[d.c] !== undefined) G.bag[d.c]++;
     if (target.w === 'roll') d.gone = true; else G.players[target.p].area.splice(target.i, 1);
   }
   G.mods.used[action] = seat;
@@ -2117,7 +2121,7 @@ const PEERJS_URL = 'https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js';
 // Online relay through Supabase Realtime: works on networks that block direct browser-to-browser links.
 // The publishable key is meant to be public (it only allows what the project's settings allow).
 // Shown next to the connection line, to tell whether everyone has the same version loaded.
-const APP_VERSION = '2026.11.11b';
+const APP_VERSION = '2026.11.12';
 const SUPABASE_URL = 'https://vjphqqtoigpjncmsdudq.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_hUInzKity39UFsFwsFqmSw_HR3HMLE4';
 const SUPABASE_JS = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js';
@@ -2744,8 +2748,10 @@ function seatsHTML(V) {
 function waitHTML(text) { return `<div class="wait"><span class="spinner" aria-hidden="true"></span><span>${text}</span></div>`; }
 
 // A die shown on the table; while an action is selected it can be tapped to apply it.
-const rollDie = (d, opts = {}) => ui.modSel ? dieHTML(d, { ...opts, button: true, action: 'mod-die', data: `data-w="roll"` }) : dieHTML(d, opts);
-const areaDie = (d, p, i) => ui.modSel ? dieHTML(d, { size: 'sm', button: true, action: 'mod-die', data: `data-w="area" data-p="${p}" data-i="${i}"` }) : dieHTML(d, { size: 'sm' });
+// «Remove» can't take the grey or black die: those dice are not offered as targets.
+const modOk = d => !(ui.modSel === 'remove' && (d.c === GREY || d.c === BLACK));
+const rollDie = (d, opts = {}) => ui.modSel && modOk(d) ? dieHTML(d, { ...opts, button: true, action: 'mod-die', data: `data-w="roll"` }) : dieHTML(d, opts);
+const areaDie = (d, p, i) => ui.modSel && modOk(d) ? dieHTML(d, { size: 'sm', button: true, action: 'mod-die', data: `data-w="area" data-p="${p}" data-i="${i}"` }) : dieHTML(d, { size: 'sm' });
 
 function groupsHTML(interactive, me) {
   interactive = interactive && !ui.modSel;
@@ -3330,7 +3336,7 @@ $app.addEventListener('click', e => {
     case 'roll': act('roll'); return;
     case 'sel': ui.sel = g; break;
     case 'place': case 'unplace':
-      if (ui.modSel) { const kind = ui.modSel; ui.modSel = null; act('mod', { kind, t: { w: 'roll', id: +el.dataset.id } }); return; }
+      if (ui.modSel) { if (!modOk(G.roll[+el.dataset.id] || {})) break; const kind = ui.modSel; ui.modSel = null; act('mod', { kind, t: { w: 'roll', id: +el.dataset.id } }); return; }
       ui.assign[+el.dataset.id] = actn === 'place' ? ui.sel : -1; break;
     case 'mod-sel': ui.modSel = ui.modSel === el.dataset.m ? null : el.dataset.m; break;
     case 'mod-die': {

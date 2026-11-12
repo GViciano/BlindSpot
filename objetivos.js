@@ -49,7 +49,8 @@
 //   dos_parejas        Dos números distintos que salgan al menos 2 veces cada uno.
 //   full               Un número que salga al menos 3 veces y otro al menos 2.
 //
-// Tipos que comparan con los demás jugadores (hay que ser el primero en solitario; empatar no vale):
+// Tipos que comparan con los demás jugadores (hay que ser el primero en solitario; empatar no vale,
+// salvo en los de «menos … que nadie» cuando no tienes ninguno: un empate a 0 sí cuenta):
 //   mas_dados_que_nadie            Más dados que cualquier otro jugador.
 //   menos_dados_que_nadie          Menos dados que cualquier otro jugador.
 //   mas_puntos_que_nadie           Que tus dados sumen más que los de cualquier otro.

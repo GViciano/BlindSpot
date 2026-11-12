@@ -212,7 +212,7 @@ ol.steps > li::before {{ content: counter(s); position: absolute; left: 0; top: 
       <h3>The bonus star</h3>
       <p>Cards with an asterisk line at the bottom, such as <b>* =2 → +1★</b>, reward precision. The objective is met with the amount shown or more (or, for “at most” cards, that amount or fewer). If you hit the amount <b>exactly</b>, the card earns 1 extra star.</p>
       <h3>Comparisons with other players</h3>
-      <p>Cards with a crown compare you with every other player: you must be strictly first. A tie does not count.</p>
+      <p>Cards with a crown compare you with every other player: you must be strictly first. A tie does not count, with one exception: for “fewer than any other player” cards, having none at all counts even if other players have none either.</p>
     </div>
     <div>
       <h3>Values, colours and special dice</h3>
@@ -255,7 +255,7 @@ ol.steps > li::before {{ content: counter(s); position: absolute; left: 0; top: 
     <tr><td class="n">A1 Reroll</td><td>Roll the die again.</td></tr>
     <tr><td class="n">A2 +1 / −1</td><td>Turn the die to one pip more or one pip less (never below 1 or above 6).</td></tr>
     <tr><td class="n">A3 Flip</td><td>Turn the die to its opposite face: 1 ↔ 6, 2 ↔ 5, 3 ↔ 4.</td></tr>
-    <tr><td class="n">A4 Remove</td><td>Put the die back into the bag.</td></tr>
+    <tr><td class="n">A4 Remove</td><td>Put the die back into the bag (not the grey or black die).</td></tr>
   </table>
   <div class="box tip"><b class="t">Tip</b>Announce each action clearly: who you are, which die, whose die it was and its value before and after (“I flip Bruno's red die: from 5 to 2”). Agree on it as a team: a used action is gone for everyone.</div>
 </section>
@@ -359,6 +359,7 @@ ol.steps > li::before {{ content: counter(s); position: absolute; left: 0; top: 
       <p><b>Does the grey or black die count for “dice of exactly 3 colours”?</b> No. They count as dice and for values, never as a colour.</p>
       <p><b>Can an action target the black die?</b> Yes. If the black die is removed, its card is discarded with it.</p>
       <p><b>The black card says “your lowest die” and I have two 1s.</b> Choose either one.</p>
+      <p><b>Can an action remove the grey or black die?</b> No. Remove only works on coloured dice; the other actions can change the grey and black dice.</p>
     </div>
   </div>
 </section>
