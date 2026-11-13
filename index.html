@@ -454,7 +454,10 @@ const I18N = {
     bombPick1: 'Elige qué dado tuyo se elimina.', bombPick2: 'Elige dos dados tuyos del mismo valor.', bombPick2any: 'Elige los dos dados tuyos que quieras quitar.',
     bombConfirm: n => n ? 'Eliminar' : 'Elige un dado', bombWait: name => `${name} elige qué dado elimina…`,
     blackLostText: name => `${name} ha recibido un segundo dado negro: el nivel se pierde automáticamente.`,
-    coverBomb: 'Te toca aplicar tu carta negra.',
+    coverBomb: 'Te toca aplicar tu carta negra.', coverFinal: 'Puedes usar tu acción especial antes de terminar.',
+    finalShort: 'Últimas acciones', finalTitle: 'Se han repartido todos los dados',
+    finalText: bomb => `Aún quedan acciones especiales sin usar: podéis usarlas ahora sobre cualquier dado de las zonas. Cuando acabéis, ${bomb ? 'pasad a las bombas' : 'terminad la partida'}.`,
+    finalUseOf: name => `Usar la acción de ${name}`, finishBtn: 'Terminar y descubrir las cartas', finishBomb: 'Terminar: que exploten las bombas',
     logBlackLost: name => `${name} recibe un segundo dado negro. ¡Nivel perdido!`,
     logBomb: (name, c, v) => `La bomba de ${name} elimina un ${v} ${c}.`,
     logBombNone: name => `La bomba de ${name} no elimina nada.`,
@@ -665,7 +668,7 @@ const I18N = {
         <li>Dificultad: cada objetivo tiene de 1 a 5 estrellas. Se eligen las dificultades que se quieran y los objetivos se reparten al azar entre los que las tienen.</li>
         <li>Estrellas del equipo para ganar: con «Todas» hay que cumplir todos los objetivos. Con un número, se suman las estrellas de los objetivos que cumple cada jugador y el equipo gana si llega a esa cifra entre todos.</li>
         <li>Objetivos con *: «2 dados azules» se cumple con 2 o más (y «como máximo 1» con 1 o menos). Si se consigue la cifra exacta, el objetivo da 1★ extra.</li>
-        <li>Campaña: una serie de niveles con los ajustes ya fijados (colores, objetivos, dificultad, estrellas para ganar y dado gris). Al superar un nivel se pasa al siguiente; si se pierde, se reintenta. En los niveles con acciones especiales salen 3 de las 4 acciones (relanzar, +/− 1, invertir dado y eliminar dado) con 3 jugadores, o las 4 con 4 jugadores. Cada jugador puede usar una en todo el nivel, en cualquier momento y sobre cualquier dado a la vista, y la acción usada ya no está disponible para nadie más.</li>
+        <li>Campaña: una serie de niveles con los ajustes ya fijados (colores, objetivos, dificultad, estrellas para ganar y dado gris). Al superar un nivel se pasa al siguiente; si se pierde, se reintenta. En los niveles con acciones especiales salen 3 de las 4 acciones (relanzar, +/− 1, invertir dado y eliminar dado) con 3 jugadores, o las 4 con 4 jugadores. Cada jugador puede usar una en todo el nivel, en cualquier momento y sobre cualquier dado a la vista, y la acción usada ya no está disponible para nadie más. Cuando se han repartido todos los dados, antes de descubrir las cartas, aún se pueden usar las que queden.</li>
         <li>Dado gris (opcional): en la primera ronda se tira además un dado gris y sale una carta gris común. Quien acabe con el dado gris tiene que cumplirla para que el equipo gane. El dado gris cuenta como dado, para la suma y para los números, pero no como color.</li>
         <li>Dado negro (Bomba, niveles 16–20 de la campaña): cada ronda se tira además un dado negro, que trae una carta negra. Cada jugador solo puede acabar con un dado negro: quien ya tiene uno no puede coger un grupo con otro, y si a quien reparte le toca un segundo dado negro, el nivel se pierde. Al final, quien tiene un dado negro aplica su carta a sus propios dados (elimina uno o dos). El dado negro cuenta como dado, para la suma y para los números, pero no como color.</li>
       </ul>
@@ -760,7 +763,10 @@ const I18N = {
     bombPick1: 'Choose which of your dice is removed.', bombPick2: 'Choose two of your dice with the same value.', bombPick2any: 'Choose any two of your dice to remove.',
     bombConfirm: n => n ? 'Remove' : 'Choose a die', bombWait: name => `${name} is choosing which die to remove…`,
     blackLostText: name => `${name} got a second black die: the level is lost automatically.`,
-    coverBomb: 'It’s your turn to apply your black card.',
+    coverBomb: 'It’s your turn to apply your black card.', coverFinal: 'You can use your special action before the end.',
+    finalShort: 'Last actions', finalTitle: 'All the dice have been dealt',
+    finalText: bomb => `There are still unused special actions: you can use them now on any die in the players’ areas. When you are done, ${bomb ? 'go on to the bombs' : 'end the game'}.`,
+    finalUseOf: name => `Use ${name}’s action`, finishBtn: 'End the game and reveal the cards', finishBomb: 'End: set off the bombs',
     logBlackLost: name => `${name} gets a second black die. Level lost!`,
     logBomb: (name, c, v) => `${name}’s bomb removes a ${c} ${v}.`,
     logBombNone: name => `${name}’s bomb removes nothing.`,
@@ -963,7 +969,7 @@ const I18N = {
         <li>Difficulty: each objective has 1 to 5 stars. Pick any difficulties you like and objectives are dealt at random from those.</li>
         <li>Team stars to win: with “All”, every objective must be completed. With a number, the stars of the objectives each player completes are added up, and the team wins if it reaches that number between everyone.</li>
         <li>Objectives marked *: “2 blue dice” is met with 2 or more (and “at most 1” with 1 or fewer). Hitting the exact amount gives 1★ extra.</li>
-        <li>Campaign: a series of levels with fixed settings (colours, objectives, difficulty, stars to win and grey die). Beat a level to move on to the next; if you lose, try again. In levels with special actions, 3 of the 4 actions (reroll, +/− 1, flip die and remove die) come up with 3 players, or all 4 with 4 players. Each player can use one during the level, at any time and on any visible die, and a used action is no longer available to anyone.</li>
+        <li>Campaign: a series of levels with fixed settings (colours, objectives, difficulty, stars to win and grey die). Beat a level to move on to the next; if you lose, try again. In levels with special actions, 3 of the 4 actions (reroll, +/− 1, flip die and remove die) come up with 3 players, or all 4 with 4 players. Each player can use one during the level, at any time and on any visible die, and a used action is no longer available to anyone. Once all the dice have been dealt, before the cards are revealed, any actions left can still be used.</li>
         <li>Grey die (optional): in the first round a grey die is rolled as well and a common grey card is drawn. Whoever ends up with the grey die must meet it for the team to win. The grey die counts as a die, for sums and for numbers, but not as a colour.</li>
         <li>Black die (Bomb, campaign levels 16–20): every round a black die is rolled as well, with a black card. Each player can end up with only one black die: if you already have one you can’t take a group with another, and if the dealer gets a second black die the level is lost. At the end, whoever has a black die applies its card to their own dice (removing one or two). The black die counts as a die, for sums and for numbers, but not as a colour.</li>
       </ul>
@@ -1532,7 +1538,7 @@ const groupHasBlack = g => groupDice(g).some(d => d.c === BLACK);
 const allowedGroups = p => availGroups().filter(g => !(hasBlack(p) && groupHasBlack(g)));
 const pn = i => G.players[i].name;
 const name = i => esc(G.players[i].name);
-const stateKey = () => G.phase === 'reveal' ? `${G.gid}|reveal` : G.phase === 'bomb' ? `${G.gid}|bomb|${G.bomb ? G.bomb.step : 0}` : `${G.gid}|${G.round}|${G.phase}|${G.step}`;
+const stateKey = () => G.phase === 'reveal' ? `${G.gid}|reveal` : G.phase === 'final' ? `${G.gid}|final` : G.phase === 'bomb' ? `${G.gid}|bomb|${G.bomb ? G.bomb.step : 0}` : `${G.gid}|${G.round}|${G.phase}|${G.step}`;
 
 function log(msg) { G.log.push(msg); if (G.log.length > 30) G.log.shift(); }
 
@@ -1625,7 +1631,7 @@ function finishRound() {
   })); });
   if (conflict) { G.lostBy = G.active; log(['blackLost', G.active]); reveal(); return; }
   G.round++;
-  if (G.round >= P()) { if (G.cfg.black) startBomb(); else reveal(); return; }
+  if (G.round >= P()) { if (actionsLeft()) G.phase = 'final'; else endGame(); return; }
   G.active = (G.starter + G.round) % P();
   Object.assign(G, { phase: 'roll', roll: [], groups: [], taken: {}, order: [], step: 0 });
 }
@@ -1694,6 +1700,11 @@ function computeResults() {
     }
   }
 }
+
+// All dice dealt: with special actions still unused, the team may use them before the end.
+const actionsLeft = () => !!G.mods && G.mods.avail.some(a => G.mods.used[a] === undefined)
+  && G.players.some((p, i) => !p.bot && !Object.values(G.mods.used).includes(i));
+function endGame() { if (G.cfg.black) startBomb(); else reveal(); }
 
 // End of a black-die level: each player with a black die applies its card, in seat order.
 function startBomb() {
@@ -1789,6 +1800,10 @@ function validGroups(gs) {
 // Applies one player's move if it is legal right now.
 function applyAction(seat, a) {
   if (a && a.k === 'mod') return Number.isInteger(seat) && G.players[seat] && !G.players[seat].bot && applyMod(seat, a.kind, a.t);
+  if (a && a.k === 'finish') {
+    if (G.phase !== 'final' || !(seat === 'local' || (Number.isInteger(seat) && G.players[seat] && !G.players[seat].bot))) return false;
+    endGame(); return true;
+  }
   if (!a || seat !== currentActor() || G.players[seat].bot) return false;
   if (a.k === 'roll' && G.phase === 'roll') { doRoll(); return true; }
   if (a.k === 'groups' && G.phase === 'group') {
@@ -1959,7 +1974,7 @@ function advance() {
   if (!G || G.phase === 'reveal') return;
   if (G.online && ON.role !== 'host') return;
   if (G.phase === 'choose' && G.step >= G.order.length) { finishRound(); advance(); return; }
-  if (G.phase === 'reveal') return;
+  if (G.phase === 'reveal' || G.phase === 'final') return; // «final» waits for the players to end it
   if (!G.online && introOpen()) return;
   if (G.phase === 'bomb') {
     if (G.bomb.step >= G.bomb.queue.length) { reveal(); return; }
@@ -1993,7 +2008,7 @@ function changed() {
 function act(k, extra = {}) {
   const a = { k, key: stateKey(), ...extra };
   if (G.online && ON.role === 'guest') { sendAct(a, k === 'mod'); render(); return; }
-  if (!applyAction(k === 'mod' ? modActor() : currentActor(), a)) return;
+  if (!applyAction(k === 'mod' ? modActor() : k === 'finish' ? 'local' : currentActor(), a)) return;
   if (!G.online && multi() && k !== 'mod') G.viewer = null;
   advance();
   changed();
@@ -2082,7 +2097,7 @@ function decodeG(w) {
     const groups = (w.gr || []).slice(0, n).map(g => g.map(id => int(id, 0, roll.length - 1)));
     const taken = {};
     (w.tk || []).forEach((t, i) => { if (t >= 0) taken[i] = int(t, 0, n - 1); });
-    const ph = ['roll', 'group', 'choose', 'bomb', 'reveal'].includes(w.ph) ? w.ph : null;
+    const ph = ['roll', 'group', 'choose', 'final', 'bomb', 'reveal'].includes(w.ph) ? w.ph : null;
     if (!ph) throw new Error('check');
     let bomb = null;
     if (Array.isArray(w.bm) && Array.isArray(w.bm[0])) bomb = { queue: w.bm[0].slice(0, n).map(x => int(x, 0, n - 1)), step: int(w.bm[1], 0, n) };
@@ -2121,7 +2136,7 @@ const PEERJS_URL = 'https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js';
 // Online relay through Supabase Realtime: works on networks that block direct browser-to-browser links.
 // The publishable key is meant to be public (it only allows what the project's settings allow).
 // Shown next to the connection line, to tell whether everyone has the same version loaded.
-const APP_VERSION = '2026.11.12';
+const APP_VERSION = '2026.11.13';
 const SUPABASE_URL = 'https://vjphqqtoigpjncmsdudq.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_hUInzKity39UFsFwsFqmSw_HR3HMLE4';
 const SUPABASE_JS = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js';
@@ -2867,6 +2882,14 @@ function stageHTML(V) {
         ${groupsHTML(false)}
         ${waitHTML(G.players[a].bot ? t('thinking', name(a)) : t('picking', name(a)))}`;
     }
+  } else if (G.phase === 'final') {
+    // Last chance for special actions; anyone can end the game.
+    const left = G.players.map((p, i) => i).filter(i => !G.players[i].bot && !Object.values(G.mods.used).includes(i));
+    const who = !G.online && multi() ? `<div class="actions">${left.map(i => `<button type="button" class="btn" data-action="final-who" data-i="${i}">${t('finalUseOf', name(i))}</button>`).join('')}</div>` : '';
+    body = `<h2>${t('finalTitle')}</h2>
+      <p class="sub">${t('finalText', G.cfg.black)}</p>
+      ${who}
+      <div class="actions"><button type="button" class="btn primary big" data-action="finish" ${sending ? 'disabled' : ''}>${sending ? t('sending') : t(G.cfg.black ? 'finishBomb' : 'finishBtn')}</button></div>`;
   } else if (G.phase === 'bomb') {
     const info = a !== null ? bombInfo(a) : null;
     if (mine && info) {
@@ -3003,7 +3026,7 @@ function headerHTML(status) {
 function gameHTML() {
   const V = viewerOf();
   const where = (G.online ? `${t('gameCode', ON.code.toUpperCase())} · ` : '') + (G.camp !== null && G.camp !== undefined ? `${t('levelN', G.camp + 1)} · ` : '');
-  const status = G.phase === 'reveal' ? `${where}${t('gameOver')}` : `${where}${G.phase === 'bomb' ? t('bombTitle') : t('round', G.round + 1, P())} · ${t('toWin')}: ${teamNeed() ? `${teamNeed()}★` : t('needAllShort').toLowerCase()}`;
+  const status = G.phase === 'reveal' ? `${where}${t('gameOver')}` : `${where}${G.phase === 'bomb' ? t('bombTitle') : G.phase === 'final' ? t('finalShort') : t('round', G.round + 1, P())} · ${t('toWin')}: ${teamNeed() ? `${teamNeed()}★` : t('needAllShort').toLowerCase()}`;
   return `${headerHTML(status)}
     <div class="board">${stageHTML(V)}${seatsHTML(V)}</div>
     ${introOpen() ? introHTML() : !G.online && G.cover !== null && G.cover !== undefined ? coverHTML() : ''}`;
@@ -3028,7 +3051,7 @@ function introHTML() {
 
 function coverHTML() {
   const i = G.cover;
-  const what = G.phase === 'choose' ? t('coverChoose') : G.phase === 'bomb' ? t('coverBomb') : t('coverDeal');
+  const what = G.phase === 'choose' ? t('coverChoose') : G.phase === 'bomb' ? t('coverBomb') : G.phase === 'final' ? t('coverFinal') : t('coverDeal');
   return `<div class="overlay" role="dialog" aria-modal="true" aria-label="${t('coverLabel')}"><div class="cover">
     <div class="eye" aria-hidden="true">?</div>
     <h2>${t('coverTitle', name(i))}</h2>
@@ -3333,6 +3356,8 @@ $app.addEventListener('click', e => {
       else { stopTimer(); G = null; persist(); }
       break;
     case 'cover-ok': G.viewer = G.cover; G.cover = null; persist(); break;
+    case 'final-who': G.cover = +el.dataset.i; persist(); break;
+    case 'finish': act('finish'); return;
     case 'roll': act('roll'); return;
     case 'sel': ui.sel = g; break;
     case 'place': case 'unplace':

@@ -249,7 +249,7 @@ ol.steps > li::before {{ content: counter(s); position: absolute; left: 0; top: 
   <p>The three variants below are introduced step by step in the campaign. In a free game, you may add the grey die.</p>
   <h3>Special actions</h3>
   <p><b>Setup.</b> With 3 players, shuffle the 4 action cards and place 3 of them face up; return the fourth to the box. With 4 players, use all 4.</p>
-  <p><b>Using an action.</b> At any time during the game, any player may use one available action on <b>any visible die</b>: in the dealer's roll, in a group, or in any player's area. Then take the card: it is no longer available to anyone. Each player may use only one action per game.</p>
+  <p><b>Using an action.</b> At any time during the game, any player may use one available action on <b>any visible die</b>: in the dealer's roll, in a group, or in any player's area. Then take the card: it is no longer available to anyone. Each player may use only one action per game. Once all the dice have been dealt, there is a last chance: before the cards are revealed (and before the bombs go off), players may still use the actions left.</p>
   <table>
     <tr><th>Card</th><th>Effect</th></tr>
     <tr><td class="n">A1 Reroll</td><td>Roll the die again.</td></tr>
