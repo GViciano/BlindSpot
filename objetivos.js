@@ -73,7 +73,7 @@ window.BLINDSPOTS_OBJETIVOS = [
   { estrellas: 1, tipo: 'al_menos', color: 'azul', n: 2, decir_al_menos: true },
   { estrellas: 1, tipo: 'al_menos', color: 'rojo', n: 2, decir_al_menos: true },
   { estrellas: 1, tipo: 'al_menos', color: 'verde', n: 2, decir_al_menos: true },
-  { estrellas: 1, tipo: 'al_menos', color: 'amarillo', n: 2 },
+  { estrellas: 1, tipo: 'al_menos', color: 'amarillo', n: 2, decir_al_menos: true },
   { estrellas: 1, tipo: 'sin_numero', numero: 6 },
   { estrellas: 1, tipo: 'sin_numero', numero: 1 },
   { estrellas: 1, tipo: 'sin_numero', numero: 3 },

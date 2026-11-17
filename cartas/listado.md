@@ -9,7 +9,7 @@ Texto tal como aparece en el juego. El número coincide con el de la esquina de 
 | 1 | ★☆☆☆☆ | Al menos 2 dados azules. | Si consigues exactamente 2 dados azules: +1★ extra. |
 | 2 | ★☆☆☆☆ | Al menos 2 dados rojos. | Si consigues exactamente 2 dados rojos: +1★ extra. |
 | 3 | ★☆☆☆☆ | Al menos 2 dados verdes. | Si consigues exactamente 2 dados verdes: +1★ extra. |
-| 4 | ★☆☆☆☆ | 2 dados amarillos. | Si consigues exactamente 2 dados amarillos: +1★ extra. |
+| 4 | ★☆☆☆☆ | Al menos 2 dados amarillos. | Si consigues exactamente 2 dados amarillos: +1★ extra. |
 | 5 | ★☆☆☆☆ | Ningún dado con un 6. |  |
 | 6 | ★☆☆☆☆ | Ningún dado con un 1. |  |
 | 7 | ★☆☆☆☆ | Ningún dado con un 3. |  |
