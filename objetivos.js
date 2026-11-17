@@ -116,6 +116,8 @@ window.BLINDSPOTS_OBJETIVOS = [
   { estrellas: 4, tipo: 'total_como_maximo', n: 5 },
   { estrellas: 5, tipo: 'exactamente', color: 'verde', n: 4 },
   { estrellas: 5, tipo: 'suma_al_menos', color: 'azul', n: 18 },
+  { estrellas: 5, tipo: 'exactamente', color: 'rojo', n: 4 },
+  { estrellas: 5, tipo: 'suma_al_menos', color: 'rojo', n: 18 },
 
   // Objetivos sobre los números de los dados
   { estrellas: 4, tipo: 'sin_pares' },
@@ -137,6 +139,7 @@ window.BLINDSPOTS_OBJETIVOS = [
   { estrellas: 2, tipo: 'valor_minimo', n: 2 },
   { estrellas: 3, tipo: 'valor_minimo', n: 3 },
   { estrellas: 4, tipo: 'valor_minimo', n: 4 },
+  { estrellas: 5, tipo: 'valor_minimo', n: 5 },
   { estrellas: 1, tipo: 'sin_numero', numero: 6 },
   { estrellas: 1, tipo: 'sin_numero', numero: 1 },
   { estrellas: 1, tipo: 'sin_numero', numero: 3 },
