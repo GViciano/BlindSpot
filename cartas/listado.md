@@ -6,126 +6,126 @@ Texto tal como aparece en el juego. El número coincide con el de la esquina de 
 
 | Nº | Estrellas | Objetivo | Estrella extra (*) |
 |---|---|---|---|
-| 1 | ★★☆☆☆ | Ningún dado azul. |  |
-| 2 | ★☆☆☆☆ | Al menos 2 dados azules. | Si consigues exactamente 2 dados azules: +1★ extra. |
-| 3 | ★★☆☆☆ | Al menos 3 dados azules. | Si consigues exactamente 3 dados azules: +1★ extra. |
-| 4 | ★★☆☆☆ | Como máximo 1 dado azul. | Si consigues exactamente 1 dado azul: +1★ extra. |
-| 5 | ★★★☆☆ | Exactamente 2 dados azules. |  |
-| 6 | ★★★★☆ | Exactamente 3 dados azules. |  |
-| 7 | ★★★☆☆ | Tus dados azules suman 12 o más. | Si consigues exactamente una suma de 12 en tus dados azules: +1★ extra. |
-| 8 | ★★★★☆ | Tus dados azules suman 15 o más. | Si consigues exactamente una suma de 15 en tus dados azules: +1★ extra. |
-| 9 | ★★☆☆☆ | Ningún dado rojo. |  |
-| 10 | ★☆☆☆☆ | Al menos 2 dados rojos. | Si consigues exactamente 2 dados rojos: +1★ extra. |
-| 11 | ★★☆☆☆ | Al menos 3 dados rojos. | Si consigues exactamente 3 dados rojos: +1★ extra. |
-| 12 | ★★☆☆☆ | Como máximo 1 dado rojo. | Si consigues exactamente 1 dado rojo: +1★ extra. |
-| 13 | ★★★☆☆ | Exactamente 2 dados rojos. |  |
-| 14 | ★★★★☆ | Exactamente 3 dados rojos. |  |
-| 15 | ★★★☆☆ | Tus dados rojos suman 12 o más. | Si consigues exactamente una suma de 12 en tus dados rojos: +1★ extra. |
-| 16 | ★★★★☆ | Tus dados rojos suman 15 o más. | Si consigues exactamente una suma de 15 en tus dados rojos: +1★ extra. |
-| 17 | ★★☆☆☆ | Ningún dado verde. |  |
-| 18 | ★☆☆☆☆ | Al menos 2 dados verdes. | Si consigues exactamente 2 dados verdes: +1★ extra. |
-| 19 | ★★☆☆☆ | Al menos 3 dados verdes. | Si consigues exactamente 3 dados verdes: +1★ extra. |
-| 20 | ★★☆☆☆ | Como máximo 1 dado verde. | Si consigues exactamente 1 dado verde: +1★ extra. |
-| 21 | ★★★☆☆ | Exactamente 2 dados verdes. |  |
-| 22 | ★★★★☆ | Exactamente 3 dados verdes. |  |
-| 23 | ★★★☆☆ | Tus dados verdes suman 12 o más. | Si consigues exactamente una suma de 12 en tus dados verdes: +1★ extra. |
-| 24 | ★★★★☆ | Tus dados verdes suman 15 o más. | Si consigues exactamente una suma de 15 en tus dados verdes: +1★ extra. |
-| 25 | ★★☆☆☆ | Ningún dado amarillo. |  |
-| 26 | ★☆☆☆☆ | 2 dados amarillos. | Si consigues exactamente 2 dados amarillos: +1★ extra. |
-| 27 | ★★☆☆☆ | 3 dados amarillos. | Si consigues exactamente 3 dados amarillos: +1★ extra. |
-| 28 | ★★☆☆☆ | Como máximo 1 dado amarillo. | Si consigues exactamente 1 dado amarillo: +1★ extra. |
-| 29 | ★★★☆☆ | Exactamente 2 dados amarillos. |  |
-| 30 | ★★★★☆ | Exactamente 3 dados amarillos. |  |
-| 31 | ★★★☆☆ | Tus dados amarillos suman 12 o más. | Si consigues exactamente una suma de 12 en tus dados amarillos: +1★ extra. |
-| 32 | ★★★★☆ | Tus dados amarillos suman 15 o más. | Si consigues exactamente una suma de 15 en tus dados amarillos: +1★ extra. |
-| 33 | ★★☆☆☆ | Suma azul > suma rojo. |  |
-| 34 | ★★☆☆☆ | Más dados rojos que azules. |  |
-| 35 | ★★☆☆☆ | Suma rojo > suma verde. |  |
-| 36 | ★★☆☆☆ | Más dados verdes que rojos. |  |
-| 37 | ★★☆☆☆ | Suma verde > suma azul. |  |
-| 38 | ★★☆☆☆ | Más dados azules que verdes. |  |
-| 39 | ★★☆☆☆ | Suma amarillo > suma azul. |  |
-| 40 | ★★☆☆☆ | Más dados azules que amarillos. |  |
-| 41 | ★★★☆☆ | Al menos un dado de cada color. *(solo con 4 colores)* |  |
-| 42 | ★★☆☆☆ | Dados de exactamente 3 colores distintos. *(solo con 4 colores)* |  |
-| 43 | ★★★★☆ | Dados de exactamente 2 colores distintos. |  |
-| 44 | ★★★★★ | Todos tus dados de un solo color. |  |
-| 45 | ★★★☆☆ | 6 dados en total. | Si consigues exactamente 6 dados en total: +1★ extra. |
-| 46 | ★★★★☆ | Como máximo 5 dados en total. | Si consigues exactamente 5 dados en total: +1★ extra. |
-| 47 | ★★★★★ | Exactamente 4 dados verdes. |  |
-| 48 | ★★★★★ | Tus dados azules suman 18 o más. | Si consigues exactamente una suma de 18 en tus dados azules: +1★ extra. |
-| 49 | ★★★★★ | Exactamente 4 dados rojos. |  |
-| 50 | ★★★★★ | Tus dados rojos suman 18 o más. | Si consigues exactamente una suma de 18 en tus dados rojos: +1★ extra. |
-| 51 | ★★★★☆ | Ningún dado con número par. |  |
-| 52 | ★★★★☆ | Ningún dado con número impar. |  |
-| 53 | ★★★☆☆ | Exactamente 2 dados con número par. |  |
-| 54 | ★★★☆☆ | Exactamente 3 dados con número par. |  |
-| 55 | ★★★☆☆ | Exactamente 2 dados con número impar. |  |
-| 56 | ★★★★☆ | Exactamente 4 dados con número impar. |  |
-| 57 | ★★☆☆☆ | Más dados con número par que con número impar. |  |
-| 58 | ★★☆☆☆ | Más dados con número impar que con número par. |  |
-| 59 | ★★★☆☆ | Exactamente 2 dados con el mismo número (ningún número sale más de 2 veces). |  |
-| 60 | ★★★★☆ | Exactamente 3 dados con el mismo número (ningún número sale más de 3 veces). |  |
-| 61 | ★★☆☆☆ | Al menos 3 dados con el mismo número. | Si consigues exactamente 3 dados con el mismo número: +1★ extra. |
-| 62 | ★★★☆☆ | Al menos 4 dados con el mismo número. | Si consigues exactamente 4 dados con el mismo número: +1★ extra. |
-| 63 | ★★★★★ | Al menos 5 dados con el mismo número. | Si consigues exactamente 5 dados con el mismo número: +1★ extra. |
-| 64 | ★★☆☆☆ | Ningún dado mayor que 5. |  |
+| 1 | ★☆☆☆☆ | Al menos 2 dados azules. | Si consigues exactamente 2 dados azules: +1★ extra. |
+| 2 | ★☆☆☆☆ | Al menos 2 dados rojos. | Si consigues exactamente 2 dados rojos: +1★ extra. |
+| 3 | ★☆☆☆☆ | Al menos 2 dados verdes. | Si consigues exactamente 2 dados verdes: +1★ extra. |
+| 4 | ★☆☆☆☆ | 2 dados amarillos. | Si consigues exactamente 2 dados amarillos: +1★ extra. |
+| 5 | ★☆☆☆☆ | Ningún dado con un 6. |  |
+| 6 | ★☆☆☆☆ | Ningún dado con un 1. |  |
+| 7 | ★☆☆☆☆ | Ningún dado con un 3. |  |
+| 8 | ★☆☆☆☆ | Ningún dado con un 2. |  |
+| 9 | ★☆☆☆☆ | Ningún dado con un 4. |  |
+| 10 | ★☆☆☆☆ | Ningún dado con un 5. |  |
+| 11 | ★☆☆☆☆ | Tus dados suman 20 o menos en total. | Si consigues exactamente una suma total de 20: +1★ extra. |
+| 12 | ★☆☆☆☆ | Tus dados suman un número par en total. |  |
+| 13 | ★★☆☆☆ | Ningún dado azul. |  |
+| 14 | ★★☆☆☆ | Al menos 3 dados azules. | Si consigues exactamente 3 dados azules: +1★ extra. |
+| 15 | ★★☆☆☆ | Como máximo 1 dado azul. | Si consigues exactamente 1 dado azul: +1★ extra. |
+| 16 | ★★☆☆☆ | Ningún dado rojo. |  |
+| 17 | ★★☆☆☆ | Al menos 3 dados rojos. | Si consigues exactamente 3 dados rojos: +1★ extra. |
+| 18 | ★★☆☆☆ | Como máximo 1 dado rojo. | Si consigues exactamente 1 dado rojo: +1★ extra. |
+| 19 | ★★☆☆☆ | Ningún dado verde. |  |
+| 20 | ★★☆☆☆ | Al menos 3 dados verdes. | Si consigues exactamente 3 dados verdes: +1★ extra. |
+| 21 | ★★☆☆☆ | Como máximo 1 dado verde. | Si consigues exactamente 1 dado verde: +1★ extra. |
+| 22 | ★★☆☆☆ | Ningún dado amarillo. |  |
+| 23 | ★★☆☆☆ | 3 dados amarillos. | Si consigues exactamente 3 dados amarillos: +1★ extra. |
+| 24 | ★★☆☆☆ | Como máximo 1 dado amarillo. | Si consigues exactamente 1 dado amarillo: +1★ extra. |
+| 25 | ★★☆☆☆ | Suma azul > suma rojo. |  |
+| 26 | ★★☆☆☆ | Más dados rojos que azules. |  |
+| 27 | ★★☆☆☆ | Suma rojo > suma verde. |  |
+| 28 | ★★☆☆☆ | Más dados verdes que rojos. |  |
+| 29 | ★★☆☆☆ | Suma verde > suma azul. |  |
+| 30 | ★★☆☆☆ | Más dados azules que verdes. |  |
+| 31 | ★★☆☆☆ | Suma amarillo > suma azul. |  |
+| 32 | ★★☆☆☆ | Más dados azules que amarillos. |  |
+| 33 | ★★☆☆☆ | Dados de exactamente 3 colores distintos. *(solo con 4 colores)* |  |
+| 34 | ★★☆☆☆ | Más dados con número par que con número impar. |  |
+| 35 | ★★☆☆☆ | Más dados con número impar que con número par. |  |
+| 36 | ★★☆☆☆ | Al menos 3 dados con el mismo número. | Si consigues exactamente 3 dados con el mismo número: +1★ extra. |
+| 37 | ★★☆☆☆ | Ningún dado mayor que 5. |  |
+| 38 | ★★☆☆☆ | Ningún dado menor que 2. |  |
+| 39 | ★★☆☆☆ | Al menos 2 dados con un 6. | Si consigues exactamente 2 dados con un 6: +1★ extra. |
+| 40 | ★★☆☆☆ | Al menos 2 dados con un 1. | Si consigues exactamente 2 dados con un 1: +1★ extra. |
+| 41 | ★★☆☆☆ | Tus dados suman 15 o menos en total. | Si consigues exactamente una suma total de 15: +1★ extra. |
+| 42 | ★★☆☆☆ | Tus dados suman 15 o más en total. | Si consigues exactamente una suma total de 15: +1★ extra. |
+| 43 | ★★☆☆☆ | Una escalera de 3: 3 números seguidos cualesquiera, empezando por el que sea (por ejemplo 4-5-6). |  |
+| 44 | ★★☆☆☆ | Ten más dados azules que cualquier otro jugador. |  |
+| 45 | ★★☆☆☆ | Ten más dados rojos que cualquier otro jugador. |  |
+| 46 | ★★☆☆☆ | Ten más dados verdes que cualquier otro jugador. |  |
+| 47 | ★★☆☆☆ | Ten más dados amarillos que cualquier otro jugador. |  |
+| 48 | ★★☆☆☆ | Ten menos dados azules que cualquier otro jugador. |  |
+| 49 | ★★☆☆☆ | Ten menos dados amarillos que cualquier otro jugador. |  |
+| 50 | ★★★☆☆ | Exactamente 2 dados azules. |  |
+| 51 | ★★★☆☆ | Tus dados azules suman 12 o más. | Si consigues exactamente una suma de 12 en tus dados azules: +1★ extra. |
+| 52 | ★★★☆☆ | Exactamente 2 dados rojos. |  |
+| 53 | ★★★☆☆ | Tus dados rojos suman 12 o más. | Si consigues exactamente una suma de 12 en tus dados rojos: +1★ extra. |
+| 54 | ★★★☆☆ | Exactamente 2 dados verdes. |  |
+| 55 | ★★★☆☆ | Tus dados verdes suman 12 o más. | Si consigues exactamente una suma de 12 en tus dados verdes: +1★ extra. |
+| 56 | ★★★☆☆ | Exactamente 2 dados amarillos. |  |
+| 57 | ★★★☆☆ | Tus dados amarillos suman 12 o más. | Si consigues exactamente una suma de 12 en tus dados amarillos: +1★ extra. |
+| 58 | ★★★☆☆ | Al menos un dado de cada color. *(solo con 4 colores)* |  |
+| 59 | ★★★☆☆ | 6 dados en total. | Si consigues exactamente 6 dados en total: +1★ extra. |
+| 60 | ★★★☆☆ | Exactamente 2 dados con número par. |  |
+| 61 | ★★★☆☆ | Exactamente 3 dados con número par. |  |
+| 62 | ★★★☆☆ | Exactamente 2 dados con número impar. |  |
+| 63 | ★★★☆☆ | Exactamente 2 dados con el mismo número (ningún número sale más de 2 veces). |  |
+| 64 | ★★★☆☆ | Al menos 4 dados con el mismo número. | Si consigues exactamente 4 dados con el mismo número: +1★ extra. |
 | 65 | ★★★☆☆ | Ningún dado mayor que 4. |  |
-| 66 | ★★★★☆ | Ningún dado mayor que 3. |  |
-| 67 | ★★☆☆☆ | Ningún dado menor que 2. |  |
-| 68 | ★★★☆☆ | Ningún dado menor que 3. |  |
-| 69 | ★★★★☆ | Ningún dado menor que 4. |  |
-| 70 | ★★★★★ | Ningún dado menor que 5. |  |
-| 71 | ★☆☆☆☆ | Ningún dado con un 6. |  |
-| 72 | ★☆☆☆☆ | Ningún dado con un 1. |  |
-| 73 | ★☆☆☆☆ | Ningún dado con un 3. |  |
-| 74 | ★☆☆☆☆ | Ningún dado con un 2. |  |
-| 75 | ★☆☆☆☆ | Ningún dado con un 4. |  |
-| 76 | ★☆☆☆☆ | Ningún dado con un 5. |  |
-| 77 | ★★☆☆☆ | Al menos 2 dados con un 6. | Si consigues exactamente 2 dados con un 6: +1★ extra. |
-| 78 | ★★☆☆☆ | Al menos 2 dados con un 1. | Si consigues exactamente 2 dados con un 1: +1★ extra. |
-| 79 | ★★★☆☆ | Al menos 3 dados con un 5. | Si consigues exactamente 3 dados con un 5: +1★ extra. |
-| 80 | ★★★☆☆ | Al menos 3 dados con un 4. | Si consigues exactamente 3 dados con un 4: +1★ extra. |
-| 81 | ★☆☆☆☆ | Tus dados suman 20 o menos en total. | Si consigues exactamente una suma total de 20: +1★ extra. |
-| 82 | ★★☆☆☆ | Tus dados suman 15 o menos en total. | Si consigues exactamente una suma total de 15: +1★ extra. |
-| 83 | ★★☆☆☆ | Tus dados suman 15 o más en total. | Si consigues exactamente una suma total de 15: +1★ extra. |
-| 84 | ★★★☆☆ | Tus dados suman 20 o más en total. | Si consigues exactamente una suma total de 20: +1★ extra. |
-| 85 | ★★★★☆ | Tus dados suman 25 o más en total. | Si consigues exactamente una suma total de 25: +1★ extra. |
-| 86 | ★★★★★ | Tus dados suman 30 o más en total. | Si consigues exactamente una suma total de 30: +1★ extra. |
-| 87 | ★☆☆☆☆ | Tus dados suman un número par en total. |  |
-| 88 | ★★☆☆☆ | Una escalera de 3: 3 números seguidos cualesquiera, empezando por el que sea (por ejemplo 4-5-6). |  |
-| 89 | ★★★☆☆ | Una escalera de 4: 4 números seguidos cualesquiera, empezando por el que sea (por ejemplo 3-4-5-6). |  |
-| 90 | ★★★★☆ | Una escalera de 5: 5 números seguidos cualesquiera, empezando por el que sea (por ejemplo 2-3-4-5-6). |  |
-| 91 | ★★★★★ | Una escalera de 6: 6 números seguidos cualesquiera, empezando por el que sea (por ejemplo 1-2-3-4-5-6). |  |
-| 92 | ★★★★☆ | Una escalera de 3 del mismo color: 3 números seguidos en dados de un solo color. |  |
-| 93 | ★★★★★ | Una escalera de 4 del mismo color: 4 números seguidos en dados de un solo color. |  |
-| 94 | ★★★☆☆ | Dos parejas: dos números distintos que salgan al menos 2 veces cada uno. |  |
-| 95 | ★★★★☆ | Un full: un número que salga al menos 3 veces y otro que salga al menos 2. |  |
-| 96 | ★★★☆☆ | Ten más dados que cualquier otro jugador. |  |
-| 97 | ★★★☆☆ | Ten menos dados que cualquier otro jugador. |  |
-| 98 | ★★★☆☆ | Que tus dados sumen más puntos que los de cualquier otro jugador. |  |
-| 99 | ★★★☆☆ | Que tus dados sumen menos puntos que los de cualquier otro jugador. |  |
-| 100 | ★★★☆☆ | Que tus dados azules sumen más puntos que los de cualquier otro jugador. |  |
-| 101 | ★★★☆☆ | Que tus dados rojos sumen más puntos que los de cualquier otro jugador. |  |
-| 102 | ★★★☆☆ | Que tus dados verdes sumen más puntos que los de cualquier otro jugador. |  |
-| 103 | ★★★☆☆ | Que tus dados amarillos sumen más puntos que los de cualquier otro jugador. |  |
-| 104 | ★★★☆☆ | Que tus dados azules sumen menos puntos que los de cualquier otro jugador. |  |
-| 105 | ★★★☆☆ | Que tus dados rojos sumen menos puntos que los de cualquier otro jugador. |  |
-| 106 | ★★★☆☆ | Que tus dados verdes sumen menos puntos que los de cualquier otro jugador. |  |
-| 107 | ★★★☆☆ | Que tus dados amarillos sumen menos puntos que los de cualquier otro jugador. |  |
-| 108 | ★★☆☆☆ | Ten más dados azules que cualquier otro jugador. |  |
-| 109 | ★★☆☆☆ | Ten más dados rojos que cualquier otro jugador. |  |
-| 110 | ★★☆☆☆ | Ten más dados verdes que cualquier otro jugador. |  |
-| 111 | ★★☆☆☆ | Ten más dados amarillos que cualquier otro jugador. |  |
-| 112 | ★★☆☆☆ | Ten menos dados azules que cualquier otro jugador. |  |
-| 113 | ★★☆☆☆ | Ten menos dados amarillos que cualquier otro jugador. |  |
-| 114 | ★★★☆☆ | Ten dados de más colores distintos que cualquier otro jugador. |  |
-| 115 | ★★★☆☆ | Ten más dados con un 6 que cualquier otro jugador. |  |
-| 116 | ★★★☆☆ | Ten más dados con un 1 que cualquier otro jugador. |  |
-| 117 | ★★★☆☆ | Ten más dados con un 3 que cualquier otro jugador. |  |
-| 118 | ★★★☆☆ | Ten menos dados con un 5 que cualquier otro jugador. |  |
-| 119 | ★★★☆☆ | Ten menos dados con un 2 que cualquier otro jugador. |  |
-| 120 | ★★★☆☆ | Ten menos dados con un 4 que cualquier otro jugador. |  |
+| 66 | ★★★☆☆ | Ningún dado menor que 3. |  |
+| 67 | ★★★☆☆ | Al menos 3 dados con un 5. | Si consigues exactamente 3 dados con un 5: +1★ extra. |
+| 68 | ★★★☆☆ | Al menos 3 dados con un 4. | Si consigues exactamente 3 dados con un 4: +1★ extra. |
+| 69 | ★★★☆☆ | Tus dados suman 20 o más en total. | Si consigues exactamente una suma total de 20: +1★ extra. |
+| 70 | ★★★☆☆ | Una escalera de 4: 4 números seguidos cualesquiera, empezando por el que sea (por ejemplo 3-4-5-6). |  |
+| 71 | ★★★☆☆ | Dos parejas: dos números distintos que salgan al menos 2 veces cada uno. |  |
+| 72 | ★★★☆☆ | Ten más dados que cualquier otro jugador. |  |
+| 73 | ★★★☆☆ | Ten menos dados que cualquier otro jugador. |  |
+| 74 | ★★★☆☆ | Que tus dados sumen más puntos que los de cualquier otro jugador. |  |
+| 75 | ★★★☆☆ | Que tus dados sumen menos puntos que los de cualquier otro jugador. |  |
+| 76 | ★★★☆☆ | Que tus dados azules sumen más puntos que los de cualquier otro jugador. |  |
+| 77 | ★★★☆☆ | Que tus dados rojos sumen más puntos que los de cualquier otro jugador. |  |
+| 78 | ★★★☆☆ | Que tus dados verdes sumen más puntos que los de cualquier otro jugador. |  |
+| 79 | ★★★☆☆ | Que tus dados amarillos sumen más puntos que los de cualquier otro jugador. |  |
+| 80 | ★★★☆☆ | Que tus dados azules sumen menos puntos que los de cualquier otro jugador. |  |
+| 81 | ★★★☆☆ | Que tus dados rojos sumen menos puntos que los de cualquier otro jugador. |  |
+| 82 | ★★★☆☆ | Que tus dados verdes sumen menos puntos que los de cualquier otro jugador. |  |
+| 83 | ★★★☆☆ | Que tus dados amarillos sumen menos puntos que los de cualquier otro jugador. |  |
+| 84 | ★★★☆☆ | Ten dados de más colores distintos que cualquier otro jugador. |  |
+| 85 | ★★★☆☆ | Ten más dados con un 6 que cualquier otro jugador. |  |
+| 86 | ★★★☆☆ | Ten más dados con un 1 que cualquier otro jugador. |  |
+| 87 | ★★★☆☆ | Ten más dados con un 3 que cualquier otro jugador. |  |
+| 88 | ★★★☆☆ | Ten menos dados con un 5 que cualquier otro jugador. |  |
+| 89 | ★★★☆☆ | Ten menos dados con un 2 que cualquier otro jugador. |  |
+| 90 | ★★★☆☆ | Ten menos dados con un 4 que cualquier otro jugador. |  |
+| 91 | ★★★★☆ | Exactamente 3 dados azules. |  |
+| 92 | ★★★★☆ | Tus dados azules suman 15 o más. | Si consigues exactamente una suma de 15 en tus dados azules: +1★ extra. |
+| 93 | ★★★★☆ | Exactamente 3 dados rojos. |  |
+| 94 | ★★★★☆ | Tus dados rojos suman 15 o más. | Si consigues exactamente una suma de 15 en tus dados rojos: +1★ extra. |
+| 95 | ★★★★☆ | Exactamente 3 dados verdes. |  |
+| 96 | ★★★★☆ | Tus dados verdes suman 15 o más. | Si consigues exactamente una suma de 15 en tus dados verdes: +1★ extra. |
+| 97 | ★★★★☆ | Exactamente 3 dados amarillos. |  |
+| 98 | ★★★★☆ | Tus dados amarillos suman 15 o más. | Si consigues exactamente una suma de 15 en tus dados amarillos: +1★ extra. |
+| 99 | ★★★★☆ | Dados de exactamente 2 colores distintos. |  |
+| 100 | ★★★★☆ | Como máximo 5 dados en total. | Si consigues exactamente 5 dados en total: +1★ extra. |
+| 101 | ★★★★☆ | Ningún dado con número par. |  |
+| 102 | ★★★★☆ | Ningún dado con número impar. |  |
+| 103 | ★★★★☆ | Exactamente 4 dados con número impar. |  |
+| 104 | ★★★★☆ | Exactamente 3 dados con el mismo número (ningún número sale más de 3 veces). |  |
+| 105 | ★★★★☆ | Ningún dado mayor que 3. |  |
+| 106 | ★★★★☆ | Ningún dado menor que 4. |  |
+| 107 | ★★★★☆ | Tus dados suman 25 o más en total. | Si consigues exactamente una suma total de 25: +1★ extra. |
+| 108 | ★★★★☆ | Una escalera de 5: 5 números seguidos cualesquiera, empezando por el que sea (por ejemplo 2-3-4-5-6). |  |
+| 109 | ★★★★☆ | Una escalera de 3 del mismo color: 3 números seguidos en dados de un solo color. |  |
+| 110 | ★★★★☆ | Un full: un número que salga al menos 3 veces y otro que salga al menos 2. |  |
+| 111 | ★★★★★ | Todos tus dados de un solo color. |  |
+| 112 | ★★★★★ | Exactamente 4 dados verdes. |  |
+| 113 | ★★★★★ | Tus dados azules suman 18 o más. | Si consigues exactamente una suma de 18 en tus dados azules: +1★ extra. |
+| 114 | ★★★★★ | Exactamente 4 dados rojos. |  |
+| 115 | ★★★★★ | Tus dados rojos suman 18 o más. | Si consigues exactamente una suma de 18 en tus dados rojos: +1★ extra. |
+| 116 | ★★★★★ | Al menos 5 dados con el mismo número. | Si consigues exactamente 5 dados con el mismo número: +1★ extra. |
+| 117 | ★★★★★ | Ningún dado menor que 5. |  |
+| 118 | ★★★★★ | Tus dados suman 30 o más en total. | Si consigues exactamente una suma total de 30: +1★ extra. |
+| 119 | ★★★★★ | Una escalera de 6: 6 números seguidos cualesquiera, empezando por el que sea (por ejemplo 1-2-3-4-5-6). |  |
+| 120 | ★★★★★ | Una escalera de 4 del mismo color: 4 números seguidos en dados de un solo color. |  |
 
 ## Cartas grises (opción «Dado gris»)
 
