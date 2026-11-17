@@ -37,9 +37,11 @@ Además de la partida libre, hay un modo **Campaña**: una serie de niveles con 
 - `dado_gris: true`: dado gris y carta gris común.
 - `dado_negro: true`: Bomba. Cada ronda se tira además un dado negro con una de las 9 cartas negras; una carta no vuelve a salir (en ese navegador) hasta que han salido todas las demás. Cada jugador solo puede acabar con un dado negro (si a quien reparte le toca un segundo, el nivel se pierde) y, al final, quien lo tiene aplica la carta a sus propios dados.
 - `dados_por_ronda`: dados de colores por ronda según el número de jugadores, por ejemplo `{ 3: 6, 4: 8 }`.
-- `intro`: explicación que se muestra antes de empezar el nivel (ahora, antes de los niveles 6, 11 y 16).
+- `intro`: explicación que se muestra antes de empezar el nivel.
+- `silencio: true`: no se puede hablar ni dar pistas.
+- `solitario: true`: cada jugador ve solo su propia misión.
 
-La campaña actual tiene 25 niveles y es para 3 o 4 jugadores: 1–5 de iniciación, 6–10 con acciones especiales, 11–15 con dado gris, 16–20 con dado negro y 21–25 con 4 colores.
+La campaña actual tiene 30 niveles y es para 3 o 4 jugadores: 1–5 de iniciación, 6–10 con acciones especiales (desde el nivel 6, en todos los niveles), 11–15 con dado gris, 16–20 con dado negro, 21–25 con 4 colores y 26–30 con retos de 4 colores (en silencio, misión en solitario, dado gris, bomba y todo o nada).
 
 ## Objetivos
 

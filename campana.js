@@ -23,6 +23,8 @@
 //   intro:           explicación que se muestra antes de empezar el nivel:
 //                    { titulo: { es, en }, texto: { es, en } }. En el texto, cada salto de
 //                    línea (\n) empieza un párrafo nuevo.
+//   silencio:        true = no se puede hablar ni dar pistas (los bots tampoco dan pistas).
+//   solitario:       true = cada jugador ve solo su propia misión, no la de los demás.
 //
 // También se pueden usar las claves de la versión anterior: objetivos + estrellas (dificultades
 // que pueden salir), ganar con un número fijo o ganar_por_jugador.
@@ -73,6 +75,48 @@ const INTRO_BOMBA = {
   },
 };
 
+// Niveles de 4 colores: se sacan 2 dados más por ronda que en el juego básico.
+const POR_RONDA_4C = { 3: 7, 4: 9 };
+
+const INTRO_CUATRO = {
+  titulo: { es: 'Nuevo: cuatro colores', en: 'New: four colours' },
+  texto: {
+    es: 'Entra el cuarto color: el amarillo. En la bolsa hay dados azules, rojos, verdes y amarillos, y salen también las cartas de misión con amarillo y las que solo se usan con 4 colores.\n'
+      + 'Como hay más colores, en estos niveles se sacan 2 dados más en cada ronda: 7 con 3 jugadores y 9 con 4.\n'
+      + 'Las acciones especiales siguen disponibles, como desde el nivel 6.',
+    en: 'The fourth colour joins in: yellow. The bag holds blue, red, green and yellow dice, and the mission cards with yellow and those used only with 4 colours come up too.\n'
+      + 'With more colours, 2 more dice are drawn each round in these levels: 7 with 3 players and 9 with 4.\n'
+      + 'Special actions are still available, as from level 6.',
+  },
+};
+const INTRO_SILENCIO = {
+  titulo: { es: 'Nivel en silencio', en: 'Silent level' },
+  texto: {
+    es: 'En este nivel no se puede hablar: nada de pistas, comentarios ni gestos sobre los grupos. Cada jugador decide por su cuenta, mirando las misiones de los demás.\n'
+      + 'Tampoco hay acciones especiales.',
+    en: 'In this level there is no talking: no hints, comments or gestures about the groups. Each player decides on their own, looking at the others’ missions.\n'
+      + 'There are no special actions either.',
+  },
+};
+const INTRO_SOLITARIO = {
+  titulo: { es: 'Misión en solitario', en: 'Solo mission' },
+  texto: {
+    es: 'Este nivel le da la vuelta al juego: cada jugador ve SOLO su propia misión y no ve la de los demás.\n'
+      + 'Podéis hablar, pero no podéis decir lo que pone en vuestra carta. Al formar los grupos y al elegir, cada uno juega por su misión… sin saber qué necesitan los demás.',
+    en: 'This level turns the game around: each player sees ONLY their own mission and not the others’.\n'
+      + 'You may talk, but you can’t say what your card shows. When forming and choosing groups, everyone plays for their own mission… without knowing what the others need.',
+  },
+};
+const INTRO_TODO = {
+  titulo: { es: 'Todo o nada', en: 'All or nothing' },
+  texto: {
+    es: 'Último nivel: cada jugador tiene dos cartas de 5★ y el equipo tiene que cumplir TODAS las cartas de todos los jugadores. Si falla una sola, se pierde el nivel.\n'
+      + 'Las estrellas no cuentan: o se cumple todo, o nada.',
+    en: 'Final level: each player has two 5★ cards and the team must complete ALL the cards of every player. If a single one fails, the level is lost.\n'
+      + 'Stars don’t matter: everything or nothing.',
+  },
+};
+
 window.BLINDSPOTS_CAMPANA = [
   { colores: 3, cartas: [1],    dados: DADOS, ganar: { 3: 2, 4: 3 } },
   { colores: 3, cartas: [2],    dados: DADOS, ganar: { 3: 4, 4: 6 } },
@@ -94,9 +138,14 @@ window.BLINDSPOTS_CAMPANA = [
   { nombre: 'Bomba 3', colores: 3, cartas: [1, 2, 3], dados: DADOS_BOMBA, dados_por_ronda: POR_RONDA_BOMBA, ganar: { 3: 15, 4: 20, modificadores: true }, dado_negro: true, modificadores: true },
   { nombre: 'Bomba 4', colores: 3, cartas: [3, 4],    dados: DADOS_BOMBA, dados_por_ronda: POR_RONDA_BOMBA, ganar: { 3: 18, 4: 24, modificadores: true }, dado_negro: true, modificadores: true },
   { nombre: 'Bomba 5', colores: 3, cartas: [2, 2, 3], dados: DADOS_BOMBA, dados_por_ronda: POR_RONDA_BOMBA, ganar: { 3: 20, 4: 26, modificadores: true }, dado_negro: true, modificadores: true },
-  { nombre: '4 colores 1', colores: 4, cartas: [2, 3],    dados: DADOS, ganar: { 3: 13, 4: 17 }, modificadores: true },
-  { nombre: '4 colores 2', colores: 4, cartas: [3, 3],    dados: DADOS, ganar: { 3: 15, 4: 20 }, modificadores: true },
-  { nombre: '4 colores 3', colores: 4, cartas: [3, 4],    dados: DADOS, ganar: { 3: 21, 4: 24 }, modificadores: true },
-  { nombre: '4 colores 4', colores: 4, cartas: [2, 2, 3], dados: DADOS, ganar: { 3: 19, 4: 23 }, modificadores: true },
-  { nombre: '4 colores 5', colores: 4, cartas: [3, 3, 3], dados: DADOS, ganar: { 3: 24, 4: 33 }, modificadores: true },
+  { nombre: '4 colores 1',  colores: 4, cartas: [2, 1], dados: DADOS, dados_por_ronda: POR_RONDA_4C, ganar: { 3: 8, 4: 10 },  modificadores: true, intro: INTRO_CUATRO },
+  { nombre: '4 colores 2',  colores: 4, cartas: [3, 2], dados: DADOS, dados_por_ronda: POR_RONDA_4C, ganar: { 3: 12, 4: 17 }, modificadores: true },
+  { nombre: '4 colores 3',  colores: 4, cartas: [1, 4], dados: DADOS, dados_por_ronda: POR_RONDA_4C, ganar: { 3: 13, 4: 18 }, modificadores: true },
+  { nombre: '4 colores 4',  colores: 4, cartas: [3, 3], dados: DADOS, dados_por_ronda: POR_RONDA_4C, ganar: { 3: 15, 4: 21 }, modificadores: true },
+  { nombre: '4 colores 5',  colores: 4, cartas: [4, 4], dados: DADOS, dados_por_ronda: POR_RONDA_4C, ganar: { 3: 20, 4: 28 }, modificadores: true },
+  { nombre: '4 colores B1', colores: 4, cartas: [2, 2], dados: DADOS, dados_por_ronda: POR_RONDA_4C, ganar: { 3: 10, 4: 13 }, silencio: true, intro: INTRO_SILENCIO },
+  { nombre: '4 colores B2', colores: 4, cartas: [4],    dados: DADOS, dados_por_ronda: POR_RONDA_4C, ganar: { 3: 12, 4: 16 }, modificadores: true, solitario: true, intro: INTRO_SOLITARIO },
+  { nombre: '4 colores B3', colores: 4, cartas: [5, 3], dados: DADOS, dados_por_ronda: POR_RONDA_4C, ganar: { 3: 19, 4: 27 }, modificadores: true, dado_gris: true },
+  { nombre: '4 colores B4', colores: 4, cartas: [5, 4], dados: DADOS, dados_por_ronda: POR_RONDA_4C, ganar: { 3: 22, 4: 30 }, modificadores: true, dado_negro: true },
+  { nombre: '4 colores B5', colores: 4, cartas: [5, 5], dados: DADOS, dados_por_ronda: POR_RONDA_4C, modificadores: true, intro: INTRO_TODO },
 ];

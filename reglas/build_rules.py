@@ -13,6 +13,38 @@ import generar_cartas as gc  # noqa: E402
 
 objs = gc.load_objectives()
 
+import json as _json
+CAMP = _json.loads(subprocess.run(
+    ['node', '-e', 'global.window={};require(process.argv[1]);process.stdout.write(JSON.stringify(window.BLINDSPOTS_CAMPANA))',
+     str(HERE.parent / 'campana.js')], capture_output=True, text=True, check=True).stdout)
+
+
+def camp_name(i):
+    return (f'First Steps {i + 1}' if i < 5 else f'Actions {i - 4}' if i < 10 else f'Grey {i - 9}' if i < 15
+            else f'Bomb {i - 14}' if i < 20 else f'Four Colours {i - 19}' if i < 25 else f'Four Colours B{i - 24}')
+
+
+def camp_rule(l):
+    parts = [n for k, n in (('dado_gris', 'Grey die'), ('dado_negro', 'Black die'), ('silencio', 'Silence'),
+                           ('solitario', 'Solo mission'), ('modificadores', 'actions')) if l.get(k)]
+    if not l.get('ganar'):
+        parts.append('All or nothing')
+    if not parts:
+        return 'Basic game'
+    txt = ' + '.join(parts)
+    return 'Special actions' if txt == 'actions' else txt[0].upper() + txt[1:]
+
+
+def camp_rows():
+    out = []
+    for i, l in enumerate(CAMP):
+        per = l.get('dados_por_ronda') or {'3': 5, '4': 7}
+        need = l.get('ganar')
+        out.append(f'<tr><td class="n">{i + 1}</td><td>{camp_name(i)}</td><td>{l["colores"]}</td><td>{" + ".join(map(str, l["cartas"]))}</td>'
+                   f'<td>{l["dados"]["3"]} / {l["dados"]["4"]}</td><td>{per["3"]} / {per["4"]}{" +1" if l.get("dado_negro") else ""}</td>'
+                   f'<td>{f"{need[chr(51)]} / {need[chr(52)]}" if need else "All"}</td><td>{camp_rule(l)}</td></tr>')
+    return ''.join(out)
+
 
 def card(i):
     """Objective card number i (1-based), as on the printed card."""
@@ -65,7 +97,7 @@ th {{ text-align: left; background: var(--ink); color: #fff; font-weight: 600; p
 td {{ padding: 4.5px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }}
 tr:nth-child(even) td {{ background: #f7f8fb; }}
 td.n {{ font-weight: 700; white-space: nowrap; }}
-table.compact {{ font-size: 8.3pt; }} table.compact td {{ padding: 2.6px 8px; }}
+table.compact {{ font-size: 8.3pt; break-inside: auto; }} table.compact tr {{ break-inside: avoid; }} table.compact td {{ padding: 2.6px 8px; }}
 ol, ul {{ margin: 0 0 10px; padding-left: 20px; }}
 li {{ margin-bottom: 4px; }}
 ol.steps {{ list-style: none; padding: 0; counter-reset: s; }}
@@ -128,7 +160,7 @@ ol.steps > li::before {{ content: counter(s); position: absolute; left: 0; top: 
     <tr><td class="n">9</td><td>Black cards</td><td>Numbered N1–N9, black back</td></tr>
     <tr><td class="n">4</td><td>Action cards</td><td>Numbered A1–A4: Reroll, +1 / −1, Flip, Remove</td></tr>
     <tr><td class="n">5</td><td>Card stands</td><td>Hold your cards facing the other players</td></tr>
-    <tr><td class="n">1</td><td>Campaign log</td><td>Track your progress through the 25 levels</td></tr>
+    <tr><td class="n">1</td><td>Campaign log</td><td>Track your progress through the {len(CAMP)} levels</td></tr>
     <tr><td class="n">1</td><td>Rulebook</td><td>This booklet</td></tr>
   </table>
   <p>The cards carry no text: only dice, colours, numbers and symbols, so they can be played in any language. The small number in the bottom right corner identifies each card and matches the card list on the separate card sheet.</p>
@@ -308,26 +340,13 @@ ol.steps > li::before {{ content: counter(s); position: absolute; left: 0; top: 
 
 <section class="page">
   <h2><span class="bar"><i style="background:var(--blue)"></i><i style="background:var(--orange)"></i><i style="background:var(--green)"></i><i style="background:var(--purple)"></i><i style="background:var(--yellow)"></i></span>Campaign</h2>
-  <p>The campaign leads 3 or 4 players through 25 levels in five worlds of five levels each. Each level fixes the colours, the objective cards each player receives, the dice in the bag and the stars the team needs. Beat a level to unlock the next one and tick it in the campaign log. If you lose, replay the level with new cards. You may replay any level you have already beaten.</p>
+  <p>The campaign leads 3 or 4 players through {len(CAMP)} levels in six worlds of five levels each. Each level fixes the colours, the objective cards each player receives, the dice in the bag and the stars the team needs. Beat a level to unlock the next one and tick it in the campaign log. If you lose, replay the level with new cards. You may replay any level you have already beaten.</p>
   <p><b>Dealing campaign cards.</b> Sort the objective cards by stars. Each player receives one card of each value shown in the <i>Cards</i> column: “3 + 1” means one 3-star card and one 1-star card. <b>Stars to win:</b> use the value for your player count; add up the stars of all completed cards, plus bonus stars.</p>
   <table class="compact">
-    <tr><th>Level</th><th>Name</th><th>Colours</th><th>Cards</th><th>Dice per colour<br>3 / 4 players</th><th>Stars to win<br>3 / 4 players</th><th>Rules</th></tr>
-    {''.join(f'<tr><td class="n">{n}</td><td>{nm}</td><td>{c}</td><td>{cards}</td><td>{dice}</td><td>{stars}</td><td>{rule}</td></tr>' for n, nm, c, cards, dice, stars, rule in [
-      (1, 'First Steps 1', 3, '1', '6 / 10', '2 / 3', 'Basic game'), (2, 'First Steps 2', 3, '2', '6 / 10', '4 / 6', 'Basic game'),
-      (3, 'First Steps 3', 3, '1 + 1', '6 / 10', '5 / 7', 'Basic game'), (4, 'First Steps 4', 3, '2 + 2', '6 / 10', '10 / 14', 'Basic game'),
-      (5, 'First Steps 5', 3, '3', '6 / 10', '9 / 12', 'Basic game'), (6, 'Actions 1', 3, '3 + 1', '6 / 10', '10 / 13', 'Special actions'),
-      (7, 'Actions 2', 3, '3 + 2', '6 / 10', '13 / 18', 'Special actions'), (8, 'Actions 3', 3, '3 + 3', '6 / 10', '15 / 20', 'Special actions'),
-      (9, 'Actions 4', 3, '4 + 3', '6 / 10', '18 / 25', 'Special actions'), (10, 'Actions 5', 3, '4 + 4', '6 / 10', '12 / 16', 'Special actions'),
-      (11, 'Grey 1', 3, '3', '6 / 10', '6 / 8', 'Grey die + actions'), (12, 'Grey 2', 3, '1 + 3', '6 / 10', '10 / 13', 'Grey die + actions'),
-      (13, 'Grey 3', 3, '2 + 3', '6 / 10', '12 / 16', 'Grey die + actions'), (14, 'Grey 4', 3, '3 + 3', '6 / 10', '14 / 19', 'Grey die + actions'),
-      (15, 'Grey 5', 3, '5', '6 / 10', '10 / 13', 'Grey die + actions'), (16, 'Bomb 1', 3, '4', '6 / 11', '8 / 12', 'Black die + actions'),
-      (17, 'Bomb 2', 3, '2 + 3', '6 / 11', '12 / 17', 'Black die + actions'), (18, 'Bomb 3', 3, '1 + 2 + 3', '6 / 11', '15 / 20', 'Black die + actions'),
-      (19, 'Bomb 4', 3, '3 + 4', '6 / 11', '18 / 24', 'Black die + actions'), (20, 'Bomb 5', 3, '2 + 2 + 3', '6 / 11', '20 / 26', 'Black die + actions'),
-      (21, 'Four Colours 1', 4, '2 + 3', '6 / 10', '13 / 17', 'Special actions'), (22, 'Four Colours 2', 4, '3 + 3', '6 / 10', '15 / 20', 'Special actions'),
-      (23, 'Four Colours 3', 4, '3 + 4', '6 / 10', '21 / 24', 'Special actions'), (24, 'Four Colours 4', 4, '2 + 2 + 3', '6 / 10', '19 / 23', 'Special actions'),
-      (25, 'Four Colours 5', 4, '3 + 3 + 3', '6 / 10', '24 / 33', 'Special actions')])}
+    <tr><th>Level</th><th>Name</th><th>Colours</th><th>Cards</th><th>Dice per colour<br>3 / 4 players</th><th>Dice per round<br>3 / 4 players</th><th>Stars to win<br>3 / 4 players</th><th>Rules</th></tr>
+    {camp_rows()}
   </table>
-  <p class="small">In the Bomb levels (16–20), the dealer draws 6 coloured dice per round with 3 players and 8 with 4, plus one black die.</p>
+  <p class="small">“+1”: plus one black die per round. In levels 26–30 (B levels) each level adds a challenge: <b>Silence</b> (no talking or hints, no actions), <b>Solo mission</b> (each player sees only their own card, the opposite of the usual rule; you may talk but not say what it shows) and <b>All or nothing</b> (every card of every player must be completed; stars don’t count).</p>
   <div class="box tip"><b class="t">New rules along the way</b>Before levels 6, 11 and 16, read the matching section of <i>Variants</i> aloud: special actions, the grey die and the black die. From level 6 on, special actions are used in every level. Each new world adds one idea; the levels within a world grow harder.</div>
 </section>
 

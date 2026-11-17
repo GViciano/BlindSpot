@@ -129,6 +129,7 @@ button { font: inherit; color: inherit; }
 .mcard .label { font-size: 11px; }
 .mod-last { margin: 8px 0 0; padding: 8px 10px; border-radius: 8px; background: var(--surface-2, #eef1f5); font-size: 14px; }
 .ver { color: var(--muted); font-size: 11px; opacity: .8; }
+.talk.silent { font-weight: 700; }
 .app-ver { text-align: center; color: var(--muted); font-size: 11px; opacity: .75; padding: 18px 0 10px; }
 .cardno { float: right; margin-left: 8px; font-size: 10px; font-weight: 600; color: var(--muted); letter-spacing: .02em; font-variant-numeric: tabular-nums; }
 .blackcards li .cardno, .sub .cardno { float: none; margin-left: auto; }
@@ -479,7 +480,10 @@ const I18N = {
     you: 'Tú', host: 'Anfitrión', offline: 'Desconectado', dealer: 'Reparte',
     noDice: 'Sin dados todavía',
     yourMission: 'Tu misión', hiddenMission: 'Misión oculta', nObjectives: k => `${k} objetivos`,
-    othersSeeIt: 'Los demás la ven. Tú no.', onlySeated: 'Solo la ven los jugadores sentados.', onlyHolder: 'Solo la ve quien tiene el dispositivo.',
+    othersSeeIt: 'Los demás la ven. Tú no.', soloHidden: 'Misión en solitario: solo la ve su dueño.',
+    silentOn: 'en silencio', soloOn: 'misión en solitario',
+    talkSilent: 'Nivel en silencio: no se puede hablar ni dar pistas. Cada uno decide por su cuenta.',
+    talkSolo: 'Misión en solitario: cada uno solo ve su propia misión. Podéis hablar, pero no decir lo que pone en vuestra carta.', onlySeated: 'Solo la ven los jugadores sentados.', onlyHolder: 'Solo la ve quien tiene el dispositivo.',
     missionOf: name => `Misión de ${name}`, met: 'Cumplido', failed: 'Fallado',
     starsLabel: n => `${n} ${plural(n, 'estrella', 'estrellas')}`,
     die: (colour, v) => `Dado ${colour} ${v}`, total: 'Total', diceCount: n => `Total: ${n} ${plural(n, 'dado', 'dados')}`,
@@ -786,7 +790,10 @@ const I18N = {
     you: 'You', host: 'Host', offline: 'Offline', dealer: 'Dealer',
     noDice: 'No dice yet',
     yourMission: 'Your mission', hiddenMission: 'Hidden mission', nObjectives: k => `${k} objectives`,
-    othersSeeIt: 'Everyone else can see it. You can’t.', onlySeated: 'Only seated players can see it.', onlyHolder: 'Only whoever holds the device can see it.',
+    othersSeeIt: 'Everyone else can see it. You can’t.', soloHidden: 'Solo mission: only its owner can see it.',
+    silentOn: 'in silence', soloOn: 'solo mission',
+    talkSilent: 'Silent level: no talking and no hints. Everyone decides on their own.',
+    talkSolo: 'Solo mission: everyone sees only their own mission. You may talk, but not say what your card shows.', onlySeated: 'Only seated players can see it.', onlyHolder: 'Only whoever holds the device can see it.',
     missionOf: name => `${name}’s mission`, met: 'Done', failed: 'Failed',
     starsLabel: n => `${n} ${plural(n, 'star', 'stars')}`,
     die: (colour, v) => `${cap(colour)} die ${v}`, total: 'Total', diceCount: n => `Total: ${n} ${plural(n, 'die', 'dice')}`,
@@ -1349,6 +1356,7 @@ function loadCampaign() {
       black: l.dado_negro === true,
       intro: l.intro && typeof l.intro === 'object' ? { title: txt(l.intro.titulo), text: txt(l.intro.texto) } : null,
       grey: l.dado_gris === true,
+      silent: l.silencio === true, solo: l.solitario === true,
     };
   });
 }
@@ -1362,7 +1370,7 @@ const campIntro = i => (Number.isInteger(i) && CAMPAIGN[i] && CAMPAIGN[i].intro)
 function campCfg(i, P) {
   const l = CAMPAIGN[i];
   const need = l.needBy[P] || (l.needPer ? l.needPer * P : l.need);
-  return { C: l.C, per: l.per, cards: l.cards, stars: l.stars, need: Math.min(MAX_NEED, need || 0), bag: l.bagBy[P] || l.bag || 0, mods: l.mods, grey: l.grey, perRound: l.perRoundBy[P] || 0, black: l.black };
+  return { C: l.C, per: l.per, cards: l.cards, stars: l.stars, need: Math.min(MAX_NEED, need || 0), bag: l.bagBy[P] || l.bag || 0, mods: l.mods, grey: l.grey, perRound: l.perRoundBy[P] || 0, black: l.black, silent: l.silent, solo: l.solo };
 }
 // Player counts every level supports (a level that gives values per player count only supports those).
 const CAMP_PLAYERS = [3, 4].filter(P => CAMPAIGN.every(l => {
@@ -1485,7 +1493,7 @@ function genMissions(P, cfg) {
 const starsText = n => '★'.repeat(n) + '☆'.repeat(5 - n);
 const starsLabel = mask => { const l = starList(mask); return l.length === 5 ? t('allStars') : (l.length > 1 ? l.slice(0, -1).join(', ') + ` ${t('and')} ` + l[l.length - 1] : l[0]) + '★'; };
 // Game settings as sent to other players: [C, per, stars, need, grey, mods, bag, cards, perRound, black].
-const cfgWire = c => [c.C, c.per, c.stars, c.need || 0, c.grey ? 1 : 0, c.mods ? 1 : 0, c.bag || 0, Array.isArray(c.cards) ? c.cards : [], c.perRound || 0, c.black ? 1 : 0];
+const cfgWire = c => [c.C, c.per, c.stars, c.need || 0, c.grey ? 1 : 0, c.mods ? 1 : 0, c.bag || 0, Array.isArray(c.cards) ? c.cards : [], c.perRound || 0, c.black ? 1 : 0, c.silent ? 1 : 0, c.solo ? 1 : 0];
 function cfgFromWire(cf) {
   if (!Array.isArray(cf)) return null;
   const ok = (v, lo, hi) => Number.isInteger(v) && v >= lo && v <= hi;
@@ -1493,14 +1501,14 @@ function cfgFromWire(cf) {
   const cards = Array.isArray(cf[7]) ? cf[7].filter(k => ok(k, 1, 5)).slice(0, 3) : [];
   return { C: cf[0], per: cf[1], stars: cf[2], need: ok(cf[3], 0, MAX_NEED) ? cf[3] : 0, grey: cf[4] === 1,
     mods: cf[5] === 1, bag: ok(cf[6], 1, 30) ? cf[6] : 0, cards: cards.length ? cards : null,
-    perRound: ok(cf[8], 1, 12) ? cf[8] : 0, black: cf[9] === 1 };
+    perRound: ok(cf[8], 1, 12) ? cf[8] : 0, black: cf[9] === 1, silent: cf[10] === 1, solo: cf[11] === 1 };
 }
 const cfgText = cfg => (Array.isArray(cfg.cards) && cfg.cards.length
     ? t('cardsText', cfg.C, cfg.cards.map(k => `${k}★`).join(' + '), cfg.cards.length)
     : t('cfgText', cfg.C, cfg.per, starsLabel(cfg.stars)))
   + ' · ' + (cfg.need ? t('needN', cfg.need) : t('needAll'))
   + (cfg.bag ? ' · ' + t('bagN', cfg.bag) : '') + (cfg.perRound ? ' · ' + t('perRoundN', cfg.perRound) : '')
-  + (cfg.mods ? ' · ' + t('modsOn') : '') + (cfg.grey ? ' · ' + t('greyOn') : '') + (cfg.black ? ' · ' + t('blackOn') : '');
+  + (cfg.mods ? ' · ' + t('modsOn') : '') + (cfg.grey ? ' · ' + t('greyOn') : '') + (cfg.black ? ' · ' + t('blackOn') : '') + (cfg.silent ? ' · ' + t('silentOn') : '') + (cfg.solo ? ' · ' + t('soloOn') : '');
 
 /* ---------- State ---------- */
 let G = null;        // the game being shown (local, hosted, or mirrored from the host)
@@ -1881,7 +1889,7 @@ function botGroups() {
     const per = Array.from({ length: n }, () => []);
     asg.forEach((p, i) => per[p].push(dice[i]));
     let s = 0;
-    for (let p = 0; p < n; p++) s += p === me ? per[p].length * 0.35 + (G.cfg.black && hasBlack(p) && per[p].some(d => d.c === BLACK) ? 1000 : 0) : evalPlayer(p, per[p]);
+    for (let p = 0; p < n; p++) s += p === me ? per[p].length * 0.35 + (G.cfg.black && hasBlack(p) && per[p].some(d => d.c === BLACK) ? 1000 : 0) : G.cfg.solo ? (G.cfg.black && hasBlack(p) && per[p].some(d => d.c === BLACK) ? 1000 : 0) : evalPlayer(p, per[p]);
     return s;
   };
   let best = null, bestS = Infinity;
@@ -1936,6 +1944,8 @@ function bestAssign(groups, players, blind) {
 
 function botChoose(me) {
   const avail = availGroups(), allowed = allowedGroups(me);
+  // Solo levels: a bot only knows its own mission.
+  if (G.cfg.solo) return allowed.reduce((b, g) => (evalPlayer(me, groupDice(g)) < evalPlayer(me, groupDice(b)) ? g : b), allowed[0]);
   const rest = [...G.order.slice(G.step + 1), G.active];
   let best = allowed[0], bestC = Infinity;
   for (const g of shuffle(allowed.slice())) {
@@ -1948,7 +1958,7 @@ function botChoose(me) {
 
 function computeHint(h) {
   const bs = bots();
-  if (!G.hints || !bs.length) return { none: true };
+  if (!G.hints || !bs.length || G.cfg.silent || G.cfg.solo) return { none: true };
   const b = pick(bs);
   const avail = availGroups(), allowed = allowedGroups(h);
   const players = [h, ...G.order.slice(G.step + 1), G.active];
@@ -2136,7 +2146,7 @@ const PEERJS_URL = 'https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js';
 // Online relay through Supabase Realtime: works on networks that block direct browser-to-browser links.
 // The publishable key is meant to be public (it only allows what the project's settings allow).
 // Shown next to the connection line, to tell whether everyone has the same version loaded.
-const APP_VERSION = '2026.11.13';
+const APP_VERSION = '2026.11.17';
 const SUPABASE_URL = 'https://vjphqqtoigpjncmsdudq.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_hUInzKity39UFsFwsFqmSw_HR3HMLE4';
 const SUPABASE_JS = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js';
@@ -2718,10 +2728,11 @@ function viewerOf() {
 
 function missionCard(i, V) {
   const p = G.players[i];
-  const visible = V === 'all' || (V !== null && V !== i);
+  const solo = !!G.cfg.solo && G.phase !== 'reveal';
+  const visible = V === 'all' || (V !== null && (solo ? V === i : V !== i));
   if (!visible) {
     const mine = V === i;
-    const why = mine ? t('othersSeeIt') : G.online ? t('onlySeated') : t('onlyHolder');
+    const why = solo ? t('soloHidden') : mine ? t('othersSeeIt') : G.online ? t('onlySeated') : t('onlyHolder');
     const k = p.missions.length;
     return `<div class="mcard back"><span class="q">?</span><span class="bt"><b>${mine ? t('yourMission') : t('hiddenMission')}${k > 1 ? ` · ${t('nObjectives', k)}` : ''}</b>${why}</span></div>`;
   }
@@ -2948,7 +2959,9 @@ function stageHTML(V) {
     <b>${esc(campHasName(G.camp) ? campName(G.camp) : cfgText(G.cfg))}</b>${campText(G.camp) ? `<span>${esc(campText(G.camp))}</span>` : campHasName(G.camp) ? `<span>${esc(cfgText(G.cfg))}</span>` : ''}${campIntro(G.camp) ? `<button type="button" class="linkbtn" data-action="intro-open">${t('introAgain')}</button>` : ''}</div>` : '';
   const goal = G.phase !== 'reveal'
     ? `<div class="goal"><span class="goal-big">${teamNeed() ? `${teamNeed()}★` : t('needAllShort')}</span><span>${teamNeed() ? t('goalStars', teamNeed(), starsInPlay()) : t('goalAll')}</span></div>` : '';
-  if (G.phase !== 'reveal' && G.online) talk = `<p class="talk">${t('talkOnline')}</p>`;
+  if (G.phase !== 'reveal' && G.cfg.silent) talk = `<p class="talk silent">${t('talkSilent')}</p>`;
+  else if (G.phase !== 'reveal' && G.cfg.solo) talk = `<p class="talk">${t('talkSolo')}</p>`;
+  else if (G.phase !== 'reveal' && G.online) talk = `<p class="talk">${t('talkOnline')}</p>`;
   else if (G.phase !== 'reveal' && multi()) talk = `<p class="talk">${t('talkLocal')}</p>`;
   let warn = '';
   if (isGuest && !hostPeer() && Date.now() - ON.joinedAt > 4000) warn = `<p class="info">${t('hostGone', name(0))}</p>`;

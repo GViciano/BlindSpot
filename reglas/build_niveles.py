@@ -99,11 +99,16 @@ T = {
             18: 'Cuidado con el último grupo: si quien reparte ya tiene un dado negro, no puede quedarse otro.',
             19: 'Al final, cada uno aplica su carta negra a sus propios dados y elige cuál quita.',
             20: 'Tres cartas por jugador: repartid los dados negros con cabeza.',
-            21: 'Entra el amarillo: las cartas pueden pedir dados amarillos.',
-            22: 'Con 4 colores hay más variedad en la bolsa y es más difícil juntar un color.',
-            23: 'Una carta de 4★ por jugador: ayudad primero a quien tenga la más difícil.',
-            24: 'Tres cartas por jugador: hablad mucho y planificad las rondas.',
-            25: 'El último nivel: 3 cartas de 3★ por jugador. ¡Suerte!',
+            21: 'Entra el amarillo y se sacan 2 dados más por ronda: hay más donde elegir.',
+            22: 'Con 4 colores es más difícil juntar muchos dados de un mismo color.',
+            23: 'Una carta de 1★ y otra de 4★: no descuidéis la fácil.',
+            24: 'Dos cartas de 3★: hablad mucho y planificad las rondas.',
+            25: 'Dos cartas de 4★ por jugador: guardad las acciones para el final si hace falta.',
+            26: 'En silencio y sin acciones: fijaos bien en lo que coge cada uno.',
+            27: 'Cada uno ve solo su carta: podéis hablar, pero sin decir lo que pone.',
+            28: 'Una carta de 5★ y el dado gris: mirad bien la carta gris antes de repartir.',
+            29: 'Una carta de 5★ y la Bomba: ojo con los dados negros.',
+            30: 'Todo o nada: hay que cumplir todas las cartas de todos. ¡Suerte!',
         },
         'names': lambda i, l: l.get('nombre') or (f'Primeros pasos {i + 1}' if i < 5 else f'Acciones {i - 4}'),
         'worlds': [
@@ -131,13 +136,24 @@ T = {
             ('Cuatro colores', 'Novedad: dados amarillos',
              ['Entra el cuarto color: el amarillo. Meted también dados amarillos en la bolsa.',
               'Ahora también salen cartas de misión con dados amarillos y las marcadas con «4», que solo se usan con 4 colores. Con más colores es más difícil reunir muchos dados de un mismo color.',
-              'Siguen las acciones especiales, como desde el nivel 6; no hay dado gris ni dados negros. Las misiones son más exigentes.'],
+              'En estos niveles se sacan 2 dados más en cada ronda: 7 con 3 jugadores y 9 con 4. Siguen las acciones especiales, como desde el nivel 6.'],
              ['yellow']),
+            ('Retos de cuatro colores', 'Niveles B: un reto distinto en cada nivel',
+             ['Los cinco últimos niveles mezclan los cuatro colores con un reto especial en cada uno. Se siguen sacando 7 dados por ronda con 3 jugadores y 9 con 4.',
+              '<b>B1 · En silencio:</b> no se puede hablar ni dar pistas, y no hay acciones especiales.',
+              '<b>B2 · Misión en solitario:</b> al revés que siempre: cada jugador ve solo su propia carta y no ve la de los demás. Podéis hablar, pero no decir lo que pone.',
+              '<b>B3 · Dado gris</b> y <b>B4 · Bomba</b>: vuelven el dado gris y los dados negros, ahora con 4 colores y cartas de 5★.',
+              '<b>B5 · Todo o nada:</b> dos cartas de 5★ por jugador y hay que cumplirlas TODAS; las estrellas no cuentan.'],
+             ['challenge']),
         ],
         'colour_names': ['azul', 'rojo', 'verde', 'amarillo'],
         'new_components': 'Componentes de este mundo',
         'comp': {'action': '4 cartas de acción (A1–A4)', 'grey': '1 dado gris y 7 cartas grises (G1–G7)',
-                 'black': '4 dados negros y 9 cartas negras (N1–N9)', 'yellow': 'Dados amarillos'},
+                 'black': '4 dados negros y 9 cartas negras (N1–N9)', 'yellow': 'Dados amarillos',
+                 'challenge': 'Todo lo anterior: cartas de acción, dado gris y dados negros'},
+        'all_cards': 'Todas', 'goal_all': 'El equipo tiene que cumplir <b>todas</b> las cartas de todos los jugadores: si falla una, se pierde el nivel. Las estrellas no cuentan.',
+        'silent_step': '<b>En silencio:</b> durante todo el nivel no se puede hablar, ni dar pistas, ni hacer gestos sobre los grupos.',
+        'place_solo': '<b>Misión en solitario:</b> cada jugador mira sus cartas sin enseñarlas y las deja boca abajo delante de sí. No se pueden decir ni enseñar.',
         'action_names': ['Relanzar', '+1 / −1', 'Invertir', 'Eliminar'],
     },
     'en': {
@@ -195,14 +211,19 @@ T = {
             18: 'Watch the last group: if the dealer already has a black die, they can’t keep another.',
             19: 'At the end, everyone applies their black card to their own dice and chooses which to remove.',
             20: 'Three cards per player: share out the black dice wisely.',
-            21: 'Yellow joins the game: cards may ask for yellow dice.',
-            22: 'With 4 colours the bag is more varied and gathering one colour is harder.',
-            23: 'One 4★ card per player: help whoever has the hardest one first.',
-            24: 'Three cards per player: talk a lot and plan the rounds.',
-            25: 'The final level: three 3★ cards per player. Good luck!',
+            21: 'Yellow joins in and 2 more dice are drawn each round: more to choose from.',
+            22: 'With 4 colours, gathering many dice of one colour is harder.',
+            23: 'A 1★ card and a 4★ card: don’t neglect the easy one.',
+            24: 'Two 3★ cards: talk a lot and plan the rounds.',
+            25: 'Two 4★ cards per player: save the actions for the end if needed.',
+            26: 'In silence and without actions: watch closely what everyone takes.',
+            27: 'Everyone sees only their own card: you may talk, but not say what it shows.',
+            28: 'A 5★ card and the grey die: look at the grey card before dealing.',
+            29: 'A 5★ card and the Bomb: watch the black dice.',
+            30: 'All or nothing: every card of every player must be completed. Good luck!',
         },
         'names': lambda i, l: (f'First Steps {i + 1}' if i < 5 else f'Actions {i - 4}' if i < 10 else f'Grey {i - 9}' if i < 15
-                               else f'Bomb {i - 14}' if i < 20 else f'Four Colours {i - 19}'),
+                               else f'Bomb {i - 14}' if i < 20 else f'Four Colours {i - 19}' if i < 25 else f'Four Colours B{i - 24}'),
         'worlds': [
             ('First Steps', 'The basic game',
              ['In this world you learn the basic game. There are no special rules: just dice in 3 colours (blue, red and green) and mission cards.',
@@ -228,13 +249,24 @@ T = {
             ('Four Colours', 'New: yellow dice',
              ['The fourth colour joins in: yellow. Put yellow dice into the bag as well.',
               'Mission cards with yellow dice now come up too, as well as the cards marked “4”, used only with 4 colours. With more colours, gathering many dice of one colour is harder.',
-              'Special actions are still used, as from level 6 on; there is no grey die and no black dice. Missions are tougher.'],
+              'In these levels 2 more dice are drawn each round: 7 with 3 players and 9 with 4. Special actions are still used, as from level 6 on.'],
              ['yellow']),
+            ('Four-colour Challenges', 'B levels: a different challenge in each level',
+             ['The last five levels mix the four colours with a special challenge in each. 7 dice are still drawn each round with 3 players and 9 with 4.',
+              '<b>B1 · Silence:</b> no talking and no hints, and no special actions.',
+              '<b>B2 · Solo mission:</b> the other way round: each player sees only their own card and not the others’. You may talk, but not say what it shows.',
+              '<b>B3 · Grey die</b> and <b>B4 · Bomb</b>: the grey die and the black dice return, now with 4 colours and 5★ cards.',
+              '<b>B5 · All or nothing:</b> two 5★ cards per player and ALL of them must be completed; stars don’t count.'],
+             ['challenge']),
         ],
         'colour_names': ['blue', 'red', 'green', 'yellow'],
         'new_components': 'Components for this world',
         'comp': {'action': '4 action cards (A1–A4)', 'grey': '1 grey die and 7 grey cards (G1–G7)',
-                 'black': '4 black dice and 9 black cards (N1–N9)', 'yellow': 'Yellow dice'},
+                 'black': '4 black dice and 9 black cards (N1–N9)', 'yellow': 'Yellow dice',
+                 'challenge': 'Everything so far: action cards, grey die and black dice'},
+        'all_cards': 'All', 'goal_all': 'The team must complete <b>all</b> the cards of every player: if one fails, the level is lost. Stars don’t count.',
+        'silent_step': '<b>Silence:</b> for the whole level, no talking, no hints and no gestures about the groups.',
+        'place_solo': '<b>Solo mission:</b> each player looks at their own cards without showing them and keeps them face down in front of them. They may not be told or shown.',
         'action_names': ['Reroll', '+1 / −1', 'Flip', 'Remove'],
     },
 }
@@ -303,7 +335,7 @@ ol.steps > li::before { content: counter(s); position: absolute; left: 0; top: 0
 .sw { display: inline-flex; align-items: center; gap: 4px; margin-right: 8px; white-space: nowrap; }
 """
 
-WORLD_COLOURS = ['#2f6fdb', '#1d7a6a', '#6f7785', '#15171b', '#b8860b']
+WORLD_COLOURS = ['#2f6fdb', '#1d7a6a', '#6f7785', '#15171b', '#b8860b', '#8b1e3f']
 COVER_DICE = ''.join(
     f'<span class="cd" style="left:{x}%;top:{y}%;transform:rotate({r}deg)">{die(c, f, s)}</span>'
     for x, y, r, c, f, s in [(8, 12, -14, 'azul', 5, 100), (30, 6, 9, 'rojo', 3, 84), (72, 9, -8, 'verde', 6, 96),
@@ -337,6 +369,8 @@ def build(lang):
                 cards = f'<figure>{gc.grey_card_svg(0)}G1</figure><figure>{gc.grey_card_svg(4)}G5</figure><figure>{gc.grey_back_svg()}</figure>'
             elif 'black' in comps:
                 cards = f'<figure>{gc.black_card_svg(1)}N2</figure><figure>{gc.black_card_svg(7)}N8</figure><figure>{gc.black_back_svg()}</figure>'
+            elif 'challenge' in comps:
+                cards = f'<figure>{gc.action_back_svg()}</figure><figure>{gc.grey_back_svg()}</figure><figure>{gc.black_back_svg()}</figure>'
             elif 'yellow' in comps:
                 cards = ''.join(f'<figure>{gc.card_svg(o, i + 1)}{i + 1}</figure>' for i, o in enumerate(OBJS) if o.get('min_colores') == 4 or (o.get('color') == 'amarillo' and o['tipo'] in ('al_menos', 'exactamente')) and o.get('n') == 2)
             else:
@@ -351,7 +385,7 @@ def build(lang):
         bag = lv['dados']
         per = lv.get('dados_por_ronda') or {'3': 5, '4': 7}
         grey, black, mods = lv.get('dado_gris'), lv.get('dado_negro'), lv.get('modificadores')
-        need = lv['ganar']
+        need = lv.get('ganar')
         stars = lv['cartas']
         nm = L['names'](i, lv)
         swatches = ''.join(f'<span class="sw">{die(COLS[c], None, 18)}{names[c]}</span>' for c in range(C))
@@ -363,16 +397,18 @@ def build(lang):
             steps.append(L['grey'])
         if black:
             steps.append(L['black'])
-        steps += [L['place'], L['dealer']]
+        if lv.get('silencio'):
+            steps.append(L['silent_step'])
+        steps += [L['place_solo'] if lv.get('solitario') else L['place'], L['dealer']]
         rnd = lambda P: str(per[str(P)]) + (L['plus_black'] if black else '') + (L['with_grey'] if grey else '')
         facts = (f'<table class="facts"><tr><th></th><th>{L["players3"]}</th><th>{L["players4"]}</th></tr>'
                  f'<tr><td>{L["row_bag"]}</td><td>{L["per_colour"](bag["3"], bag["3"] * C)}</td><td>{L["per_colour"](bag["4"], bag["4"] * C)}</td></tr>'
                  f'<tr><td>{L["row_round"]}</td><td>{rnd(3)}</td><td>{rnd(4)}</td></tr>'
                  f'<tr><td>{L["row_rounds"]}</td><td>3</td><td>4</td></tr>'
-                 f'<tr><td>{L["row_stars"]}</td><td><b>{need["3"]}★</b></td><td><b>{need["4"]}★</b></td></tr></table>')
+                 + (f'<tr><td>{L["row_stars"]}</td><td><b>{need["3"]}★</b></td><td><b>{need["4"]}★</b></td></tr></table>' if need else f'<tr><td>{L["row_stars"]}</td><td colspan="2"><b>{L["all_cards"]}</b></td></tr></table>'))
         pl = piles(C)
         nums = '<br>'.join(f'<b>{s}★:</b> {", ".join(map(str, pl[s]))}' for s in sorted(set(stars)))
-        goal = L['goal'](need['3'], need['4']) + (L['goal_grey'] if grey else '') + (L['goal_black'] if black else '')
+        goal = (L['goal'](need['3'], need['4']) if need else L['goal_all']) + (L['goal_grey'] if grey else '') + (L['goal_black'] if black else '')
         head_dice = ''.join(die(COLS[c], 1 + (c * 2 + i) % 6, 26) for c in range(C)) + (die(GREY, 3, 26) if grey else '') + (die(BLACK, 5, 26) if black else '')
         out.append(f'<section class="page lvp"><div class="lvhead"><div class="lvnum">{i + 1}</div><div><div class="k">{L["world"]} {w + 1} · {L["level"]} {i + 1} {L["of"]} {len(LEVELS)}</div>'
                    f'<h1>{nm}</h1></div><div class="dice">{head_dice}</div></div>{facts}'
