@@ -77,8 +77,8 @@ ol.steps > li::before { content: counter(s); position: absolute; left: 0; top: 0
   <table>
     <tr><th>Qty</th><th>Component</th><th>Notes</th></tr>
     <tr><td class="n">60</td><td>Coloured dice</td><td>15 each in blue, red, green and yellow</td></tr>
-    <tr><td class="n">1</td><td>Grey die</td><td>Grey die variant (campaign levels 11–15)</td></tr>
-    <tr><td class="n">4</td><td>Black dice</td><td>Black die variant, the “Bomb” (campaign levels 16–20)</td></tr>
+    <tr><td class="n">1</td><td>Grey die</td><td>Grey die variant (campaign levels 11–15 and 28)</td></tr>
+    <tr><td class="n">4</td><td>Black dice</td><td>Black die variant, the “Bomb” (campaign levels 16–20 and 29)</td></tr>
     <tr><td class="n">1</td><td>Cloth bag</td><td>Holds the coloured dice in play</td></tr>
     <tr><td class="n">120</td><td>Objective cards</td><td>Numbered 1–120, 1 to 5 stars each</td></tr>
     <tr><td class="n">7</td><td>Grey cards</td><td>Numbered G1–G7, grey back</td></tr>
@@ -88,7 +88,7 @@ ol.steps > li::before { content: counter(s); position: absolute; left: 0; top: 0
     <tr><td class="n">1</td><td>Campaign log</td><td>Track your progress through the 30 levels</td></tr>
     <tr><td class="n">1</td><td>Rulebook</td><td>This booklet</td></tr>
   </table>
-  <p>The cards carry no text: only dice, colours, numbers and symbols, so they can be played in any language. The small number in the bottom right corner identifies each card and matches the card list on the separate card sheet.</p>
+  <p>The pictures on the cards (dice, colours, numbers and symbols) work in any language; under them, each card repeats its rule in English. The small number in the bottom right corner identifies each card and matches the card list on the separate card sheet. Objective cards are numbered by difficulty, from the 1-star cards to the 5-star cards. Cards marked “4” in the bottom left corner are used only with 4 colours.</p>
 </section>
 
 <section class="page">
@@ -152,8 +152,8 @@ ol.steps > li::before { content: counter(s); position: absolute; left: 0; top: 0
   <h3>Reading the symbols</h3>
   <table>
     <tr><th>Symbol</th><th>Meaning</th><th>Example</th></tr>
-    <tr><td>Die with a red “no” sign</td><td>None of these dice</td><td>No blue dice</td></tr>
-    <tr><td>2 × die</td><td>2 or more of these dice</td><td>2 green dice</td></tr>
+    <tr><td>Die with a “no” sign</td><td>None of these dice</td><td>No blue dice</td></tr>
+    <tr><td>6 × die</td><td>6 or more of these dice</td><td>6 dice in total</td></tr>
     <tr><td>≥2 × die</td><td>At least 2 of these dice</td><td>At least 2 blue dice</td></tr>
     <tr><td>=2 × die</td><td>Exactly 2, no more, no fewer</td><td>Exactly 2 green dice</td></tr>
     <tr><td>≤1 × die</td><td>At most 1 of these dice</td><td>At most 1 blue die</td></tr>
@@ -161,6 +161,7 @@ ol.steps > li::before { content: counter(s); position: absolute; left: 0; top: 0
     <tr><td>#</td><td>The number of dice</td><td>7 or more dice in total</td></tr>
     <tr><td>Four-colour die</td><td>A die of any colour</td><td>Your dice add up to 20 or less</td></tr>
     <tr><td>White die face</td><td>A value, regardless of colour</td><td>No die showing a 3</td></tr>
+    <tr><td>? +1 +2…</td><td>Numbers in a row, starting from any number</td><td>A straight of 3, such as 4-5-6</td></tr>
     <tr><td>Colour wheel</td><td>Different colours</td><td>Dice of exactly 3 different colours</td></tr>
     <tr><td>♛ ▲ / ♛ ▼</td><td>More / fewer than every other player</td><td>Fewer dice showing a 4 than any other player</td></tr>
   </table>
@@ -240,7 +241,7 @@ ol.steps > li::before { content: counter(s); position: absolute; left: 0; top: 0
 
   <h3>The black die: the Bomb</h3>
   <p><b>Setup.</b> Shuffle the 9 black cards and place them face down. The black cards form a single deck from game to game: a card only comes back once all the others have been drawn. When the deck runs out, shuffle all 9 again.</p>
-  <p><b>Each round.</b> Before drawing any dice, the dealer reveals the top black card, so everyone knows its effect before anyone takes the black die. Then they draw coloured dice as the level states (6 with 3 players, 8 with 4), roll them together with one black die and place the card next to that black die. The card travels with the die.</p>
+  <p><b>Each round.</b> Before drawing any dice, the dealer reveals the top black card, so everyone knows its effect before anyone takes the black die. Then they draw coloured dice as the level states (6 with 3 players and 8 with 4 in levels 16–20; 7 and 9 in level 29), roll them together with one black die and place the card next to that black die. The card travels with the die.</p>
   <p><b>One black die each.</b> Each player may end the game with only <b>one</b> black die. If you already have one, you may not choose a group that contains another.</p>
   <div class="box important"><b class="t">Careful with the dealer</b>If the last group contains a black die and the dealer already has one, <b>the team loses the level at once</b>.</div>
 </section>
@@ -272,7 +273,7 @@ ol.steps > li::before { content: counter(s); position: absolute; left: 0; top: 0
     <tr><td class="n">1</td><td>First Steps 1</td><td>3</td><td>1</td><td>6 / 10</td><td>5 / 7</td><td>2 / 3</td><td>Basic game</td></tr><tr><td class="n">2</td><td>First Steps 2</td><td>3</td><td>2</td><td>6 / 10</td><td>5 / 7</td><td>4 / 6</td><td>Basic game</td></tr><tr><td class="n">3</td><td>First Steps 3</td><td>3</td><td>1 + 1</td><td>6 / 10</td><td>5 / 7</td><td>5 / 7</td><td>Basic game</td></tr><tr><td class="n">4</td><td>First Steps 4</td><td>3</td><td>2 + 2</td><td>6 / 10</td><td>5 / 7</td><td>10 / 14</td><td>Basic game</td></tr><tr><td class="n">5</td><td>First Steps 5</td><td>3</td><td>3</td><td>6 / 10</td><td>5 / 7</td><td>9 / 12</td><td>Basic game</td></tr><tr><td class="n">6</td><td>Actions 1</td><td>3</td><td>3 + 1</td><td>6 / 10</td><td>5 / 7</td><td>10 / 13</td><td>Special actions</td></tr><tr><td class="n">7</td><td>Actions 2</td><td>3</td><td>3 + 2</td><td>6 / 10</td><td>5 / 7</td><td>13 / 18</td><td>Special actions</td></tr><tr><td class="n">8</td><td>Actions 3</td><td>3</td><td>3 + 3</td><td>6 / 10</td><td>5 / 7</td><td>15 / 20</td><td>Special actions</td></tr><tr><td class="n">9</td><td>Actions 4</td><td>3</td><td>4 + 3</td><td>6 / 10</td><td>5 / 7</td><td>18 / 25</td><td>Special actions</td></tr><tr><td class="n">10</td><td>Actions 5</td><td>3</td><td>4 + 4</td><td>6 / 10</td><td>5 / 7</td><td>12 / 16</td><td>Special actions</td></tr><tr><td class="n">11</td><td>Grey 1</td><td>3</td><td>3</td><td>6 / 10</td><td>5 / 7</td><td>6 / 8</td><td>Grey die + actions</td></tr><tr><td class="n">12</td><td>Grey 2</td><td>3</td><td>1 + 3</td><td>6 / 10</td><td>5 / 7</td><td>10 / 13</td><td>Grey die + actions</td></tr><tr><td class="n">13</td><td>Grey 3</td><td>3</td><td>2 + 3</td><td>6 / 10</td><td>5 / 7</td><td>12 / 16</td><td>Grey die + actions</td></tr><tr><td class="n">14</td><td>Grey 4</td><td>3</td><td>3 + 3</td><td>6 / 10</td><td>5 / 7</td><td>14 / 19</td><td>Grey die + actions</td></tr><tr><td class="n">15</td><td>Grey 5</td><td>3</td><td>5</td><td>6 / 10</td><td>5 / 7</td><td>10 / 13</td><td>Grey die + actions</td></tr><tr><td class="n">16</td><td>Bomb 1</td><td>3</td><td>4</td><td>6 / 11</td><td>6 / 8 +1</td><td>8 / 12</td><td>Black die + actions</td></tr><tr><td class="n">17</td><td>Bomb 2</td><td>3</td><td>2 + 3</td><td>6 / 11</td><td>6 / 8 +1</td><td>12 / 17</td><td>Black die + actions</td></tr><tr><td class="n">18</td><td>Bomb 3</td><td>3</td><td>1 + 2 + 3</td><td>6 / 11</td><td>6 / 8 +1</td><td>15 / 20</td><td>Black die + actions</td></tr><tr><td class="n">19</td><td>Bomb 4</td><td>3</td><td>3 + 4</td><td>6 / 11</td><td>6 / 8 +1</td><td>18 / 24</td><td>Black die + actions</td></tr><tr><td class="n">20</td><td>Bomb 5</td><td>3</td><td>2 + 2 + 3</td><td>6 / 11</td><td>6 / 8 +1</td><td>20 / 26</td><td>Black die + actions</td></tr><tr><td class="n">21</td><td>Four Colours 1</td><td>4</td><td>2 + 1</td><td>6 / 10</td><td>7 / 9</td><td>8 / 10</td><td>Special actions</td></tr><tr><td class="n">22</td><td>Four Colours 2</td><td>4</td><td>3 + 2</td><td>6 / 10</td><td>7 / 9</td><td>12 / 17</td><td>Special actions</td></tr><tr><td class="n">23</td><td>Four Colours 3</td><td>4</td><td>1 + 4</td><td>6 / 10</td><td>7 / 9</td><td>13 / 18</td><td>Special actions</td></tr><tr><td class="n">24</td><td>Four Colours 4</td><td>4</td><td>3 + 3</td><td>6 / 10</td><td>7 / 9</td><td>15 / 21</td><td>Special actions</td></tr><tr><td class="n">25</td><td>Four Colours 5</td><td>4</td><td>4 + 4</td><td>6 / 10</td><td>7 / 9</td><td>20 / 28</td><td>Special actions</td></tr><tr><td class="n">26</td><td>Four Colours B1</td><td>4</td><td>2 + 2</td><td>6 / 10</td><td>7 / 9</td><td>10 / 13</td><td>Silence</td></tr><tr><td class="n">27</td><td>Four Colours B2</td><td>4</td><td>4</td><td>6 / 10</td><td>7 / 9</td><td>12 / 16</td><td>Solo mission + actions</td></tr><tr><td class="n">28</td><td>Four Colours B3</td><td>4</td><td>5 + 3</td><td>6 / 10</td><td>7 / 9</td><td>19 / 27</td><td>Grey die + actions</td></tr><tr><td class="n">29</td><td>Four Colours B4</td><td>4</td><td>5 + 4</td><td>6 / 10</td><td>7 / 9 +1</td><td>22 / 30</td><td>Black die + actions</td></tr><tr><td class="n">30</td><td>Four Colours B5</td><td>4</td><td>5 + 5</td><td>6 / 10</td><td>7 / 9</td><td>All</td><td>Actions + All or nothing</td></tr>
   </table>
   <p class="small">“+1”: plus one black die per round. In levels 26–30 (B levels) each level adds a challenge: <b>Silence</b> (no talking or hints, no actions), <b>Solo mission</b> (each player sees only their own card, the opposite of the usual rule; you may talk but not say what it shows) and <b>All or nothing</b> (every card of every player must be completed; stars don’t count).</p>
-  <div class="box tip"><b class="t">New rules along the way</b>Before levels 6, 11 and 16, read the matching section of <i>Variants</i> aloud: special actions, the grey die and the black die. From level 6 on, special actions are used in every level. Each new world adds one idea; the levels within a world grow harder.</div>
+  <div class="box tip"><b class="t">New rules along the way</b>Before levels 6, 11 and 16, read the matching section of <i>Variants</i> aloud: special actions, the grey die and the black die. From level 6 on, special actions are used in every level. Before levels 21, 26, 27 and 30, read the challenge aloud (four colours, silence, solo mission, all or nothing). Each new world adds one idea; the levels within a world grow harder.</div>
 </section>
 
 <section>
